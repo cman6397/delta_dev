@@ -1,0 +1,42 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+<form action="/households/" method="post">
+    <div class="form-group">
+        <label for="lg">HouseHold Name</label>
+        <input type="text" class="form-control" placeholder="Enter Household" name="household" id="lg"> </br>
+        <button type="submit" class="btn btn-default">Add Household</button>
+    </div>
+</form>
+
+<!-- Display Flash Messages -->
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong> {{ messages[0] }} </strong> 
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Household Table -->
+<div class = "center">
+<div class="table-wrapper-scroll-y">
+<table class="table table-bordered table-striped">
+{% for row in table %}
+    <tr>
+        <td>{{row.id}}</td>
+        <td>{{row.name}}</td>
+        <td> <a href= {{ '/households/' ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> </td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+</div>
+
+{% endblock %}
+
