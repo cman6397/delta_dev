@@ -1,6 +1,8 @@
 from app import db
+from flask_login import UserMixin
+from app import login
 
-class User(db.Model):
+class User(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(100), unique=True, nullable=False)
 	password = db.Column(db.String(100), unique=False, nullable=False)
@@ -39,3 +41,8 @@ class Account(db.Model):
 
 	def __repr__(self):
 		return '<id = %r, name = %r, account_number= %r>' % (self.id, self.name, self.account_number)
+
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
