@@ -25,12 +25,48 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link active" href="{{ url_for('accounts') }}">Accounts 
-        <a class="nav-item nav-link" href="{{ url_for('households') }}">Households</a>
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Clients
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="{{ url_for('account') }}"> Accounts</a>
+          <a class="dropdown-item" href="{{ url_for('household') }}"> Households</a>
+        </div>
+        </li>
+
+        <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Billing
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a class="dropdown-item" href="#">Fee Structures</a>
+          <a class="dropdown-item" href="#">Billing Groups</a>
+          <a class="dropdown-item" href="#">Splits</a>
+          <a class="dropdown-item" href="#">Asset Adjustments</a>
+        </div>
+        </li>
+
         <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
       </div>
     </div>
   </nav>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong> {{ messages[0] }} </strong>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endfor %}
+    </ul>
+    {% endif %}
+{% endwith %}
+
 
 {% block body %} {% endblock %}
 

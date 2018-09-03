@@ -1,15 +1,22 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
-from passlib.hash import sha256_crypt
+from app.models import User
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Sign In')
+	username = StringField('Username', validators=[DataRequired()])
+	password = PasswordField('Password', validators=[DataRequired()])
+	submit = SubmitField('Sign In')
 
-    def set_password(self, password):
-        self.password_hash = sha256_crypt.encrypt(password)
+	def verify_user(self):
+		message="Invalid Username or Password"
+		verified=False
+		user = User.query.filter_by(username=self.username.data).first()
+		if user and user.check_password(self.password.data):
+			verified=True
+			message="Login Successful"
 
-    def check_password(self, password):
-    	return sha256_crypt.verify(self.password_hash,password)
+		return verified, message, user
+		
+
+

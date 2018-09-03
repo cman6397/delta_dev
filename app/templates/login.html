@@ -46,13 +46,14 @@
         {{ form.hidden_tag() }}
         <p>
             {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
+            {{ form.username(size=32, class='form-control', placeholder='Enter Username') }}
         </p>
         <p>
             {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
+            {{ form.password(size=32, class='form-control', placeholder='Enter Password') }}
         </p>
-        <p>{{ form.submit() }}</p>
+        <p>{{ form.submit(class='btn btn-default') }}</p>
+
 </form>
 </div>
 

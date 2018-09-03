@@ -1,11 +1,22 @@
 from app import db
 from flask_login import UserMixin
 from app import login
+from passlib.hash import sha256_crypt
 
 class User(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(100), unique=True, nullable=False)
 	password = db.Column(db.String(100), unique=False, nullable=False)
+
+	def set_password(self, password):
+		self.password = sha256_crypt.hash(password)
+
+	def check_password(self, password):
+		return sha256_crypt.verify(password,self.password)
+
+	@login.user_loader
+	def load_user(id):
+		return User.query.get(int(id))
 
 	def __repr__(self):
 		return '<username = %r, password= %r>' % (self.username, self.password)
@@ -41,8 +52,3 @@ class Account(db.Model):
 
 	def __repr__(self):
 		return '<id = %r, name = %r, account_number= %r>' % (self.id, self.name, self.account_number)
-
-
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))

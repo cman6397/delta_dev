@@ -2,13 +2,6 @@
 
 {% block body %}
 
-<form action="/households/" method="post">
-    <div class="form-group">
-        <label for="lg">HouseHold Name</label>
-        <input type="text" class="form-control" placeholder="Enter Household" name="household" id="lg"> </br>
-        <button type="submit" class="btn btn-default">Add Household</button>
-    </div>
-</form>
 
 <!-- Display Flash Messages -->
 
@@ -31,7 +24,7 @@
     <tr>
         <td>{{row.id}}</td>
         <td>{{row.name}}</td>
-        <td> <a href= {{ '/households/' ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> </td>
+        <td> <a href= {{ '/household/' ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> </td>
     </tr>
 {% endfor %}
 </table>
