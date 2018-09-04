@@ -24,7 +24,10 @@ def remove_user(username):
 	db.session.commit()
 
 def show_table():
-	print(User.query.all())
+	table = User.query.all()
+	for row in table:
+		print(row)
+		print(row.username, row.password)
 
 def login_user(username,password):
 	logged_in = False
@@ -35,7 +38,7 @@ def login_user(username,password):
 		message="Login Successful"
 
 	return logged_in, message
-		
+
 if __name__ == '__main__':
 	username='admin'
 	password='1234'
@@ -50,7 +53,7 @@ if __name__ == '__main__':
 	assert status
 	print(msg)
 
-	#show_table()
+	show_table()
 
 
 

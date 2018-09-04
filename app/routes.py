@@ -45,3 +45,4 @@ def household():
 def account():
     table=Account.query.all()
     return render_template('accounts.html')
+
