@@ -3,8 +3,9 @@ from flask_login import current_user, login_user
 from app import app
 from app import db
 from app.forms import LoginForm
-from app.models import User
+from app.models import User, Account
 from passlib.hash import sha256_crypt
+from app.content import account_view
 
 def create_user(username,password):
 	registered=False
@@ -24,10 +25,9 @@ def remove_user(username):
 	db.session.commit()
 
 def show_table():
-	table = User.query.all()
+	table = Account.query.all()
 	for row in table:
 		print(row)
-		print(row.username, row.password)
 
 def login_user(username,password):
 	logged_in = False
@@ -54,6 +54,7 @@ if __name__ == '__main__':
 	print(msg)
 
 	show_table()
+
 
 
 

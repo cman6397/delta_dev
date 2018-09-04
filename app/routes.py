@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app import app
 from app.forms import LoginForm
 from app.models import User, Account, Household
+from app.content import account_view,household_view
 
 @app.route('/')
 def main():
@@ -38,11 +39,11 @@ def dashboard():
 @login_required
 def household():
     table=Household.query.all()
-    return render_template('households.html')
+    return render_template('households.html',table=table, cols = household_view)
 
 @app.route('/account/')
 @login_required
 def account():
     table=Account.query.all()
-    return render_template('accounts.html')
+    return render_template('accounts.html',table=table, cols = account_view)
 

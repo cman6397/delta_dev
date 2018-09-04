@@ -1,25 +1,23 @@
-from app import db
-from flask_login import UserMixin
-from app import login
-from passlib.hash import sha256_crypt
+#from tests import db
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-class User(UserMixin, db.Model):
+app = Flask(__name__)
+
+app.config['SECRET_KEY']='45968594lkjgnf24958caskcturoty234'
+app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///data_base/Billing_Data.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db=SQLAlchemy(app)
+
+class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(100), unique=True, nullable=False)
 	password = db.Column(db.String(100), unique=False, nullable=False)
 
-	def set_password(self, password):
-		self.password = sha256_crypt.hash(password)
-
-	def check_password(self, password):
-		return sha256_crypt.verify(password,self.password)
-
-	@login.user_loader
-	def load_user(id):
-		return User.query.get(int(id))
 
 	def __repr__(self):
-		return '<username = %r, password= %r>' % (self.username, self.password)
+		return '<users = %r, passwords= %r>' % (self.username, self.password)
 
 class Household(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -46,9 +44,11 @@ class Account(db.Model):
 	custodian = db.Column(db.String(100), unique=False, nullable=True)
 	opening_date = db.Column(db.Date(), unique=False, nullable=True)
 	balance=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
-	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
-	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_structure.id, ondelete='SET NULL'), nullable=True)
+	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete = 'SET NULL'), nullable=True)
+	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_structure.id, ondelete= 'SET NULL'), nullable=True)
 
 
 	def __repr__(self):
-		return '<id = %r, name = %r, account_number= %r, custodian= %r, opening_date= %r, balance= %r>' % (self.id, self.name, self.account_number,self.custodian,self.opening_date,self.balance)
+		return '<acct number = %r, name= %r>' % (self.account_number, self.name)
+
+db.create_all()
