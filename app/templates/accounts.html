@@ -4,33 +4,29 @@
 
 <style>
 
-.pull-left{
-right:100%;
-padding-top:7px;
-position:relative;
+div.dataTables_wrapper 
+{
+    width: 70%;
+    margin: 0 auto;
 }
 
-tableframe {
-    width:80%;
-    display:block;
+.dataTables_filter {
+   float: left !important;
 }
-
 
 </style>
 
 <script>
 $(document).ready(function () {
-  $('#table').DataTable({"scrollY": "70vh", "paginate": false});
-  $('.dataTables_filter').addClass('pull-left');
+  $('#table').DataTable({"scrollY": "70vh","scrollX": true, "scrollCollapse": true,"paginate": false, "dom": '<f<t>i>' });
 });
 </script>
 
-<tableframe>
-<table id="table" class="table table-striped table-bordered table-sm" cellspacing="0" width="80%">
+<table id="table" class="display compact", style="width:100%">
   <thead>
     <tr>
     {% for col in cols %}
-    <th class="th-sm"> {{ col }} <i class="fa fa-sort float-right" aria-hidden="true"> </th>
+    <th> {{ col }} </th>
     {% endfor %}
     </tr>
   </thead>
@@ -44,6 +40,4 @@ $(document).ready(function () {
     {% endfor %}
     </tbody>
 </table>
-</tableframe>
-
 {% endblock %}

@@ -2,20 +2,34 @@
 
 {% block body %}
 
+<style>
+
+.pull-left{
+padding-top:10px;
+position:relative;
+}
+
+div.dataTables_wrapper 
+{
+    width: 70%;
+    margin: 0 auto;
+}
+
+
+</style>
+
 <script>
 $(document).ready(function () {
-  $('#table').DataTable({
-    "scrollCollapse": true,
-  });
-  $('.dataTables_length').addClass('bs-select');
+  $('#table').DataTable({"scrollY": "70vh","scrollX": true, "scrollCollapse": true,"paginate": false});
+  $('.dataTables_filter').addClass('pull-left');
 });
 </script>
 
-<table id="table" class="table table-striped table-bordered table-sm">
+<table id="table" class="display compact", style="width:100%">
   <thead>
     <tr>
     {% for col in cols %}
-    <th class="th-sm"> {{ col }} <i class="fa fa-sort float-right" aria-hidden="true"> </th>
+    <th> {{ col }} </th>
     {% endfor %}
     </tr>
   </thead>
