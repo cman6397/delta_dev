@@ -3,7 +3,7 @@ from flask_login import current_user, login_user
 from app import app
 from app import db
 from app.forms import LoginForm
-from app.models import User, Account
+from app.models import User, Account, Household
 from passlib.hash import sha256_crypt
 from app.content import account_view
 
@@ -26,8 +26,8 @@ def remove_user(username):
 
 def show_table():
 	table = Account.query.all()
-	for row in table:
-		print(row)
+	for key in account_view:
+		print(account_view[key])
 
 def login_user(username,password):
 	logged_in = False
@@ -38,6 +38,10 @@ def login_user(username,password):
 		message="Login Successful"
 
 	return logged_in, message
+
+def household_account_relationships():
+	sample_account=Account.query.first()
+	print(sample_account.household.name)
 
 if __name__ == '__main__':
 	username='admin'
@@ -53,7 +57,9 @@ if __name__ == '__main__':
 	assert status
 	print(msg)
 
-	show_table()
+	household_account_relationships()
+
+	#show_table()
 
 
 

@@ -1,2 +1,2 @@
-account_view = ['name','account_number','custodian','opening_date','balance']
-household_view = ['name']
+account_view = {'Name':'name','Account Number':'account_number','Custodian':'custodian','Opening Date':'opening_date','Balance':'balance'}
+household_view = {'Name':'name'}

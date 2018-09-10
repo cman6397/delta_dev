@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
-from app.models import User
+from app.models import User,Household
 
 class LoginForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()])
@@ -17,6 +17,12 @@ class LoginForm(FlaskForm):
 			message="Login Successful"
 
 		return verified, message, user
+
+class HouseholdForm(FlaskForm):
+	name= StringField('Household', validators=[DataRequired()])
+	accounts = PasswordField('Accounts')
+	submit = SubmitField('Create Household')
+
 		
 
 

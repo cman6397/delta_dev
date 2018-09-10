@@ -1,7 +1,7 @@
 from flask import render_template,url_for,redirect,flash
 from flask_login import current_user, login_user, logout_user, login_required
 from app import app
-from app.forms import LoginForm
+from app.forms import LoginForm, HouseholdForm
 from app.models import User, Account, Household
 from app.content import account_view,household_view
 
@@ -35,11 +35,12 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/household/')
+@app.route('/household/',methods=['GET', 'POST'])
 @login_required
 def household():
+    form=HouseholdForm()
     table=Household.query.all()
-    return render_template('households.html',table=table, cols = household_view)
+    return render_template('households.html',table=table, cols = household_view,form=form)
 
 @app.route('/account/')
 @login_required
@@ -47,3 +48,7 @@ def account():
     table=Account.query.all()
     return render_template('accounts.html',table=table, cols = account_view)
 
+@app.route('/household/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_household(id):
+    return render_template('edit_household.html')
