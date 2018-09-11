@@ -74,14 +74,6 @@ def household_account_relationships():
 	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 
-	print(accounts_query)
-	account=accounts_query.first()
-	print(account)
-	
-	for household in households:
-		print(household.household_name,household.balance,household.opening_date, household.num_accounts,household.billing_group)
-
-
 	return success,msg
 
 

@@ -15,7 +15,7 @@ names=['Liam','Noah','William','James','Logan','Benjamin','Mason','Elijah','Oliv
 
 custodians=['Td Ameritrade','Charles Schwab']
 
-households=['Household1','Households2','Household3','Household4','Household5']
+households=['Household1','Household2','Household3','Household4','Household5']
 billing_groups = ['Billing_Group1','Billing_Group2','Billing_Group3','Billing_Group4','Billing_Group5']
 
 fee_names=['1.0 percent Annual','2.0 percent Annual','0.5 percent Annual','0.7 percent Annual', '1.5 percent Annual']
