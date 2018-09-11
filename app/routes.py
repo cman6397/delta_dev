@@ -40,15 +40,24 @@ def dashboard():
 @app.route('/household/',methods=['GET', 'POST'])
 @login_required
 def household():
-	household_query = household_query=db.session.query(func.sum(Account.balance).label('balance'),Household.name.label('household_name'),func.min(Account.opening_date).label('opening_date'),func.count(Account.id).label('num_accounts'), Billing_Group.name.label('billing_group')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).group_by(Household)
-	table=household_query.all()
-	return render_template('households.html',table=table, cols = household_view)
+	household_query=db.session.query(func.sum(Account.balance).label('balance'),Household.name.label('household_name'),func.min(Account.opening_date).label('opening_date'), \
+	func.count(Account.id).label('num_accounts'), Billing_Group.name.label('billing_group')).outerjoin(Household, Account.household_id == Household.id) \
+	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).group_by(Household)
+
+	households=household_query.all()
+	return render_template('table_display.html',table=households, cols = household_view)
 
 @app.route('/account/')
 @login_required
 def account():
-	table=Account.query.all()
-	return render_template('accounts.html',table=table, cols = account_view)
+	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
+	Account.opening_date.label('opening_date'), Account.balance.label('balance'), Household.name.label('household'),Billing_Group.name.label('billing_group'), \
+	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
+
+	accounts=accounts_query.all()
+	return render_template('table_display.html',table=accounts, cols = account_view)
+
 
 @app.route('/household/<int:id>', methods=['GET', 'POST'])
 @login_required
