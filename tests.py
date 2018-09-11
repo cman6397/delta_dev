@@ -74,6 +74,13 @@ def household_account_relationships():
 	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 
+	fee_structure_query=db.session.query(Fee_Structure.name.label('fee_structure'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
+	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts')). \
+	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+	print(fee_structure_query)
+
+	print(fee_structure_query.first())
+
 	return success,msg
 
 

@@ -5,7 +5,7 @@ from app import app
 from app import db
 from app.forms import LoginForm, HouseholdForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure
-from app.content import account_view,household_view
+from app.content import account_view, household_view, fee_view
 
 @app.route('/')
 def main():
@@ -58,8 +58,18 @@ def account():
 	accounts=accounts_query.all()
 	return render_template('table_display.html',table=accounts, cols = account_view)
 
-
-@app.route('/household/<int:id>', methods=['GET', 'POST'])
+@app.route('/fee_structure/')
 @login_required
-def edit_household(id):
-	return render_template('edit_household.html')
+def fee_structure():
+	fee_structure_query=db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
+	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts'), Fee_Structure.id.label('id')). \
+	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+
+	fee_structures=fee_structure_query.all()
+	return render_template('fee_structure.html',table=fee_structures, cols = fee_view)
+
+@app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_fee_structures(id):
+	return render_template('edit_fees.html')
+
