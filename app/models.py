@@ -37,7 +37,7 @@ class Household(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String(500), unique=True, nullable=False)
 	accounts = db.relationship('Account', backref='household', lazy='dynamic')
-	billing_group = db.relationship('Billing_Group', back_populates='billing_group', uselist=False, lazy='dynamic')
+	billing_group = db.relationship('Billing_Group', uselist=False, back_populates='household')
 
 	def __repr__(self):
 		return '<id = %r, name = %r>' % (self.id,self.name)
@@ -47,7 +47,7 @@ class Billing_Group(db.Model):
 	name = db.Column(db.String(500), unique=True, nullable=False)
 	household_id=db.Column(db.Integer,db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
 	accounts = db.relationship('Account', backref='billing_group', lazy='dynamic')
-	household= db.relationship('Household', back_populates="household", Lazy='dynamic')
+	household= db.relationship('Household', back_populates="billing_group")
 	
 	def __repr__(self):
 		return '<id = %r, name= %r>' % (self.id, self.name)

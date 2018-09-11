@@ -31,6 +31,8 @@ $(document).ready(function () {
     <th> {{ key }} </th>
     {% endfor %}
     <th> Household </th>
+    <th> Billing Group </th>
+    <th> Fee Structure </th>
     </tr>
   </thead>
     <tbody>
@@ -40,6 +42,8 @@ $(document).ready(function () {
         <td>{{ row|attr(cols[key]) }} </td>
         {% endfor %}
         <td> {{ (row|attr('household'))|attr('name')}} </td>
+        <td> {{ (row|attr('billing_group'))|attr('name')}} </td>
+        <td> {{ (row|attr('fee_structure'))|attr('name')}} </td>
     </tr>
     {% endfor %}
     </tbody>

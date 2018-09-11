@@ -24,15 +24,6 @@ $(document).ready(function () {
   $('#table').DataTable({"scrollY": "70vh","scrollX": true, "scrollCollapse": true,"paginate": false, "dom": '<f<t>i>' });
 });
 </script>
-<form action="" method="post" novalidate, style="width:25%;">
-    {{ form.hidden_tag() }}
-    {{ form.name.label }}
-    {{ form.name(size=32, class='form-control', placeholder='Enter Household Name') }}
-    {{ form.accounts.label }}
-    {{ form.accounts(size=32, class='form-control', placeholder='Add Accounts') }}
-    <p>{{ form.submit(class='btn btn-default') }}</p>
-</form>
-
 
 <table id="table" class="display compact", style="width:100%">
   <thead>
@@ -40,7 +31,9 @@ $(document).ready(function () {
     {% for key in cols %}
     <th> {{ key }} </th>
     {% endfor %}
-    <th> Action </th>
+    <th> Billing Group </th>
+    <th> Balance </th>
+    <!-- <th> Action </th> -->
     </tr>
   </thead>
     <tbody>
@@ -49,7 +42,9 @@ $(document).ready(function () {
         {% for key in cols %}
         <td>{{ row|attr(cols[key]) }} </td>
         {% endfor %}
-        <td> <a href= {{ '/household/' ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> </td>
+        <td> {{ (row|attr('billing_group'))|attr('name')}} </td>
+        <td> fill </td>
+        <!-- <td> <a href= {{ '/household/' ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> </td> -->
     </tr>
     {% endfor %}
     </tbody>

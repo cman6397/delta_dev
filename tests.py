@@ -3,9 +3,13 @@ from flask_login import current_user, login_user
 from app import app
 from app import db
 from app.forms import LoginForm
-from app.models import User, Account, Household
+from app.models import User, Account, Household, Fee_Structure, Billing_Group
 from passlib.hash import sha256_crypt
 from app.content import account_view
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func, label
+import warnings
+from sqlalchemy import exc as sa_exc
 
 def create_user(username,password):
 	registered=False
@@ -24,6 +28,8 @@ def remove_user(username):
 	User.query.filter_by(username=username).delete()
 	db.session.commit()
 
+	print("User Removed")
+
 def show_table():
 	table = Account.query.all()
 	for key in account_view:
@@ -40,24 +46,54 @@ def login_user(username,password):
 	return logged_in, message
 
 def household_account_relationships():
+	success=True
+	msg="Relationships Success"
 	sample_account=Account.query.first()
-	print(sample_account.household.name)
+
+	sample_household= Household.query.first()
+	accounts= sample_household.accounts
+	total_balance=0
+
+	for account in accounts:
+		total_balance+=account.balance
+
+	total_balance=round(total_balance,2)
+	household_balance=db.session.query(label('account_balance',func.sum(Account.balance))).filter(Account.household == sample_household).first()
+	household_balance=round(household_balance[0],2)
+	
+	household_query=db.session.query(func.sum(Account.balance),Household.name,func.min(Account.opening_date)).outerjoin(Household, Account.household_id == Household.id).group_by(Household)
+
+	print(household_query)
+	households=household_query.all()
+	for household in households:
+		print(household)
+
+	if household_balance != total_balance:
+		success=False
+
+	return success,msg
+
+
 
 if __name__ == '__main__':
-	username='admin'
-	password='1234'
+	with warnings.catch_warnings():
+		warnings.simplefilter("ignore", category=sa_exc.SAWarning)
+		username='admin'
+		password='1234'
 
-	remove_user(username)
+		remove_user(username)
 
-	status,msg = create_user(username,password)
-	assert status
-	print(msg)
+		status,msg = create_user(username,password)
+		assert status
+		print(msg)
 
-	status,msg = login_user(username,password)
-	assert status
-	print(msg)
+		status,msg = login_user(username,password)
+		assert status
+		print(msg)
 
-	household_account_relationships()
+		status,msg = household_account_relationships()
+		assert status
+		print(msg)
 
 	#show_table()
 
