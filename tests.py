@@ -60,16 +60,16 @@ def household_account_relationships():
 	total_balance=round(total_balance,2)
 	household_balance=db.session.query(label('account_balance',func.sum(Account.balance))).filter(Account.household == sample_household).first()
 	household_balance=round(household_balance[0],2)
-	
-	household_query=db.session.query(func.sum(Account.balance),Household.name,func.min(Account.opening_date)).outerjoin(Household, Account.household_id == Household.id).group_by(Household)
-
-	print(household_query)
-	households=household_query.all()
-	for household in households:
-		print(household)
 
 	if household_balance != total_balance:
 		success=False
+	
+	household_query=db.session.query(func.sum(Account.balance).label('balance'),Household.name.label('household_name'),func.min(Account.opening_date).label('opening_date'),func.count(Account.id).label('num_accounts'), Billing_Group.name.label('billing_group')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).group_by(Household)
+	households=household_query.all()
+	
+	for household in households:
+		print(household.household_name,household.balance,household.opening_date, household.num_accounts,household.billing_group)
+
 
 	return success,msg
 
