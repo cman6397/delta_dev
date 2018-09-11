@@ -28,16 +28,27 @@ class Fee_Structure(db.Model):
 	collection=db.Column(db.String(100), unique=False, nullable=False)
 	structure=db.Column(db.String(100), unique=False, nullable=False)
 	valuation_method=db.Column(db.String(100), unique=False, nullable=False)
+	accounts = db.relationship('Account', backref='fee_structure', lazy='dynamic')
 
 	def __repr__(self):
 		return '<id = %r, name= %r>' % (self.id, self.name)
 
 class Household(db.Model):
+	id = db.Column(db.Integer,primary_key=True)
+	name = db.Column(db.String(500), unique=True, nullable=False)
+	accounts = db.relationship('Account', backref='household', lazy='dynamic')
+	billing_group = db.relationship('Billing_Group', back_populates='billing_group', uselist=False, lazy='dynamic')
+
+	def __repr__(self):
+		return '<id = %r, name = %r>' % (self.id,self.name)
+
+class Billing_Group(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(500), unique=True, nullable=False)
-	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_Structure.id, ondelete='SET NULL'), nullable=True)
-	accounts = db.relationship('Account', backref='household', lazy='dynamic')
-
+	household_id=db.Column(db.Integer,db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
+	accounts = db.relationship('Account', backref='billing_group', lazy='dynamic')
+	household= db.relationship('Household', back_populates="household", Lazy='dynamic')
+	
 	def __repr__(self):
 		return '<id = %r, name= %r>' % (self.id, self.name)
 
@@ -49,6 +60,8 @@ class Account(db.Model):
 	opening_date = db.Column(db.Date(), unique=False, nullable=True)
 	balance=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
 	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
+	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_Structure.id, ondelete='SET NULL'), nullable=True)
+	billing_group_id= db.Column(db.Integer, db.ForeignKey(Billing_Group.id, ondelete='SET NULL'), nullable=True)
 	
 	def __repr__(self):
 		return '<id = %r, name = %r, account_number= %r, custodian= %r, opening_date= %r, balance= %r>' % (self.id, self.name, self.account_number,self.custodian,self.opening_date,self.balance)
