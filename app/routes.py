@@ -1,4 +1,4 @@
-from flask import render_template,url_for,redirect,flash
+from flask import render_template,url_for,redirect,flash, request
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
 from app import app
@@ -58,18 +58,27 @@ def account():
 	accounts=accounts_query.all()
 	return render_template('table_display.html',table=accounts, cols = account_view)
 
-@app.route('/fee_structure/')
+@app.route('/fee_structure/',methods=['GET', 'POST'])
 @login_required
 def fee_structure():
+
 	fee_structure_query=db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts'), Fee_Structure.id.label('id')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
+	if request.method == "POST":
+		delete_keys= request.json
+		print(delete_keys)
+
 	fee_structures=fee_structure_query.all()
-	return render_template('fee_structure.html',table=fee_structures, cols = fee_view)
+	return render_template('table_edit.html',table=fee_structures, cols = fee_view)
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_fee_structures(id):
 	return render_template('edit_fees.html')
+
+@app.route('/dev/')
+def dev():
+	return render_template('dev.html')
 
