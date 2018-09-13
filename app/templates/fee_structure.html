@@ -13,68 +13,81 @@ div.dataTables_wrapper
 .dataTables_filter {
     margin-top:10px;
     margin-bottom:0px;
-   float: left !important;
+   float: right !important;
 }
 
 </style>
 
 <script>
-$(document).ready(function () {
-  $('#table').DataTable({"scrollY": "70vh","scrollX": true, "scrollCollapse": true,"paginate": false, "dom": '<f<t>i>' });
+var editor; // use a global for the submit and return data rendering in the examples
+ 
+$(document).ready(function() 
+{
+    var table=$('#table').DataTable(
+    {
+    scrollY: "70vh",
+    scrollX: true, 
+    scrollCollapse: true,
+    paginate: false, 
+    dom: "Bfrtip",
+    select: true,
+    columns: [
+            {
+                data: null,
+                defaultContent: '',
+                className: 'select-checkbox',
+                orderable: false
+            },
+            { data: "Name" },
+            { data: "Frequency" },
+            { data: "Collection" },
+            { data: "Structure" },
+            { data: "Valuation Method" },
+            { data: "No. Accounts"},
+        ],
+    select: {
+            style: 'multiple',
+            blurable: true
+        },
+    buttons: 
+    [
+        {
+            text: 'Get selected data',
+            action: function () 
+            {
+                alert(table.rows('.selected').data().length +' row(s) selected');
+            }
+        }
+    ]
+    });
 });
-
-$('#DeleteModal').on('show.bs.modal', function(e) {
-
-    //get data-id attribute of the clicked element
-    var fee_id = $(e.relatedTarget).data('fee-id');
-
-    //populate the textbox
-    $(e.currentTarget).find('input[name="feeId"]').val(feeId);
-});
+selectedRows
 
 </script>
 
 <table id="table" class="display compact", style="width:100%">
   <thead>
     <tr>
+    <th> </th>
     {% for key in cols %}
     <th> {{ key }} </th>
     {% endfor %}
-    <th> Action </th>
+    <!-- <th> Action </th> -->
     </tr>
   </thead>
     <tbody>
     {% for row in table %}
     <tr>
+        <td> </td>
         {% for key in cols %}
         <td>{{ row|attr(cols[key]) }} </td>
         {% endfor %}
-        <td> <a href= {{ url_for('fee_structure') ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> &nbsp; &nbsp; 
-        <a data-toggle="modal" href="#DeleteModal" fee-id="{{ row.id }}"> Delete </a> </td>
+        <!--<td> <a href= {{ url_for('fee_structure') ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> &nbsp; &nbsp; 
+        <a data-toggle="modal" data-id="{{ row }}" data-toggle="modal" title="Add this item" class="text-input" href="#addBookDialog">test</a> -->
+        <!-- <a data-toggle="modal" href="#DeleteModal" fee-id="{{ row.id }}"> Delete </a> </td> -->
     </tr>
     {% endfor %}
     </tbody>
 </table>
-
-<div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="DeleteModalLabel">Are you sure?</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input type="text" name="feeId" id="feeId">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 
 {% endblock %}
