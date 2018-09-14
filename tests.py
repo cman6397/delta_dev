@@ -64,9 +64,9 @@ def household_account_relationships():
 	if household_balance != total_balance:
 		success=False
 	
-	household_query=db.session.query(func.sum(Account.balance).label('balance'),Household.name.label('household_name'),func.min(Account.opening_date).label('opening_date'), \
-	func.count(Account.id).label('num_accounts'), Billing_Group.name.label('billing_group')).outerjoin(Household, Account.household_id == Household.id) \
-	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).group_by(Household)
+	household_query=db.session.query(Household.name.label('household_name'),func.sum(Account.balance).label('balance'),func.min(Account.opening_date).label('opening_date'), \
+	func.count(Account.id).label('num_accounts'), Billing_Group.name.label('billing_group')).outerjoin(Account, Account.household_id == Household.id) \
+	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 	households=household_query.all()
 
 	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
@@ -77,9 +77,9 @@ def household_account_relationships():
 	fee_structure_query=db.session.query(Fee_Structure.name.label('fee_structure'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
-	print(fee_structure_query)
 
-	print(fee_structure_query.first())
+
+	print(household_query)
 
 	return success,msg
 

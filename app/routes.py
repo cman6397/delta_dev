@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
 from app import app
 from app import db
-from app.forms import LoginForm, HouseholdForm
+from app.forms import LoginForm, HouseholdForm, Fee_StructureForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure
 from app.content import account_view, household_view, fee_view
 
@@ -82,7 +82,12 @@ def edit_fee_structures(id):
 def dev():
 	return render_template('dev.html')
 
-@app.route('/fee_structure/create')
+@app.route('/fee_structure/create',methods=['GET', 'POST'])
 def create_fee():
-    return render_template('form_template.html')
+	form = Fee_StructureForm()
+	if request.method == "POST":
+		return redirect(url_for('fee_structure'))
+	return render_template('form_template.html', methods=['GET', 'POST'], form=form)
+
+
 

@@ -14,14 +14,6 @@ div.dataTables_filter {
     display: inline !important;
 }
 
-table.dataTable tr th.select-checkbox.selected::after {
-    content: "✔";
-    margin-top: -11px;
-    margin-left: -4px;
-    text-align: center;
-    text-shadow: rgb(176, 190, 217) 1px 1px, rgb(176, 190, 217) -1px -1px, rgb(176, 190, 217) 1px -1px, rgb(176, 190, 217) -1px 1px;
-}
-
 </style>
 
 <script>
@@ -84,6 +76,9 @@ $(document).ready(function()
                     var mymodal = $('#warn_modal');
                     mymodal.find('.modal-body').text('You have selected ' + length + ' fee structure(s) to delete.');
                     mymodal.modal('show'); 
+                }
+                else {
+                    alert("No Rows Selected")
                 }
             }
         }
