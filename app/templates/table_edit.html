@@ -26,7 +26,8 @@ table.dataTable tr th.select-checkbox.selected::after {
 
 <script>
 var editor; // use a global for the submit and return data rendering in the examples
- 
+var keys;
+
 $(document).ready(function() 
 {
     var table=$('#table').DataTable({
@@ -71,22 +72,19 @@ $(document).ready(function()
             {
                 var selected_rows=table.rows('.selected').data();
                 var length = table.rows('.selected').count();
-                var keys = []
+                keys = []
 
                 if (length > 0)
                 {
-                    $('#myModal').modal('show'); 
                     for (var i = 0; i < length; i++ )
                     {
                         keys.push(selected_rows[i][1]);
                     }
+
+                    var mymodal = $('#warn_modal');
+                    mymodal.find('.modal-body').text('You have selected ' + length + ' fee structure(s) to delete.');
+                    mymodal.modal('show'); 
                 }
-                $.ajax({
-                    data : JSON.stringify(keys, null, '\t'),
-                    type : 'POST',
-                    url : '{{ url_for('fee_structure') }}',
-                    contentType: 'application/json;charset=UTF-8'
-                })
             }
         }
     ]});
@@ -110,6 +108,20 @@ $(document).ready(function()
         $("th.select-checkbox").addClass("selected");
     }
 });
+
+$(document).on("click", "#btnDelete", function(event)
+{
+    $.ajax({
+    data : JSON.stringify(keys, null, '\t'),
+    type : 'POST',
+    url : '{{ url_for('fee_structure') }}',
+    contentType: 'application/json;charset=UTF-8'
+    })
+    keys=[]
+    var mymodal = $('#warn_modal');
+    mymodal.modal('hide'); 
+});
+
 });
 
 </script>
@@ -145,21 +157,22 @@ $(document).ready(function()
 </table>
 
 <!-- Modal -->
-<div class="modal fade" id="myModal" role="dialog">
+<div class="modal fade" id="warn_modal" role="dialog">
     <div class="modal-dialog">
     
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Delete Submission</h4>
+          <h4 class="modal-title">Delete Confirmation</h4>
         </div>
         <div class="modal-body">
-          <p>Are you sure you would like to delete</p>
+          <p></p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" id="btnDelete" class="btn btn-default"> Delete</button>
+          <button type="button" id="btnClose" class="btn btn-default" data-dismiss="modal"> Cancel</button>
         </div>
+
       </div>
       
     </div>
