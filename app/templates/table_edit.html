@@ -46,7 +46,14 @@ $(document).ready(function()
             blurable: true
         },
     buttons: 
-    [
+    [  
+        {
+            text: 'Create New',
+            action: function ( e, dt, button, config ) 
+        {
+            window.location = '/edit_fees/3';
+        }        
+        },
         {
             text: 'Delete',
             type: 'submit',
@@ -68,7 +75,7 @@ $(document).ready(function()
                 $.ajax({
                     data : JSON.stringify(keys, null, '\t'),
                     type : 'POST',
-                    url : '/fee_structure/',
+                    url : '{{ url_for('fee_structure') }}',
                     contentType: 'application/json;charset=UTF-8'
                 })
             }

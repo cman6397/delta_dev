@@ -82,3 +82,7 @@ def edit_fee_structures(id):
 def dev():
 	return render_template('dev.html')
 
+@app.route('/fee_structure/create')
+def dev():
+    return render_template('form_template.html')
+
