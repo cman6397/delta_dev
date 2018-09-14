@@ -7,13 +7,11 @@
 div.dataTables_wrapper 
 {
     width: 80%;
-    margin: 0 auto;
+    margin: 20px auto;
 }
 
-.dataTables_filter {
-    margin-top:10px;
-    margin-bottom:0px;
-   float: right !important;
+div.dataTables_filter {
+    display: inline !important;
 }
 
 </style>
@@ -29,7 +27,7 @@ $(document).ready(function()
     scrollX: true, 
     scrollCollapse: true,
     paginate: false, 
-    dom: '<Bf<t>i>',
+    dom: '<f<Bt>i>',
     select: true,
     columnDefs: [ 
         {
@@ -50,18 +48,18 @@ $(document).ready(function()
     buttons: 
     [
         {
-            text: 'Delete Selected Rows',
+            text: 'Delete',
             type: 'submit',
+            class: 'close',
             action: function () 
             {
-                $('#myModal').modal('show'); 
-
                 var selected_rows=table.rows('.selected').data();
                 var length = table.rows('.selected').count();
                 var keys = []
 
                 if (length > 0)
                 {
+                    $('#myModal').modal('show'); 
                     for (var i = 0; i < length; i++ )
                     {
                         keys.push(selected_rows[i][1]);
@@ -93,7 +91,7 @@ $(document).ready(function()
     {% for key in cols %}
     <th> {{ key }} </th>
     {% endfor %}
-    <th> Action </th>
+    <!--<th> Action </th>-->
     </tr>
   </thead>
     <tbody>
@@ -105,13 +103,11 @@ $(document).ready(function()
         {% endfor %}
         <!--<td> <a href= {{ url_for('fee_structure') ~ row.id }}> <span class="glyphicon glyphicon-heart"></span> Edit </a> &nbsp; &nbsp; 
         <a data-toggle="modal" data-id="{{ row }}" data-toggle="modal" title="Add this item" class="text-input" href="#addBookDialog">test</a> -->
-        <td> <a data-toggle="modal" href="#myModal"> Delete </a> </td>
+        <!--<td> <a data-toggle="modal" href="#myModal"> Delete </a> </td> -->
     </tr>
     {% endfor %}
     </tbody>
 </table>
-
-{% endblock %}
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">
@@ -121,10 +117,10 @@ $(document).ready(function()
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Modal Header</h4>
+          <h4 class="modal-title">Delete Submission</h4>
         </div>
         <div class="modal-body">
-          <p>Some text in the modal.</p>
+          <p>Are you sure you would like to delete</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -133,3 +129,5 @@ $(document).ready(function()
       
     </div>
   </div>
+
+  {% endblock %}

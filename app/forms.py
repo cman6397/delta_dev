@@ -23,6 +23,9 @@ class HouseholdForm(FlaskForm):
 	accounts = PasswordField('Accounts')
 	submit = SubmitField('Create Household')
 
+
+
+
 		
 
 
