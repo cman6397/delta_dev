@@ -14,6 +14,14 @@ div.dataTables_filter {
     display: inline !important;
 }
 
+table.dataTable tr th.select-checkbox.selected::after {
+    content: "✔";
+    margin-top: -11px;
+    margin-left: -4px;
+    text-align: center;
+    text-shadow: rgb(176, 190, 217) 1px 1px, rgb(176, 190, 217) -1px -1px, rgb(176, 190, 217) 1px -1px, rgb(176, 190, 217) -1px 1px;
+}
+
 </style>
 
 <script>
@@ -21,19 +29,19 @@ var editor; // use a global for the submit and return data rendering in the exam
  
 $(document).ready(function() 
 {
-    var table=$('#table').DataTable(
-    {
+    var table=$('#table').DataTable({
     scrollY: "70vh",
     scrollX: true, 
     scrollCollapse: true,
     paginate: false, 
     dom: '<f<Bt>i>',
-    select: true,
     columnDefs: [ 
         {
+            targets:   0,
             orderable: false,
-            className: 'select-checkbox',
-            targets:   0
+            checkboxes: {
+                selectRow: true
+            }
         }, 
         {
             targets:  1,
@@ -42,7 +50,7 @@ $(document).ready(function()
 
         ],
     select: {
-            style: 'multiple',
+            style: 'multi',
             blurable: true
         },
     buttons: 
@@ -50,10 +58,11 @@ $(document).ready(function()
         {
             text: 'Create New',
             action: function ( e, dt, button, config ) 
-        {
-            window.location = '/edit_fees/3';
-        }        
+            {
+                window.location = '{{ url_for('create_fee') }}';
+            }        
         },
+
         {
             text: 'Delete',
             type: 'submit',
@@ -80,13 +89,32 @@ $(document).ready(function()
                 })
             }
         }
-    ]
-    });
+    ]});
+
+    // Handle form submission event 
+  table.on("click", "th.select-checkbox", function() {
+    if ($("th.select-checkbox").hasClass("selected")) {
+        table.rows().deselect();
+        $("th.select-checkbox").removeClass("selected");
+    } else {
+        table.rows().select();
+        $("th.select-checkbox").addClass("selected");
+    }
+}).on("select deselect", function() {
+    ("Some selection or deselection going on")
+    if (table.rows({
+            table: true
+        }).count() !== table.rows().count()) {
+        $("th.select-checkbox").removeClass("selected");
+    } else {
+        $("th.select-checkbox").addClass("selected");
+    }
+});
 });
 
 </script>
 
-<form action="/login/" method="post" id='delete_form'>
+<form id="frm-example" action="{{ url_for('fee_structure') }}" method="POST">
 
 </form>
 
