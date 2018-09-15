@@ -25,11 +25,10 @@ class HouseholdForm(FlaskForm):
 
 class Fee_StructureForm(FlaskForm):
 	name= StringField('Fee Structure', validators=[DataRequired()])
-	frequency=SelectField('Frequencies', choices = [(1, '---'),(2, 'Monthly'), (3, 'Quarterly')], default=1)
-	collection=SelectField('Collection Options', choices=[(1, '---'),(2,'Advance with Proration'), (3,'Arrears'),(4,'Advance')], default=1)
-	structure=SelectField('Fee Structures', choices=[(1, '---'),(2,'Flat Rate'),(3,'Flat Fee'),(4,'Favor')], default=1)
-	valuation_method=SelectField('Valuation Methods', choices=[(1, '---'),(2,'Ending Period balance'),(3,'Average Daily Balance')], default=1)
-
+	frequency=SelectField('Frequencies', choices = [(1, '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')], default=1)
+	collection=SelectField('Collection Options', choices=[(1, '---'),('Advance with Proration','Advance with Proration'), ('Arrears','Arrears'),('Advance','Advance')], default=1)
+	structure=SelectField('Fee Structures', choices=[(1, '---'),('Flat Rate','Flat Rate'),('Flat Fee','Flat Fee'),('Favor','Favor')], default=1)
+	valuation_method=SelectField('Valuation Methods', choices=[(1, '---'),('Ending Period balance','Ending Period balance'),('Average Daily Balance','Average Daily Balance')], default=1)
 	submit = SubmitField('Create Fee Structure')
 
 

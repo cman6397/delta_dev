@@ -69,6 +69,10 @@ def fee_structure():
 	if request.method == "POST":
 		delete_keys= request.json
 		print(delete_keys)
+		delete_query=db.session.query(Fee_Structure).filter(Fee_Structure.id.in_(delete_keys))
+		delete_query.delete()
+		db.session.commit()
+		return redirect(url_for('fee_structure'))
 
 	fee_structures=fee_structure_query.all()
 	return render_template('table_edit.html',table=fee_structures, cols = fee_view)
@@ -85,8 +89,18 @@ def dev():
 @app.route('/fee_structure/create',methods=['GET', 'POST'])
 def create_fee():
 	form = Fee_StructureForm()
-	if request.method == "POST":
+	if form.validate_on_submit():
+		name = form.name.data
+		frequency = form.frequency.data
+		collection = form.collection.data
+		structure = form.structure.data
+		valuation_method = form.valuation_method.data
+
+		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method)
+		db.session.add(fee_structure)
+		db.session.commit()
 		return redirect(url_for('fee_structure'))
+
 	return render_template('form_template.html', methods=['GET', 'POST'], form=form)
 
 

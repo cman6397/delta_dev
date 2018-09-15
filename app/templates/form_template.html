@@ -47,12 +47,11 @@
         {% for field in form %}
         <p>
         	{% if field.type not in ['CSRFTokenField', 'HiddenField', 'SubmitField', 'StringField'] %}
-        		{{ field.type}}
         		{{ field.label(class='mr-sm-1') }}
         		{{ field(class='custom-select mr-sm-1') }}
         	{% elif field.type in ['StringField'] %}
         		{{ field.label(class='mr-sm-2') }}
-        		{{ field(class='form-group col-md-6') }}
+        		{{ field(size=32, class='form-control', placeholder='Enter Name') }}
         	{% endif %}
         </p>
         {% endfor %}
@@ -64,6 +63,8 @@
 
 </div>
 
+<script src="..\static\js\jquery-3.3.1.js"></script>
+<script type="text/javascript" src="..\static\js\bootstrap.min.js"> </script>
 
 </body>
  
