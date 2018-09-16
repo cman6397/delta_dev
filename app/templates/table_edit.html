@@ -106,15 +106,20 @@ $(document).ready(function()
 
 $(document).on("click", "#btnDelete", function(event)
 {
+    var mymodal = $('#warn_modal');
+    mymodal.modal('hide');
+
     $.ajax({
     data : JSON.stringify(keys, null, '\t'),
     type : 'POST',
     url : '{{ url_for('fee_structure') }}',
-    contentType: 'application/json;charset=UTF-8'
+    contentType: 'application/json;charset=UTF-8',
+    success: function() 
+    {
+        location.reload();
+    }
     })
-    keys=[]
-    var mymodal = $('#warn_modal');
-    mymodal.modal('hide'); 
+    keys=[] 
 });
 
 });

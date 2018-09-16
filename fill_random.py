@@ -84,19 +84,19 @@ def generate_accounts():
 	
 	Account.query.delete()
 	account_numbers=[]
-
-	for name in names:
-		account_number,balance,date=random_values()
-		while account_number in account_numbers:
+	for x in range(0,100):
+		for name in names:
 			account_number,balance,date=random_values()
+			while account_number in account_numbers:
+				account_number,balance,date=random_values()
 
-		account_numbers.append(account_number)
-		custodian=random.choice(custodians)
+			account_numbers.append(account_number)
+			custodian=random.choice(custodians)
 
-		household,billing_group,fee_structure=sample_household_billing_group_fees()
+			household,billing_group,fee_structure=sample_household_billing_group_fees()
 
-		account = Account(name=name,account_number=account_number,custodian=custodian,opening_date=date,balance=balance, household=household,billing_group=billing_group,fee_structure=fee_structure)
-		db.session.add(account)
+			account = Account(name=name,account_number=account_number,custodian=custodian,opening_date=date,balance=balance, household=household,billing_group=billing_group,fee_structure=fee_structure)
+			db.session.add(account)
 	
 
 if __name__ == '__main__':

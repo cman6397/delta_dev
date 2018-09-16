@@ -1,11 +1,11 @@
-from flask import render_template,url_for,redirect,flash, request
+from flask import render_template,url_for,redirect,flash, request,jsonify,json
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
 from app import app
 from app import db
 from app.forms import LoginForm, HouseholdForm, Fee_StructureForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure
-from app.content import account_view, household_view, fee_view
+from app.content import account_view, household_view, fee_view, dev_view
 
 @app.route('/')
 def main():
@@ -50,7 +50,7 @@ def household():
 @app.route('/account/')
 @login_required
 def account():
-	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
+	accounts_query = db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
 	Account.opening_date.label('opening_date'), Account.balance.label('balance'), Household.name.label('household'),Billing_Group.name.label('billing_group'), \
 	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
@@ -62,19 +62,20 @@ def account():
 @login_required
 def fee_structure():
 
-	fee_structure_query=db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
+	fee_structure_query = db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts'), Fee_Structure.id.label('id')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
-	if request.method == "POST":
-		delete_keys= request.json
-		print(delete_keys)
-		delete_query=db.session.query(Fee_Structure).filter(Fee_Structure.id.in_(delete_keys))
-		delete_query.delete()
+	fee_structures=fee_structure_query.all()
+	
+	if request.method == "POST" and request.json:
+		delete_keys = request.json
+		delete_query = db.session.query(Fee_Structure).filter(Fee_Structure.id.in_(delete_keys))
+		# Check out synchronize options.
+		delete_query.delete(synchronize_session=False)
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	fee_structures=fee_structure_query.all()
 	return render_template('table_edit.html',table=fee_structures, cols = fee_view)
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
@@ -82,9 +83,28 @@ def fee_structure():
 def edit_fee_structures(id):
 	return render_template('edit_fees.html')
 
+@app.route('/dev_data/')
+def dev_data():
+
+	accounts_query = db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
+	Household.name.label('household'),Billing_Group.name.label('billing_group'), \
+	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
+
+	accounts=accounts_query.all()
+	keys=accounts[0].keys()
+
+	data=[]
+
+	data=[dict(zip([key for key in keys],row)) for row in accounts]
+	data=json.dumps({'data':data})
+	
+	return data
+
 @app.route('/dev/')
 def dev():
-	return render_template('dev.html')
+	return render_template('dev.html',cols=dev_view)
+
 
 @app.route('/fee_structure/create',methods=['GET', 'POST'])
 def create_fee():

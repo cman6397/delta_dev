@@ -1,4 +1,4 @@
-from flask import render_template,url_for,redirect,flash
+from flask import render_template,url_for,redirect,flash, json, jsonify
 from flask_login import current_user, login_user
 from app import app
 from app import db
@@ -78,10 +78,20 @@ def household_account_relationships():
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
-
-	print(household_query)
-
 	return success,msg
+
+def json_testing():
+	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
+	Household.name.label('household'),Billing_Group.name.label('billing_group'), \
+	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
+
+	accounts=accounts_query.all()
+	keys=accounts[0].keys()
+	json_struct=[]
+
+	json_struct=[dict(zip([key for key in keys],row)) for row in accounts]
+	print(json.dumps({'json_sruct':json_struct}))
 
 
 
@@ -91,19 +101,21 @@ if __name__ == '__main__':
 		username='admin'
 		password='1234'
 
-		remove_user(username)
+		#remove_user(username)
 
-		status,msg = create_user(username,password)
-		assert status
-		print(msg)
+		#status,msg = create_user(username,password)
+		#assert status
+		#print(msg)
 
-		status,msg = login_user(username,password)
-		assert status
-		print(msg)
+		#status,msg = login_user(username,password)
+		#assert status
+		#print(msg)
 
-		status,msg = household_account_relationships()
-		assert status
-		print(msg)
+		#status,msg = household_account_relationships()
+		#assert status
+		#print(msg)
+
+		json_testing()
 
 	#show_table()
 
