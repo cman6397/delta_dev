@@ -7,9 +7,15 @@ div.dataTables_wrapper
     width: 80%;
     margin: 0 auto;
 }
+h1
+{
+  font-size:28px;
+}
 </style>
 
-<h1>Client Accounts</h1>
+<form id="frm-example" action="{{ url_for('dev') }}" method="POST"></form>
+
+<h1>Fee Structures</h1>
 <table id="table" class="display" style="width:100%">
     <thead>
     <tr>
@@ -20,10 +26,36 @@ div.dataTables_wrapper
   </thead>
 </table>
 
+<!-- Modal -->
+<div class="modal fade" id="warn_modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Delete Confirmation</h4>
+        </div>
+        <div class="modal-body">
+          <p></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnDelete" class="btn btn-default"> Delete</button>
+          <button type="button" id="btnClose" class="btn btn-default" data-dismiss="modal"> Cancel</button>
+        </div>
+
+      </div>
+      
+    </div>
+  </div>
+
 <script>
-function setupData() {
-    $(document).ready(function () {
-        $('#table').DataTable({
+var keys;
+function setupData() 
+{
+    $(document).ready(function () 
+    {
+        var table=$('#table').DataTable(
+        {
             "ajax": {
                 "url": "/dev_data",  
                 "dataType": "json",
@@ -31,23 +63,115 @@ function setupData() {
                 "contentType":"application/json"
             },
             "columns": [
-                {"data": "account_name"},
-                {"data": "account_number"},
-                {"data": "custodian"},
-                {"data": "household"},
-                {"data": "billing_group"},
-                {"data": "fee_structure"}
+                {"data": "id"},
+                {"data": "fee_name"},
+                {"data": "frequency"},
+                {"data": "collection"},
+                {"data": "structure"},
+                {"data": "valuation_method"},
+                {"data": "num_accounts"}
             ],
             "scrollY": "60vh",
             "scrollX": true, 
             "scrollCollapse": true,
-            "pageLength": 100
-        });
+            dom: '<f<Bt>i>',
+            paginate: false,
+            columnDefs: [ 
+        {
+            targets:   0,
+            orderable: false,
+            checkboxes: {
+                selectRow: true
+            }
+        }, 
+        {
+            targets:  1,
+            visible: false
+        }
+
+        ],
+    select: {
+            style: 'multi',
+            blurable: true
+        },
+    buttons: 
+    [  
+        {
+            text: 'Create New',
+            action: function ( e, dt, button, config ) 
+            {
+                window.location = '{{ url_for('create_fee') }}';
+            }        
+        },
+
+        {
+            text: 'Delete',
+            type: 'submit',
+            class: 'close',
+            action: function () 
+            {
+                var selected_rows=table.rows('.selected').data();
+                var length = table.rows('.selected').count();
+                keys = []
+
+                if (length > 0)
+                {
+                    for (var i = 0; i < length; i++ )
+                    {
+                        keys.push(selected_rows[i].id);
+                    }
+                    var mymodal = $('#warn_modal');
+                    mymodal.find('.modal-body').text('You have selected ' + length + ' fee structure(s) to delete.');
+                    mymodal.modal('show'); 
+                }
+                else {
+                    alert("No Rows Selected")
+                }
+            }
+        }
+    ]
     });
+    // Handle form submission event 
+    table.on("click", "th.select-checkbox", function() {
+    if ($("th.select-checkbox").hasClass("selected")) {
+        table.rows().deselect();
+        $("th.select-checkbox").removeClass("selected");
+    } else {
+        table.rows().select();
+        $("th.select-checkbox").addClass("selected");
+    }
+    }).on("select deselect", function() {
+    ("Some selection or deselection going on")
+    if (table.rows({
+            table: true
+        }).count() !== table.rows().count()) {
+        $("th.select-checkbox").removeClass("selected");
+    } else {
+        $("th.select-checkbox").addClass("selected");
+    }
+    });
+$(document).on("click", "#btnDelete", function(event)
+{
+    var mymodal = $('#warn_modal');
+    mymodal.modal('hide');
+
+    $.ajax({
+    data : JSON.stringify(keys, null, '\t'),
+    type : 'POST',
+    url : '{{ url_for('dev') }}',
+    contentType: 'application/json;charset=UTF-8',
+    success: function() 
+    {
+        table.ajax.reload();
+    }
+    })
+    keys=[] 
+});
+});
 }
+
 $( window ).on( "load", setupData );
 </script>
-
 
 {% endblock %}
 
