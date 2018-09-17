@@ -86,15 +86,19 @@ def account_data():
 @login_required
 def fee_structure_data():
 
-	fee_structure_query = db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
-	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts'), Fee_Structure.id.label('id')). \
-	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'), \
+	Fee_Structure.collection.label('collection'),Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'), \
+	func.count(Account.id).label('num_accounts')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
 	fee_structures=fee_structure_query.all()
 	keys=fee_structures[0].keys()
 
+	columns=[]
+	for key in keys:
+		columns.append({'data': key})
+
 	data=[dict(zip([key for key in keys],row)) for row in fee_structures]
-	data=json.dumps({'data': data}, default = alchemyencoder)
+	data=json.dumps({'data': data , 'columns': columns}, default = alchemyencoder)
 	
 	return data
 
@@ -109,7 +113,7 @@ def fee_structure():
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('fee_structure.html',cols=fee_view)
+	return render_template('fee_structure.html',cols=fee_view, data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'))
 
 @app.route('/dev_data/')
 @login_required
