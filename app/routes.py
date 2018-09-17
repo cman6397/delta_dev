@@ -119,7 +119,7 @@ def fee_structure():
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('fee_structure.html',cols=fee_view, data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'))
+	return render_template('table_edit.html',cols=fee_view, data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'))
 
 @app.route('/dev_data/')
 @login_required
