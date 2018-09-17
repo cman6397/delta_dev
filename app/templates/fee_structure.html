@@ -13,7 +13,7 @@ h1
 }
 </style>
 
-<form id="frm-example" action="{{ url_for('dev') }}" method="POST"></form>
+<form id="frm-example" action="{{ url_for('fee_structure') }}" method="POST"></form>
 
 <h1>Fee Structures</h1>
 <table id="table" class="display" style="width:100%">
@@ -57,7 +57,7 @@ function setupData()
         var table=$('#table').DataTable(
         {
             "ajax": {
-                "url": "/dev_data",  
+                "url": "{{url_for('fee_structure_data')}}",  
                 "dataType": "json",
                 "dataSrc": "data",
                 "contentType":"application/json"
@@ -158,7 +158,7 @@ $(document).on("click", "#btnDelete", function(event)
     $.ajax({
     data : JSON.stringify(keys, null, '\t'),
     type : 'POST',
-    url : '{{ url_for('dev') }}',
+    url : '{{ url_for('fee_structure') }}',
     contentType: 'application/json;charset=UTF-8',
     success: function() 
     {

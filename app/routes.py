@@ -81,30 +81,35 @@ def account_data():
 	data=[dict(zip([key for key in keys],row)) for row in accounts]
 	return (json.dumps({'data': data}, default = alchemyencoder))
 
-@app.route('/fee_structure/',methods=['GET', 'POST'])
+
+@app.route('/fee_structure_data/')
 @login_required
-def fee_structure():
+def fee_structure_data():
 
 	fee_structure_query = db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts'), Fee_Structure.id.label('id')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
 	fee_structures=fee_structure_query.all()
+	keys=fee_structures[0].keys()
+
+	data=[dict(zip([key for key in keys],row)) for row in fee_structures]
+	data=json.dumps({'data': data}, default = alchemyencoder)
 	
+	return data
+
+@app.route('/fee_structure/',methods=['GET', 'POST'])
+@login_required
+def fee_structure():
 	if request.method == "POST" and request.json:
 		delete_keys = request.json
+		print(delete_keys)
 		delete_query = db.session.query(Fee_Structure).filter(Fee_Structure.id.in_(delete_keys))
-		# Check out synchronize options.
 		delete_query.delete(synchronize_session=False)
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('table_edit.html',table=fee_structures, cols = fee_view)
-
-@app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_fee_structures(id):
-	return render_template('edit_fees.html')
+	return render_template('fee_structure.html',cols=fee_view)
 
 @app.route('/dev_data/')
 @login_required
@@ -153,6 +158,12 @@ def create_fee():
 		return redirect(url_for('fee_structure'))
 
 	return render_template('form_template.html', methods=['GET', 'POST'], form=form)
+
+@app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_fee_structures(id):
+	return render_template('edit_fees.html')
+
 
 
 
