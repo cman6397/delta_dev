@@ -75,6 +75,8 @@ def account_data():
 	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 
+	account_names=['Id','Account Name', 'Account Number', 'Custodian', 'Opening Date', 'Balance', 'Household', 'Billing Group']
+
 	accounts=accounts_query.all()
 	keys=accounts[0].keys()
 
@@ -93,9 +95,13 @@ def fee_structure_data():
 	fee_structures=fee_structure_query.all()
 	keys=fee_structures[0].keys()
 
+	fee_names=['Id', 'Name', 'Frequency', 'Collection', 'Structure', 'Valuation Method', 'No. Accounts']
+
 	columns=[]
+	count=0
 	for key in keys:
-		columns.append({'data': key})
+		columns.append({'data': key,'name': fee_names[count]})
+		count+=1
 
 	data=[dict(zip([key for key in keys],row)) for row in fee_structures]
 	data=json.dumps({'data': data , 'columns': columns}, default = alchemyencoder)

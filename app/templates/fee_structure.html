@@ -15,13 +15,13 @@ h1
 
 <h1>Fee Structures</h1>
 <table id="table" class="display" style="width:100%">
-    <thead>
+<!--<thead>
     <tr>
     {% for key in cols %}
-      <th> {{ key }} </th>
+    <th> {{ key }} </th>
     {% endfor %}
     </tr>
-  </thead>
+</thead>-->
 </table>
 
 <!-- Modal -->
@@ -57,11 +57,16 @@ var data,
             data = JSON.parse(jqxhr.responseText);
     })
 
-
-function setupData() 
+$( document ).ready( function( $ ) 
 {
-    $(document).ready(function () 
-    {
+    var tableHeaders="";
+    $.each(data.columns, function(i, val){
+        tableHeaders += "<th>" + val.name + "</th>";
+    });
+    console.log(tableHeaders)           
+    $("#table").empty();
+    $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+
         var table=$('#table').DataTable(
         {
             "ajax": {
@@ -163,9 +168,7 @@ $(document).on("click", "#btnDelete", function(event)
     keys=[] 
 });
 });
-}
 
-$( window ).on( "load", setupData );
 </script>
 
 {% endblock %}
