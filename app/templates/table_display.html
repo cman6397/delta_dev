@@ -11,24 +11,57 @@ h1
 {
   font-size:28px;
 }
+.dataTables_filter {
+position: relative;
+float: right;
+}
+
+.dataTables_length {
+margin-right:20px;
+margin-top:6px;
+}
+
+thead input {
+        width: 100%;
+        font-size:11px;
+        text-indent: 3px;
+        font-weight: 600;
+        margin:2px;
+}
+
+
 </style>
 
 <h1>{{ title }}</h1>
-<table id="table" class="display" style="width:100%">
+
+<table id="table" class="display compact nowrap" style="width:100%">
 
 </table>
 
 <script>
 $( document ).ready( function( $ ) 
 {
-        var tableHeaders="";
-        $.each({{ columns|tojson}}, function(i, val){
-        tableHeaders += "<th>" + val.name + "</th>";
-        });     
+    var tableHeaders="";
+    $.each({{ columns|tojson}}, function(i, val){
+    tableHeaders += "<th>" + val.name + "</th>";
+    });     
   
-        $("#table").empty();
-        $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>'
-        );
+    $("#table").empty();
+    $("#table").append('<thead><tr>' + tableHeaders + '</tr> <tr>' + tableHeaders +'</tr><thead>');
+
+    $('#table thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        });
+    });
 
         var table=$('#table').DataTable({
             "ajax": {
@@ -37,12 +70,18 @@ $( document ).ready( function( $ )
                 "dataSrc": "data",
                 "contentType":"application/json"
             },
+            "orderCellsTop": true,
             "columns":{{ columns|tojson }},
-            "scrollY": "60vh",
+            "oLanguage": {"sSearch": "Search All"},
+            "scrollY": "65vh",
             "scrollX": true, 
             "scrollCollapse": true,
             "pageLength" : 100,
-            "lengthMenu": [[25, 50, 100, 500,-1], [25, 50, 100, 500, "All"]]
+            "lengthMenu": [[25, 50, 100, 500,-1], [25, 50, 100, 500, "All"]],
+            "dom":'<lB<f<t>ip>>',
+            "buttons": [
+            'csv','excel'
+            ]
         });
     });
 

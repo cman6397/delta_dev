@@ -5,12 +5,21 @@
 div.dataTables_wrapper 
 {
     width: 80%;
-    margin: 0 auto;
 }
 h1
 {
   font-size:28px;
 }
+
+thead input {
+    width: 100%;
+    font-size:11px;
+    text-indent: 3px;
+    font-weight: 600;
+    margin:2px;
+}
+
+
 </style>
 
 <h1>{{ title }}</h1>
@@ -45,13 +54,31 @@ var keys;
 $( document ).ready( function( $ ) 
 {
     var tableHeaders="";
-        $.each({{ columns|tojson}}, function(i, val){
-        tableHeaders += "<th>" + val.name + "</th>";
-        });     
+    $.each({{ columns|tojson}}, function(i, val){
+    tableHeaders += "<th>" + val.name + "</th>";
+    });     
   
-        $("#table").empty();
-        $("#table").append('<table id="table"  class="display compact"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>'
-        );
+    $("#table").empty();
+    $("#table").append('<thead><tr>' + tableHeaders + '</tr> <tr>' + tableHeaders +'</tr><thead>');
+
+    $('#table thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        if (i >= 1){
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        });
+        }
+        else {
+            $(this).html( '&nbsp;&nbsp;&nbsp;&nbsp;' );
+        }
+    });
 
         var table=$('#table').DataTable(
         {
@@ -61,10 +88,12 @@ $( document ).ready( function( $ )
                 "dataSrc": "data",
                 "contentType":"application/json"
             },
+            "orderCellsTop": true,
             "columns":{{ columns|tojson }},
-            "scrollY": "60vh",
+            "scrollY": "65vh",
             "scrollX": true, 
             "scrollCollapse": true,
+            "oLanguage": {"sSearch": "Search All"},
             dom: '<f<Bt>i>',
             paginate: false,
             columnDefs: [ 
