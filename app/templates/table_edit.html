@@ -40,8 +40,8 @@ thead input {
           <p></p>
         </div>
         <div class="modal-footer">
-          <button type="button" id="btnDelete" class="btn btn-default"> Delete</button>
-          <button type="button" id="btnClose" class="btn btn-default" data-dismiss="modal"> Cancel</button>
+          <button type="button" id="btnDelete" class="btn btn-danger"> Delete</button>
+          <button type="button" id="btnClose" class="btn" data-dismiss="modal"> Cancel</button>
         </div>
 
       </div>
@@ -80,8 +80,7 @@ $( document ).ready( function( $ )
         }
     });
 
-        var table=$('#table').DataTable(
-        {
+        var table=$('#table').DataTable({
             "ajax": {
                 "url": {{ data_link|tojson }},  
                 "dataType": "json",
@@ -94,58 +93,80 @@ $( document ).ready( function( $ )
             "scrollX": true, 
             "scrollCollapse": true,
             "oLanguage": {"sSearch": "Search All"},
-            dom: '<f<Bt>i>',
-            paginate: false,
-            columnDefs: [ 
-        {
-            targets:   0,
-            orderable: false,
-            checkboxes: {
-                selectRow: true
-            }
-        },
-        ],
-    select: {
-            style: 'multi',
-            blurable: true
-        },
-    buttons: 
-    [  
-        {
-            text: 'Create New',
-            action: function ( e, dt, button, config ) 
+            "dom": '<f<Bt>i>',
+            "paginate": false,
+            "columnDefs": [{
+                "targets":   0,
+                "orderable": false,
+                "checkboxes": {
+                    "selectRow": true
+                }
+            }],
+            "select": {
+                "style": 'multi',
+                "blurable": true
+            },
+            buttons: 
             {
-                window.location = {{ create_link|tojson }};
-            }        
-        },
-
-        {
-            text: 'Delete',
-            type: 'submit',
-            class: 'close',
-            action: function () 
-            {
-                var selected_rows=table.rows('.selected').data();
-                var length = table.rows('.selected').count();
-                keys = []
-
-                if (length > 0)
-                {
-                    for (var i = 0; i < length; i++ )
-                    {
-                        keys.push(selected_rows[i].id);
+                dom: {
+                button: {
+                    tag: 'button',
+                    className: ''
                     }
-                    var mymodal = $('#warn_modal');
-                    mymodal.find('.modal-body').text('You have selected ' + length + ' fee structure(s) to delete.');
-                    mymodal.modal('show'); 
-                }
-                else {
-                    alert("No Rows Selected")
-                }
+                },
+                "buttons": 
+                [  
+                    {
+                        "text": 'Create New',
+                        "className": 'btn btn-primary',
+                        action: function ( e, dt, button, config ) 
+                        {
+                            window.location = {{ create_link|tojson }};
+                        },    
+                    },
+
+                    {
+                        "attr":  {
+                            "title": 'Copy',
+                            "id": 'tblDelete'
+                        },
+                        "text": 'Delete',
+                        "type": 'submit',
+                        "class": 'close',
+                        "className": 'btn btn-outline-secondary',
+
+                        action: function () 
+                        {
+                            var selected_rows=table.rows('.selected').data();
+                            var length = table.rows('.selected').count();
+                            keys = []
+
+                            if (length > 0)
+                            {
+                                for (var i = 0; i < length; i++ )
+                                {
+                                    keys.push(selected_rows[i].id);
+                                }
+                                var mymodal = $('#warn_modal');
+                                mymodal.find('.modal-body').text('You have selected ' + length + ' fee structure(s) to delete.');
+                                mymodal.modal('show'); 
+                            }
+                            else {
+                                alert("No Rows Selected")
+                            }
+                        }
+                    },
+                    {
+                        extend: "csv",
+                        className: "btn btn-secondary",
+                    },
+                    {
+                        extend: "excel",
+                        className: "btn btn-secondary",
+                    }
+                ]
             }
-        }
-    ]
-    });
+        });
     // Handle form submission event 
     table.on("click", "th.select-checkbox", function() {
     if ($("th.select-checkbox").hasClass("selected")) {
@@ -163,8 +184,20 @@ $( document ).ready( function( $ )
         $("th.select-checkbox").removeClass("selected");
     } else {
         $("th.select-checkbox").addClass("selected");
+
+        if ($("#tblDelete").hasClass("btn btn-outline-secondary") && table.rows('.selected').count() > 0 ) 
+        {
+            $("#tblDelete").removeClass("btn btn-outline-secondary");
+            $("#tblDelete").addClass("btn btn-danger");
+        }
+
+        else if ($("#tblDelete").hasClass("btn btn-danger") && table.rows('.selected').count() == 0 )  
+        {
+            $("#tblDelete").removeClass("btn btn-danger");
+            $("#tblDelete").addClass("btn btn-outline-secondary");
+        }
     }
-    });
+    })
 });
 $(document).on("click", "#btnDelete", function(event)
 {
