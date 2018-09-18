@@ -44,25 +44,24 @@ h1
 var keys;
 $( document ).ready( function( $ ) 
 {
-    var data,
-    tableName= '#demotable',
-    columns,
-    str,
-    jqxhr = $.ajax({{ data_link|tojson }})
-        .done(function () {
-            data = JSON.parse(jqxhr.responseText);
     var tableHeaders="";
-    $.each(data.columns, function(i, val){
-        tableHeaders += "<th>" + val.name + "</th>"; 
-    });    
+        $.each({{ columns|tojson}}, function(i, val){
+        tableHeaders += "<th>" + val.name + "</th>";
+        });     
   
-    $("#table").empty();
-    $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+        $("#table").empty();
+        $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>'
+        );
 
         var table=$('#table').DataTable(
         {
-            "data": data.data,
-            "columns": data.columns,
+            "ajax": {
+                "url": {{ data_link|tojson }},  
+                "dataType": "json",
+                "dataSrc": "data",
+                "contentType":"application/json"
+            },
+            "columns":{{ columns|tojson }},
             "scrollY": "60vh",
             "scrollX": true, 
             "scrollCollapse": true,
@@ -137,7 +136,6 @@ $( document ).ready( function( $ )
         $("th.select-checkbox").addClass("selected");
     }
     });
-    });
 });
 $(document).on("click", "#btnDelete", function(event)
 {
@@ -151,7 +149,7 @@ $(document).on("click", "#btnDelete", function(event)
     contentType: 'application/json;charset=UTF-8',
     success: function() 
     {
-        table.ajax.reload();
+        $('#table').DataTable().ajax.reload();
     }
     })
     keys=[] 

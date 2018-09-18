@@ -44,81 +44,103 @@ def logout():
 def dashboard():
 	return render_template('dashboard.html')
 
-@app.route('/household/')
-@login_required
-def household():
-	return render_template('household_display.html',cols = household_view)
-
+#********************** HOUSEHOLDS **************************
 @app.route('/household_data/')
 @login_required
 def household_data():
-	household_query=db.session.query(func.sum(Account.balance).label('balance'),Household.name.label('household_name'),func.min(Account.opening_date).label('opening_date'), \
-	func.count(Account.id).label('num_accounts'), Billing_Group.name.label('billing_group')).outerjoin(Household, Account.household_id == Household.id) \
-	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).group_by(Household)
+	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),func.min(Account.opening_date).label('Opening Date'), \
+	func.count(Account.id).label('Total Accounts'), Billing_Group.name.label('Billing Group')).outerjoin(Account, Account.household_id == Household.id) \
+	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 
 	households=household_query.all()
 	keys=households[0].keys()
 
 	data=[dict(zip([key for key in keys],row)) for row in households]
-	return (json.dumps({'data': data}, default = alchemyencoder))
+	data=json.dumps({'data': data}, default = alchemyencoder)
 
+	return data
+
+@app.route('/household/')
+@login_required
+def household():
+	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),func.min(Account.opening_date).label('Opening Date'), \
+	func.count(Account.id).label('Total Accounts'), Billing_Group.name.label('Billing Group')).outerjoin(Account, Account.household_id == Household.id) \
+	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
+	
+	household=household_query.first()
+	keys=household.keys()
+
+	columns=[]
+	for key in keys:
+		columns.append({'data': key,'name': key})
+
+	return render_template('table_display.html', data_link=url_for('household_data'),columns=columns)
+
+#********************** ACCOUNTS **************************
 @app.route('/account_data/')
 @login_required
 def account_data():
-	accounts_query = db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
-	Account.opening_date.label('opening_date'), Account.balance.label('balance'), Household.name.label('household'),Billing_Group.name.label('billing_group'), \
-	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	accounts_query = db.session.query(Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
+	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
+	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 
 	accounts=accounts_query.all()
 	keys=accounts[0].keys()
 
-	account_names=['Account Name', 'Account Number', 'Custodian', 'Opening Date', 'Balance', 'Household', 'Billing Group', 'Fee Structure']
-
-	columns=[]
-	count=0
-	for key in keys:
-		columns.append({'data': key,'name': account_names[count]})
-		count+=1
-
 	data=[dict(zip([key for key in keys],row)) for row in accounts]
-	data=json.dumps({'data': data , 'columns': columns}, default = alchemyencoder)
+	data=json.dumps({'data': data}, default = alchemyencoder)
 
 	return data
 
 @app.route('/account/')
 @login_required
 def account():
-	return render_template('table_display.html', data_link=url_for('account_data'))
+	accounts_query = db.session.query(Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
+	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
+	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
+	
+	account=accounts_query.first()
+	keys=account.keys()
 
+	columns=[]
+	for key in keys:
+		columns.append({'data': key,'name': key})
 
+	return render_template('table_display.html', data_link=url_for('account_data'),columns=columns)
+
+#********************** FEE STRUCTURE **************************
 @app.route('/fee_structure_data/')
 @login_required
 def fee_structure_data():
 
-	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'), \
-	Fee_Structure.collection.label('collection'),Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'), \
-	func.count(Account.id).label('num_accounts')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Fee Name'),Fee_Structure.frequency.label('Frequency'), \
+	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
+	func.count(Account.id).label('Total Accounts')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
 	fee_structures=fee_structure_query.all()
 	keys=fee_structures[0].keys()
 
-	fee_names=['Id', 'Name', 'Frequency', 'Collection', 'Structure', 'Valuation Method', 'No. Accounts']
-
-	columns=[]
-	count=0
-	for key in keys:
-		columns.append({'data': key,'name': fee_names[count]})
-		count+=1
-
 	data=[dict(zip([key for key in keys],row)) for row in fee_structures]
-	data=json.dumps({'data': data , 'columns': columns}, default = alchemyencoder)
+	data=json.dumps({'data': data}, default = alchemyencoder)
 	
 	return data
 
 @app.route('/fee_structure/',methods=['GET', 'POST'])
 @login_required
 def fee_structure():
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Fee Name'),Fee_Structure.frequency.label('Frequency'), \
+	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
+	func.count(Account.id).label('Total Accounts')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+
+	fee_structures=fee_structure_query.first()
+	keys=fee_structures.keys()
+
+	columns=[]
+	for key in keys:
+		columns.append({'data': key,'name': key})
+
 	if request.method == "POST" and request.json:
 		delete_keys = request.json
 		print(delete_keys)
@@ -127,7 +149,7 @@ def fee_structure():
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'))
+	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'), columns=columns)
 
 @app.route('/dev_data/')
 @login_required

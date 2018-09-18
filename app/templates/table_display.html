@@ -21,31 +21,29 @@ h1
 <script>
 $( document ).ready( function( $ ) 
 {
-        var data,
-        tableName= '#demotable',
-        columns,
-        str,
-        jqxhr = $.ajax('/account_data/')
-                .done(function () {
-                    data = JSON.parse(jqxhr.responseText);
-        // Iterate each column and print table headers for Datatables
         var tableHeaders="";
-        $.each(data.columns, function(i, val){
+        $.each({{ columns|tojson}}, function(i, val){
         tableHeaders += "<th>" + val.name + "</th>";
         });     
   
         $("#table").empty();
-        $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
+        $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>'
+        );
 
         var table=$('#table').DataTable({
-            "data":data.data,
-            "columns":data.columns,
+            "ajax": {
+                "url": {{ data_link|tojson }},  
+                "dataType": "json",
+                "dataSrc": "data",
+                "contentType":"application/json"
+            },
+            "columns":{{ columns|tojson }},
             "scrollY": "60vh",
             "scrollX": true, 
             "scrollCollapse": true,
+            "pageLength" : 100
         });
     });
-});
 
 </script>
 
