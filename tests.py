@@ -70,7 +70,7 @@ def household_account_relationships():
 	households=household_query.all()
 
 	billing_group_query=db.session.query(Billing_Group.name.label('Name'),func.sum(Account.balance).label('Balance'), \
-	func.count(Account.id).label('Total Accounts'), Household.name.label('Household')).outerjoin(Account, Account.billing_group_id == Biling_Group.id) \
+	func.count(Account.id).label('Total Accounts'), Household.name.label('Household')).outerjoin(Account, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Household, Household.id == Billing_Group.household_id).group_by(Billing_Group.id)
 	billing_groups=billing_group_query.all()
 
@@ -96,7 +96,6 @@ def json_testing():
 	json_struct=[]
 
 	json_struct=[dict(zip([key for key in keys],row)) for row in accounts]
-	print(json.dumps({'json_sruct':json_struct}))
 
 
 
@@ -106,19 +105,19 @@ if __name__ == '__main__':
 		username='admin'
 		password='1234'
 
-		#remove_user(username)
+		remove_user(username)
 
-		#status,msg = create_user(username,password)
-		#assert status
-		#print(msg)
+		status,msg = create_user(username,password)
+		assert status
+		print(msg)
 
-		#status,msg = login_user(username,password)
-		#assert status
-		#print(msg)
+		status,msg = login_user(username,password)
+		assert status
+		print(msg)
 
-		#status,msg = household_account_relationships()
-		#assert status
-		#print(msg)
+		status,msg = household_account_relationships()
+		assert status
+		print(msg)
 
 		json_testing()
 

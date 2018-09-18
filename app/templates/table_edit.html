@@ -13,8 +13,8 @@ h1
 }
 </style>
 
-<h1>Fee Structures</h1>
-<table id="table" class="display" style="width:100%">
+<h1>{{ title }}</h1>
+<table id="table" class="display compact" style="width:100%">
 
 </table>
 
@@ -50,7 +50,7 @@ $( document ).ready( function( $ )
         });     
   
         $("#table").empty();
-        $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>'
+        $("#table").append('<table id="table"  class="display compact"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>'
         );
 
         var table=$('#table').DataTable(

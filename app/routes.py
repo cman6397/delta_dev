@@ -155,7 +155,7 @@ def fee_structure():
 @login_required
 def billing_group_data():
 
-	billing_group_query=db.session.query(Billing_Group.id.label('Id'),Billing_Group.name.label('Name'), Household.name.label('Household'), \
+	billing_group_query=db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('Name'), Household.name.label('Household'), \
 	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Household, Household.id == Billing_Group.household_id).group_by(Billing_Group.id)
 
@@ -170,7 +170,7 @@ def billing_group_data():
 @app.route('/billing_group/',methods=['GET', 'POST'])
 @login_required
 def billing_group():
-	billing_group_query=db.session.query(Billing_Group.id.label('Id'),Billing_Group.name.label('Name'), Household.name.label('Household'), \
+	billing_group_query=db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('Name'), Household.name.label('Household'), \
 	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Household, Household.id == Billing_Group.household_id).group_by(Billing_Group.id)
 
@@ -190,6 +190,7 @@ def billing_group():
 
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_fee'), columns=columns, title='Billing Groups')
 
+#********************** DEV **************************
 @app.route('/dev_data/')
 @login_required
 def dev_data():

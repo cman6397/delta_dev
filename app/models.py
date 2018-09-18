@@ -28,6 +28,9 @@ class Fee_Structure(db.Model):
 	collection=db.Column(db.String(100), unique=False, nullable=False)
 	structure=db.Column(db.String(100), unique=False, nullable=False)
 	valuation_method=db.Column(db.String(100), unique=False, nullable=False)
+	flat_rate=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
+	flat_fee=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
+	quarterly_cycle=db.Column(db.String(100), unique=False, nullable=False)
 	accounts = db.relationship('Account', backref='fee_structure', lazy='dynamic')
 
 	def __repr__(self):
