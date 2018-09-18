@@ -48,8 +48,8 @@ def dashboard():
 @app.route('/household_data/')
 @login_required
 def household_data():
-	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),func.min(Account.opening_date).label('Opening Date'), \
-	func.count(Account.id).label('Total Accounts'), Billing_Group.name.label('Billing Group')).outerjoin(Account, Account.household_id == Household.id) \
+	household_query=db.session.query(Household.name.label('Household Name'),Billing_Group.name.label('Billing Group'),func.min(Account.opening_date).label('Opening Date'), \
+	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.household_id == Household.id) \
 	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 
 	households=household_query.all()
@@ -63,8 +63,8 @@ def household_data():
 @app.route('/household/')
 @login_required
 def household():
-	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),func.min(Account.opening_date).label('Opening Date'), \
-	func.count(Account.id).label('Total Accounts'), Billing_Group.name.label('Billing Group')).outerjoin(Account, Account.household_id == Household.id) \
+	household_query=db.session.query(Household.name.label('Household Name'),Billing_Group.name.label('Billing Group'),func.min(Account.opening_date).label('Opening Date'), \
+	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.household_id == Household.id) \
 	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 	
 	household=household_query.first()
@@ -74,7 +74,7 @@ def household():
 	for key in keys:
 		columns.append({'data': key,'name': key})
 
-	return render_template('table_display.html', data_link=url_for('household_data'),columns=columns)
+	return render_template('table_display.html', data_link=url_for('household_data'),columns=columns, title='Households')
 
 #********************** ACCOUNTS **************************
 @app.route('/account_data/')
@@ -108,7 +108,7 @@ def account():
 	for key in keys:
 		columns.append({'data': key,'name': key})
 
-	return render_template('table_display.html', data_link=url_for('account_data'),columns=columns)
+	return render_template('table_display.html', data_link=url_for('account_data'),columns=columns, title='Accounts')
 
 #********************** FEE STRUCTURE **************************
 @app.route('/fee_structure_data/')
@@ -143,13 +143,52 @@ def fee_structure():
 
 	if request.method == "POST" and request.json:
 		delete_keys = request.json
-		print(delete_keys)
 		delete_query = db.session.query(Fee_Structure).filter(Fee_Structure.id.in_(delete_keys))
 		delete_query.delete(synchronize_session=False)
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'), columns=columns)
+	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'), columns=columns, title='Fee Structures')
+
+#********************** BILLING GROUP **************************
+@app.route('/billing_group_data/')
+@login_required
+def billing_group_data():
+
+	billing_group_query=db.session.query(Billing_Group.id.label('Id'),Billing_Group.name.label('Name'), Household.name.label('Household'), \
+	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Household, Household.id == Billing_Group.household_id).group_by(Billing_Group.id)
+
+	billing_groups=billing_group_query.all()
+	keys=billing_groups[0].keys()
+
+	data=[dict(zip([key for key in keys],row)) for row in billing_groups]
+	data=json.dumps({'data': data}, default = alchemyencoder)
+	
+	return data
+
+@app.route('/billing_group/',methods=['GET', 'POST'])
+@login_required
+def billing_group():
+	billing_group_query=db.session.query(Billing_Group.id.label('Id'),Billing_Group.name.label('Name'), Household.name.label('Household'), \
+	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Household, Household.id == Billing_Group.household_id).group_by(Billing_Group.id)
+
+	billing_groups=billing_group_query.first()
+	keys=billing_groups.keys()
+
+	columns=[]
+	for key in keys:
+		columns.append({'data': key,'name': key})
+
+	if request.method == "POST" and request.json:
+		delete_keys = request.json
+		delete_query = db.session.query(Billing_Group).filter(Billing_Group.id.in_(delete_keys))
+		delete_query.delete(synchronize_session=False)
+		db.session.commit()
+		return redirect(url_for('billing_group'))
+
+	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_fee'), columns=columns, title='Billing Groups')
 
 @app.route('/dev_data/')
 @login_required

@@ -69,6 +69,11 @@ def household_account_relationships():
 	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 	households=household_query.all()
 
+	billing_group_query=db.session.query(Billing_Group.name.label('Name'),func.sum(Account.balance).label('Balance'), \
+	func.count(Account.id).label('Total Accounts'), Household.name.label('Household')).outerjoin(Account, Account.billing_group_id == Biling_Group.id) \
+	.outerjoin(Household, Household.id == Billing_Group.household_id).group_by(Billing_Group.id)
+	billing_groups=billing_group_query.all()
+
 	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
 	Account.opening_date.label('opening_date'), Account.balance.label('balance'), Household.name.label('household'),Billing_Group.name.label('billing_group'), \
 	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
