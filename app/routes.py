@@ -62,11 +62,6 @@ def household_data():
 	data=[dict(zip([key for key in keys],row)) for row in households]
 	return (json.dumps({'data': data}, default = alchemyencoder))
 
-@app.route('/account/')
-@login_required
-def account():
-	return render_template('account_display.html', cols = account_view)
-
 @app.route('/account_data/')
 @login_required
 def account_data():
@@ -75,13 +70,26 @@ def account_data():
 	Fee_Structure.name.label('fee_structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 
-	account_names=['Id','Account Name', 'Account Number', 'Custodian', 'Opening Date', 'Balance', 'Household', 'Billing Group']
-
 	accounts=accounts_query.all()
 	keys=accounts[0].keys()
 
+	account_names=['Account Name', 'Account Number', 'Custodian', 'Opening Date', 'Balance', 'Household', 'Billing Group', 'Fee Structure']
+
+	columns=[]
+	count=0
+	for key in keys:
+		columns.append({'data': key,'name': account_names[count]})
+		count+=1
+
 	data=[dict(zip([key for key in keys],row)) for row in accounts]
-	return (json.dumps({'data': data}, default = alchemyencoder))
+	data=json.dumps({'data': data , 'columns': columns}, default = alchemyencoder)
+
+	return data
+
+@app.route('/account/')
+@login_required
+def account():
+	return render_template('table_display.html', data_link=url_for('account_data'))
 
 
 @app.route('/fee_structure_data/')
@@ -119,7 +127,7 @@ def fee_structure():
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('table_edit.html',cols=fee_view, data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'))
+	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'))
 
 @app.route('/dev_data/')
 @login_required

@@ -42,21 +42,20 @@ h1
 
 <script>
 var keys;
-var data,
+$( document ).ready( function( $ ) 
+{
+    var data,
     tableName= '#demotable',
     columns,
     str,
     jqxhr = $.ajax({{ data_link|tojson }})
         .done(function () {
             data = JSON.parse(jqxhr.responseText);
-    })
-
-$( document ).ready( function( $ ) 
-{
     var tableHeaders="";
     $.each(data.columns, function(i, val){
-        tableHeaders += "<th>" + val.name + "</th>";
-    });         
+        tableHeaders += "<th>" + val.name + "</th>"; 
+    });    
+  
     $("#table").empty();
     $("#table").append('<table id="table"  class="display"  width="100%"><thead><tr>' + tableHeaders + '</tr></thead></table>');
 
@@ -138,6 +137,8 @@ $( document ).ready( function( $ )
         $("th.select-checkbox").addClass("selected");
     }
     });
+    });
+});
 $(document).on("click", "#btnDelete", function(event)
 {
     var mymodal = $('#warn_modal');
@@ -154,7 +155,6 @@ $(document).on("click", "#btnDelete", function(event)
     }
     })
     keys=[] 
-});
 });
 
 </script>
