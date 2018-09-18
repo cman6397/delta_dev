@@ -133,7 +133,7 @@ $( document ).ready( function( $ )
                         "text": 'Delete',
                         "type": 'submit',
                         "class": 'close',
-                        "className": 'btn btn-outline-secondary',
+                        "className": 'btn btn-secondary',
 
                         action: function () 
                         {
@@ -185,16 +185,16 @@ $( document ).ready( function( $ )
     } else {
         $("th.select-checkbox").addClass("selected");
 
-        if ($("#tblDelete").hasClass("btn btn-outline-secondary") && table.rows('.selected').count() > 0 ) 
+        if ($("#tblDelete").hasClass("btn btn-secondary") && table.rows('.selected').count() > 0 ) 
         {
-            $("#tblDelete").removeClass("btn btn-outline-secondary");
+            $("#tblDelete").removeClass("btn btn-secondary");
             $("#tblDelete").addClass("btn btn-danger");
         }
 
         else if ($("#tblDelete").hasClass("btn btn-danger") && table.rows('.selected').count() == 0 )  
         {
             $("#tblDelete").removeClass("btn btn-danger");
-            $("#tblDelete").addClass("btn btn-outline-secondary");
+            $("#tblDelete").addClass("btn btn-secondary");
         }
     }
     })
