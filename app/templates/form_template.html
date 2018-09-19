@@ -29,6 +29,9 @@
         left:50%;
         transform: translate(-50%,-50%);
    }  
+   .hidden {
+        display:none;
+   }
 </style>
 
 <head>
@@ -48,10 +51,10 @@
         <p>
         	{% if field.type in ['SelectField'] %}
         		{{ field.label(class='mr-sm-1') }}
-        		{{ field(class='custom-select mr-sm-1') }}
+        		{{ field }}
         	{% elif field.type in ['StringField', 'DecimalField'] %}
         		{{ field.label(class='mr-sm-2') }}
-        		{{ field(size=32, class='form-control', placeholder='Enter') }}
+        		{{ field(size=32) }}
             {% elif field.type in ['CSRFTokenField'] %}
                 {{field}}
         	{% endif %}

@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
 from app import app
 from app import db
-from app.forms import LoginForm, HouseholdForm, Fee_StructureForm
+from app.forms import LoginForm, Fee_StructureForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure
 from app.content import account_view, household_view, fee_view, dev_view
 import datetime,decimal

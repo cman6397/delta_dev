@@ -24,14 +24,14 @@ class HouseholdForm(FlaskForm):
 	submit = SubmitField('Create Household')
 
 class Fee_StructureForm(FlaskForm):
-	name= StringField('Fee Structure', validators=[DataRequired()])
-	frequency=SelectField('Frequencies', choices = [(1, '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')], default=1)
-	collection=SelectField('Collection Options', choices=[(1, '---'),('Advance with Proration','Advance with Proration'), ('Arrears','Arrears'),('Advance','Advance')], default=1)
-	structure=SelectField('Fee Structures', choices=[(1, '---'),('Flat Rate','Flat Rate'),('Flat Fee','Flat Fee'),('Favor','Favor')], default=1)
-	valuation_method=SelectField('Valuation Methods', choices=[(1, '---'),('Ending Period balance','Ending Period balance'),('Average Daily Balance','Average Daily Balance')], default=1)
-	flat_rate = DecimalField('Flat Rate', places=2, number_format='{0:.2f}%',validators=[Optional()])
-	flat_fee= DecimalField('Flat Fee', places=2,validators=[Optional()])
-	quarterly_cycle=SelectField('Quarterly Cycle', choices=[(1, '---'),('Mar-Jun-Sep-Dec','Mar-Jun-Sep-Dec'),('Feb-May-Aug-Nov','Feb-May-Aug-Nov'),('Jan-Apr-Jul-Oct','Jan-Apr-Jul-Oct')], default=1,validators=[Optional()])
+	name= StringField('Fee Structure', validators=[DataRequired()],render_kw={"placeholder": "Enter Structure Name","class": "form-control"})
+	frequency=SelectField('Frequencies', choices = [(1, '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')], default=1,render_kw={"class": "custom-select mr-sm-1", "id":"frequency"})
+	collection=SelectField('Collection Options', choices=[(1, '---'),('Advance with Proration','Advance with Proration'), ('Arrears','Arrears'),('Advance','Advance')], default=1,render_kw={"class": "custom-select mr-sm-1"})
+	structure=SelectField('Fee Structures', choices=[(1, '---'),('Flat Rate','Flat Rate'),('Flat Fee','Flat Fee'),('Favor','Favor')], default=1,render_kw={"class": "custom-select mr-sm-1"})
+	valuation_method=SelectField('Valuation Methods', choices=[(1, '---'),('Ending Period balance','Ending Period balance'),('Average Daily Balance','Average Daily Balance')], default=1,render_kw={"class": "custom-select mr-sm-1"})
+	flat_rate = DecimalField('Flat Rate', places=2, number_format='{0:.2f}%',validators=[Optional()],render_kw={"placeholder": "Enter Rate","class": "hidden"})
+	flat_fee= DecimalField('Flat Fee', places=2,validators=[Optional()],render_kw={"placeholder": "Enter Fee Amount","class": "hidden"})
+	quarterly_cycle=SelectField('Quarterly Cycle', choices=[(1, '---'),('Mar-Jun-Sep-Dec','Mar-Jun-Sep-Dec'),('Feb-May-Aug-Nov','Feb-May-Aug-Nov'),('Jan-Apr-Jul-Oct','Jan-Apr-Jul-Oct')], default=1,validators=[Optional()],render_kw={"class": "hidden custom-select mr-sm-1", "id":"quarterly_cycle"})
 	submit = SubmitField('Create Fee Structure')
 
 
