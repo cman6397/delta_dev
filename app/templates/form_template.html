@@ -46,16 +46,18 @@
 
         {% for field in form %}
         <p>
-        	{% if field.type not in ['CSRFTokenField', 'HiddenField', 'SubmitField', 'StringField'] %}
+        	{% if field.type in ['SelectField'] %}
         		{{ field.label(class='mr-sm-1') }}
         		{{ field(class='custom-select mr-sm-1') }}
-        	{% elif field.type in ['StringField'] %}
+        	{% elif field.type in ['StringField', 'DecimalField'] %}
         		{{ field.label(class='mr-sm-2') }}
-        		{{ field(size=32, class='form-control', placeholder='Enter Name') }}
+        		{{ field(size=32, class='form-control', placeholder='Enter') }}
+            {% elif field.type in ['CSRFTokenField'] %}
+                {{field}}
         	{% endif %}
         </p>
         {% endfor %}
-        <p>{{ form.submit(class='btn btn-default') }}</p>
+        <p>{{ form.submit(class='btn btn-primary') }}</p>
     	</div>
     	</div>
     </div>

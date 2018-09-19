@@ -12,7 +12,12 @@ def alchemyencoder(obj):
 	if isinstance(obj, datetime.date):
 		return obj.isoformat()
 	elif isinstance(obj, decimal.Decimal):
-		return '${:,.2f}'.format(obj)
+		if obj > 1:
+			return '${:,.2f}'.format(obj)
+		elif obj>0.0001:
+			return '{0:.2f}%'.format(obj*100)
+		else:
+			return ""
 
 @app.route('/')
 def main():
@@ -233,8 +238,14 @@ def create_fee():
 		collection = form.collection.data
 		structure = form.structure.data
 		valuation_method = form.valuation_method.data
+		flat_rate=form.flat_rate.data
+		flat_fee=form.flat_fee.data
+		quarterly_cycle=form.quarterly_cycle.data
 
-		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method)
+		if flat_rate:
+			flat_rate =flat_rate/100
+
+		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate, flat_fee=flat_fee,quarterly_cycle=quarterly_cycle)
 		db.session.add(fee_structure)
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
