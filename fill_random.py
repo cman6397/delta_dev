@@ -27,25 +27,25 @@ quarterly_cycles=['Mar-Jun-Sep-Dec','Feb-May-Aug-Nov','Jan-Apr-Jul-Oct']
 
 def generate_fee_structures():
 	Fee_Structure.query.delete()
-	for fee_name in fee_names:
+	for x in range(0,10):
+		for fee_name in fee_names:
+			name=fee_name + str(x)
+			frequency=random.choice(frequencies)
+			collection=random.choice(collections)
+			structure=random.choice(structures)
+			valuation_method=random.choice(valuation_methods)
+			flat_rate=0
+			flat_fee=0
+			quarterly_cycle=""
+			if structure == 'Flat Rate':
+				flat_rate=round(random.uniform(.5,2),2)
+			elif structure == 'Flat Fee':
+				flat_fee=round(random.uniform(500,10000),2)
+			if frequency=='Monthly':
+				quarterly_cycle=random.choice(quarterly_cycles)
 
-		name=fee_name
-		frequency=random.choice(frequencies)
-		collection=random.choice(collections)
-		structure=random.choice(structures)
-		valuation_method=random.choice(valuation_methods)
-		flat_rate=0
-		flat_fee=0
-		quarterly_cycle=""
-		if structure == 'Flat Rate':
-			flat_rate=round(random.uniform(.5,2),2)
-		elif structure == 'Flat Fee':
-			flat_fee=round(random.uniform(500,10000),2)
-		if frequency=='Monthly':
-			quarterly_cycle=random.choice(quarterly_cycles)
-
-		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate,flat_fee=flat_fee, quarterly_cycle=quarterly_cycle)
-		db.session.add(fee_structure)
+			fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate,flat_fee=flat_fee, quarterly_cycle=quarterly_cycle)
+			db.session.add(fee_structure)
 
 def generate_households():
 	Household.query.delete()

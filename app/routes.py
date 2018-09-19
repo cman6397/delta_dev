@@ -117,7 +117,8 @@ def fee_structure_data():
 
 	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Fee Name'),Fee_Structure.frequency.label('Frequency'), \
 	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
-	func.count(Account.id).label('Total Accounts')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+	func.count(Account.id).label('Total Accounts'),Fee_Structure.flat_rate.label('Flat Rate'),Fee_Structure.flat_fee.label('Flat Fee'), \
+	Fee_Structure.quarterly_cycle.label('Quarterly Cycle')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
 	fee_structures=fee_structure_query.all()
 	keys=fee_structures[0].keys()
@@ -132,7 +133,8 @@ def fee_structure_data():
 def fee_structure():
 	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Fee Name'),Fee_Structure.frequency.label('Frequency'), \
 	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
-	func.count(Account.id).label('Total Accounts')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+	func.count(Account.id).label('Total Accounts'),Fee_Structure.flat_rate.label('Flat Rate'),Fee_Structure.flat_fee.label('Flat Fee'), \
+	Fee_Structure.quarterly_cycle.label('Quarterly Cycle')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
 	fee_structures=fee_structure_query.first()
 	keys=fee_structures.keys()
