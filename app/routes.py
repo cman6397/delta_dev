@@ -246,6 +246,7 @@ def create_fee():
 			flat_rate =flat_rate/100
 
 		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate, flat_fee=flat_fee,quarterly_cycle=quarterly_cycle)
+		print(fee_structure)
 		db.session.add(fee_structure)
 		db.session.commit()
 		return redirect(url_for('fee_structure'))

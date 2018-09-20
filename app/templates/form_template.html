@@ -4,30 +4,17 @@
 		<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <!-- Font Awesome -->
-   	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">-->
-    <!-- Material Design Bootstrap -->
-    <!--<link href="../static/css/mdb.min.css" rel="stylesheet">-->
-    <!-- Your custom styles (optional) -->
-    <!-- <link href="../static/css/style.css" rel="stylesheet">-->
-    <!-- Bootstrap core CSS -->
+
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
-    <!-- more table stuff -->
-    <link href="../static/DataTables/css/jquery.dataTables.min.css" rel="stylesheet">
-    <!-- Select and Table Buttons -->
-    <link href="../static/custom/css/select.dataTables.css" rel="stylesheet">
-    <link href="../static/custom/css/dataTables.checkboxes.css" rel="stylesheet">
-    <!-- Select and Table Buttons -->
-    <!--<link href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css" rel="stylesheet">-->
-    <!-- Select and Table Buttons -->
-    <link href="https://cdn.datatables.net/buttons/1.5.2/css/buttons.dataTables.min.css" rel="stylesheet">
+
+ <script type="text/javascript" src="../static/js/jquery-3.3.1.min.js"></script>
 
 <style>
    .center {
-        position:fixed;
-        top:50%;
-        left:50%;
-        transform: translate(-50%,-50%);
+        position: fixed;
+        left: 50%;
+        top:30px;
+        transform: translateX(-50%);
    }  
    .hidden {
         display:none;
@@ -49,15 +36,15 @@
 
         {% for field in form %}
         <p>
-        	{% if field.type in ['SelectField'] %}
-        		{{ field.label(class='mr-sm-1') }}
-        		{{ field }}
-        	{% elif field.type in ['StringField', 'DecimalField'] %}
-        		{{ field.label(class='mr-sm-2') }}
-        		{{ field(size=32) }}
-            {% elif field.type in ['CSRFTokenField'] %}
-                {{field}}
-        	{% endif %}
+            {% if field.type not in ['SubmitField','CSRFTokenField'] %}
+                {% if field.id not in ['flat_fee','flat_rate', 'quarterly_cycle'] %}
+                    {{field.label}}
+                    {{field}}
+                {% else %}
+                    {{field.label(class='hidden')}}
+                    {{field}}
+                {% endif %}   
+            {% endif %}
         </p>
         {% endfor %}
         <p>{{ form.submit(class='btn btn-primary') }}</p>
@@ -67,6 +54,60 @@
 </form>
 
 </div>
+
+<script>
+$(document).ready(function(){
+    $("#frequency").change(function() {
+        var val = $(this).val();
+        var label = $("label[for='" + $("#quarterly_cycle").attr('id') + "']");
+
+        if (val == "Monthly") {
+            $("#quarterly_cycle").removeClass("hidden");
+            $("#quarterly_cycle").addClass("form-control");
+            $(label).removeClass("hidden");
+        }
+        else {
+            $("#quarterly_cycle").removeClass("form-control");
+            $("#quarterly_cycle").addClass("hidden");
+            $(label).addClass("hidden");
+        }
+    });
+    $("#structure").change(function() {
+        var val = $(this).val();
+        var rate_label = $("label[for='" + $("#flat_rate").attr('id') + "']");
+        var fee_label = $("label[for='" + $("#flat_fee").attr('id') + "']");
+
+        if (val == "Flat Rate") {
+            $("#flat_fee").removeClass("form-control");
+            $("#flat_fee").addClass("hidden");
+            $(fee_label).addClass("hidden");
+
+            $("#flat_rate").removeClass("hidden");
+            $("#flat_rate").addClass("form-control");
+            $(rate_label).removeClass("hidden");
+        }
+        else if (val == "Flat Fee"){
+            $("#flat_rate").removeClass("form-control");
+            $("#flat_rate").addClass("hidden");
+            $(rate_label).addClass("hidden");
+
+            $("#flat_fee").removeClass("hidden");
+            $("#flat_fee").addClass("form-control");
+            $(fee_label).removeClass("hidden");
+        }
+        else {
+            $("#flat_rate").removeClass("form-control");
+            $("#flat_fee").removeClass("form-control")
+
+            $("#flat_fee").addClass("hidden");
+            $("#flat_rate").addClass("hidden");
+
+            $(rate_label).addClass("hidden");
+            $(fee_label).addClass("hidden");
+        }
+    });
+});
+</script>
 
 </body>
  
