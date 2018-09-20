@@ -1,6 +1,7 @@
 from flask import render_template,url_for,redirect,flash, request,jsonify,json
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
+from sqlalchemy import exc
 from app import app
 from app import db
 from app.forms import LoginForm, Fee_StructureForm
@@ -231,24 +232,22 @@ def dev():
 @app.route('/fee_structure/create',methods=['GET', 'POST'])
 @login_required
 def create_fee():
+	message = "Fee Structure Name Taken"
 	form = Fee_StructureForm()
 	if form.validate_on_submit():
-		name = form.name.data
-		frequency = form.frequency.data
-		collection = form.collection.data
-		structure = form.structure.data
-		valuation_method = form.valuation_method.data
-		flat_rate=form.flat_rate.data
-		flat_fee=form.flat_fee.data
-		quarterly_cycle=form.quarterly_cycle.data
-		print(flat_rate)
-		if flat_rate:
-			flat_rate=flat_rate/100
-		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate, flat_fee=flat_fee,quarterly_cycle=quarterly_cycle)
-		db.session.add(fee_structure)
-		db.session.commit()
+		new_fee_structure=Fee_Structure()
+		form.populate_obj(new_fee_structure)
+		try:
+			db.session.add(new_fee_structure)
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash(message)
+			return redirect(url_for('create_fee'))
+
+
 		return redirect(url_for('fee_structure'))
-		
+
 	return render_template('form_template.html', methods=['GET', 'POST'], form=form)
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])

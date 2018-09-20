@@ -97,7 +97,14 @@ def json_testing():
 
 	json_struct=[dict(zip([key for key in keys],row)) for row in accounts]
 
+def show_table():
+	fee_structure_query=db.session.query(Fee_Structure.name.label('fee_structure'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
+	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts')). \
+	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
+	fee_structures=fee_structures.all()
+	for fee_struct in fee_structures:
+		print(fee_struct)
 
 if __name__ == '__main__':
 	with warnings.catch_warnings():

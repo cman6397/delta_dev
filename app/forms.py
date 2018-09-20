@@ -12,14 +12,14 @@ class DollarField(DecimalField):
 class PercentField(DecimalField):
     def process_formdata(self, valuelist):
         if len(valuelist) == 1:
-            self.data = float((valuelist[0].strip('%')))
+            self.data = float((valuelist[0].strip('%')))/100
         else:
             self.data = None
 
 
 class LoginForm(FlaskForm):
-	username = StringField('Username', validators=[DataRequired()])
-	password = PasswordField('Password', validators=[DataRequired()])
+	username = StringField('Username', validators=[InputRequired(),Length(max=50)])
+	password = PasswordField('Password', validators=[InputRequired(),Length(max=50)])
 	submit = SubmitField('Sign In')
 
 	def verify_user(self):

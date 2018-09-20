@@ -24,12 +24,12 @@ class User(UserMixin, db.Model):
 class Fee_Structure(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(500), unique=True, nullable=False)
-	frequency=db.Column(db.String(100), unique=False, nullable=False)
 	collection=db.Column(db.String(100), unique=False, nullable=False)
 	structure=db.Column(db.String(100), unique=False, nullable=False)
-	valuation_method=db.Column(db.String(100), unique=False, nullable=False)
 	flat_rate=db.Column(db.Numeric(precision=4), unique=False, nullable=True)
 	flat_fee=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
+	valuation_method=db.Column(db.String(100), unique=False, nullable=False)
+	frequency=db.Column(db.String(100), unique=False, nullable=False)
 	quarterly_cycle=db.Column(db.String(100), unique=False, nullable=True)
 	accounts = db.relationship('Account', backref='fee_structure', lazy='dynamic')
 
