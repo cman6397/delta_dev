@@ -140,7 +140,6 @@ def fee_structure():
 	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
 	func.count(Account.id).label('Total Accounts'),Fee_Structure.flat_rate.label('Flat Rate'),Fee_Structure.flat_fee.label('Flat Fee'), \
 	Fee_Structure.quarterly_cycle.label('Quarterly Cycle')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
-
 	fee_structures=fee_structure_query.first()
 	keys=fee_structures.keys()
 
@@ -227,6 +226,7 @@ def dev():
 
 	return render_template('dev.html',cols=fee_view)
 
+#***************************** FORMS ******************************************
 
 @app.route('/fee_structure/create',methods=['GET', 'POST'])
 @login_required
@@ -238,16 +238,17 @@ def create_fee():
 		collection = form.collection.data
 		structure = form.structure.data
 		valuation_method = form.valuation_method.data
-		flat_rate=form.flat_rate.data/100
+		flat_rate=form.flat_rate.data
 		flat_fee=form.flat_fee.data
 		quarterly_cycle=form.quarterly_cycle.data
-		
+		print(flat_rate)
+		if flat_rate:
+			flat_rate=flat_rate/100
 		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate, flat_fee=flat_fee,quarterly_cycle=quarterly_cycle)
-		print(fee_structure)
 		db.session.add(fee_structure)
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
-
+		
 	return render_template('form_template.html', methods=['GET', 'POST'], form=form)
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])

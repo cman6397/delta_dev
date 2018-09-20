@@ -44,6 +44,13 @@
                     {{field.label(class='hidden')}}
                     {{field}}
                 {% endif %}   
+                {% if field.errors %}
+                <ul class=errors>
+                    {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
             {% endif %}
         </p>
         {% endfor %}
@@ -86,7 +93,7 @@ $(document).ready(function(){
             $("#flat_rate").addClass("form-control");
             $(rate_label).removeClass("hidden");
 
-            $("#flat_fee").val(0)
+            $("#flat_fee").val('')
         }
         else if (val == "Flat Fee"){
             $("#flat_rate").removeClass("form-control");
@@ -97,7 +104,7 @@ $(document).ready(function(){
             $("#flat_fee").addClass("form-control");
             $(fee_label).removeClass("hidden");
 
-            $("#flat_rate").val(0)
+            $("#flat_rate").val('')
         }
         else {
             $("#flat_rate").removeClass("form-control");
@@ -109,8 +116,8 @@ $(document).ready(function(){
             $(rate_label).addClass("hidden");
             $(fee_label).addClass("hidden");
 
-            $("#flat_rate").val(0)
-            $("#flat_fee").val(0)
+            $("#flat_rate").val('')
+            $("#flat_fee").val('')
         }
     });
 });
