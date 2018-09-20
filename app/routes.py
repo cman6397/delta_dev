@@ -238,13 +238,10 @@ def create_fee():
 		collection = form.collection.data
 		structure = form.structure.data
 		valuation_method = form.valuation_method.data
-		flat_rate=form.flat_rate.data
+		flat_rate=form.flat_rate.data/100
 		flat_fee=form.flat_fee.data
 		quarterly_cycle=form.quarterly_cycle.data
-
-		if flat_rate:
-			flat_rate =flat_rate/100
-
+		
 		fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate, flat_fee=flat_fee,quarterly_cycle=quarterly_cycle)
 		print(fee_structure)
 		db.session.add(fee_structure)

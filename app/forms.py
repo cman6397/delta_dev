@@ -6,9 +6,9 @@ from app.models import User,Household
 class DollarField(DecimalField):
     def process_formdata(self, valuelist):
         if len(valuelist) == 1:
-            self.data = [valuelist[0].strip('$').replace(',', '')]
+            self.data = (valuelist[0].strip('$').replace(',', ''))
         else:
-            self.data = []
+            self.data = (0)
 
 
 class LoginForm(FlaskForm):
@@ -35,7 +35,7 @@ class Fee_StructureForm(FlaskForm):
 	name= StringField('Name', validators=[DataRequired()],render_kw={"placeholder": "Enter Structure Name","class": "form-control"})
 	collection=SelectField('Collection', choices=[(1, '---'),('Advance with Proration','Advance with Proration'), ('Arrears','Arrears'),('Advance','Advance')], default=1,render_kw={"class": "custom-select mr-sm-1"})
 	structure=SelectField('Fee Structure', choices=[(1, '---'),('Flat Rate','Flat Rate'),('Flat Fee','Flat Fee'),('Favor','Favor')], default=1,render_kw={"class": "custom-select mr-sm-1"})
-	flat_rate = DecimalField('Fee Rate (%)', places=2, number_format='{0:.2f}%',validators=[Optional()],render_kw={"placeholder": "e.g., 0.5","class": "hidden"})
+	flat_rate = DecimalField('Fee Rate (%)', places=2, number_format='{0:.2f}%',validators=[Optional()],render_kw={"placeholder": "e.g., 0.5","class": "hidden"},filters = [lambda x: x or 0])
 	flat_fee= DollarField('Annual Amount ($)', places=2,validators=[Optional()],render_kw={"placeholder": "e.g., 1500","class": "hidden"})
 	valuation_method=SelectField('Valuation Method', choices=[(1, '---'),('Ending Period balance','Ending Period balance'),('Average Daily Balance','Average Daily Balance')], default=1,render_kw={"class": "custom-select mr-sm-1"})
 	frequency=SelectField('Frequency', choices = [(1, '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')], default=1,render_kw={"class": "custom-select mr-sm-1", "id":"frequency"})
