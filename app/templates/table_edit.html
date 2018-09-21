@@ -151,7 +151,7 @@ $( document ).ready( function( $ )
                         "text": 'Delete',
                         "type": 'submit',
                         "class": 'close',
-                        "className": 'btn btn-secondary',
+                        "className": 'btn btn-danger',
 
                         action: function () 
                         {
@@ -179,7 +179,7 @@ $( document ).ready( function( $ )
                             "id": 'btnEdit'
                         },
                         "text": 'Edit',
-                        "className": 'btn btn-secondary' ,
+                        "className": 'btn btn-warning' ,
                         action: function () 
                         {
                             var selected_rows=table.rows('.selected').data();
@@ -207,6 +207,11 @@ $( document ).ready( function( $ )
                 ]
             }
         });
+
+    var buttons = table.buttons( ['#btnEdit', '#tblDelete'] );
+    buttons.disable();
+
+
     // Handle form submission event 
     table.on("click", "th.select-checkbox", function() {
     if ($("th.select-checkbox").hasClass("selected")) {
@@ -224,29 +229,18 @@ $( document ).ready( function( $ )
         $("th.select-checkbox").removeClass("selected");
     } else {
         $("th.select-checkbox").addClass("selected");
-
-        if ($("#tblDelete").hasClass("btn btn-secondary") && table.rows('.selected').count() > 0 ) 
-        {
-            $("#tblDelete").removeClass("btn btn-secondary");
-            $("#tblDelete").addClass("btn btn-danger");
+        //Controlling Button Activation
+        var buttons=table.buttons(['#btnEdit', '#tblDelete'])
+        if (table.rows('.selected').count() == 0 ) {
+            buttons.disable()
         }
 
-        else if ($("#tblDelete").hasClass("btn btn-danger") && table.rows('.selected').count() == 0 )  
-        {
-            $("#tblDelete").removeClass("btn btn-danger");
-            $("#tblDelete").addClass("btn btn-secondary");
+        else if (table.rows('.selected').count() == 1 ) {
+            buttons.enable()
         }
-
-        if ($("#btnEdit").hasClass("btn btn-secondary") && table.rows('.selected').count() == 1 ) 
-        {
-            $("#btnEdit").removeClass("btn btn-secondary");
-            $("#btnEdit").addClass("btn btn-warning");
-        }
-
-        else if ($("#btnEdit").hasClass("btn btn-warning") && table.rows('.btnEdit').count() != 1 )  
-        {
-            $("#btnEdit").removeClass("btn btn-warning");
-            $("#btnEdit").addClass("btn btn-secondary");
+        else {
+            table.buttons( ['#tblDelete']).enable()
+            table.buttons( ['#btnEdit']).disable()
         }
     }
     })
@@ -255,8 +249,6 @@ $(document).on("click", "#btnDelete", function(event)
 {
     var mymodal = $('#warn_modal');
     mymodal.modal('hide');
-
-    console.log(keys)
 
     $.ajax({
     data : JSON.stringify(keys, null, '\t'),
