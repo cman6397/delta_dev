@@ -160,7 +160,7 @@ def fee_structure():
 		db.session.commit()
 		return redirect(url_for('fee_structure'))
 
-	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'), columns=columns, title='Fee Structures')
+	return render_template('table_edit.html', data_link=url_for('fee_structure_data'), page_link = url_for('fee_structure'), create_link = url_for('create_fee'),columns=columns, title='Fee Structures')
 
 #********************** BILLING GROUP **************************
 @app.route('/billing_group_data/')
@@ -257,7 +257,7 @@ def create_fee():
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_fee_structures(id):
+def edit_fee_structure(id):
 	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
 	fee_structure=fee_structure_query.first()
 	fee_structure.flat_rate=fee_structure.flat_rate*100

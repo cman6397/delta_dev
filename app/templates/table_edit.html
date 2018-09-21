@@ -146,14 +146,6 @@ $( document ).ready( function( $ )
 
                     {
                         "attr":  {
-                            "id": 'btnEdit'
-                        },
-                        "text": 'Edit',
-                        "className": 'btn btn-secondary'  
-                    },
-
-                    {
-                        "attr":  {
                             "id": 'tblDelete'
                         },
                         "text": 'Delete',
@@ -183,6 +175,27 @@ $( document ).ready( function( $ )
                         }
                     },
                     {
+                        "attr":  {
+                            "id": 'btnEdit'
+                        },
+                        "text": 'Edit',
+                        "className": 'btn btn-secondary' ,
+                        action: function () 
+                        {
+                            var selected_rows=table.rows('.selected').data();
+                            var length = table.rows('.selected').count();
+                            edit_key = ''
+
+                            if (length == 1) {
+                                edit_key=selected_rows[0].id;
+                                window.location.href = {{ page_link|tojson }} && edit_key
+                            }
+                            else {
+                                alert ('Select one row to edit.')
+                            }
+                        } 
+                    },
+                    {
                         extend: "csv",
                         className: "btn btn-secondary",
                     },
@@ -190,6 +203,7 @@ $( document ).ready( function( $ )
                         extend: "excel",
                         className: "btn btn-secondary",
                     }
+
                 ]
             }
         });
@@ -254,12 +268,6 @@ $(document).on("click", "#btnDelete", function(event)
         $('#table').DataTable().ajax.reload();
     }
     })
-    keys=[] 
-});
-
-$(document).on("click", "#btnEdit", function(event)
-{
-    console.log(keys)
     keys=[] 
 });
 
