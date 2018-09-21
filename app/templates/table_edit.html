@@ -146,6 +146,28 @@ $( document ).ready( function( $ )
 
                     {
                         "attr":  {
+                            "id": 'btnEdit'
+                        },
+                        "text": 'Edit',
+                        "className": 'btn btn-warning' ,
+                        action: function () 
+                        {
+                            var selected_rows=table.rows('.selected').data();
+                            var length = table.rows('.selected').count();
+                            edit_key = ''
+
+                            if (length == 1) {
+                                edit_key=selected_rows[0].id;
+                                window.location.href = {{ page_link|tojson }} && edit_key
+                            }
+                            else {
+                                alert ('Select one row to edit.')
+                            }
+                        } 
+                    },
+
+                    {
+                        "attr":  {
                             "id": 'tblDelete'
                         },
                         "text": 'Delete',
@@ -173,27 +195,6 @@ $( document ).ready( function( $ )
                                 alert("No Rows Selected")
                             }
                         }
-                    },
-                    {
-                        "attr":  {
-                            "id": 'btnEdit'
-                        },
-                        "text": 'Edit',
-                        "className": 'btn btn-warning' ,
-                        action: function () 
-                        {
-                            var selected_rows=table.rows('.selected').data();
-                            var length = table.rows('.selected').count();
-                            edit_key = ''
-
-                            if (length == 1) {
-                                edit_key=selected_rows[0].id;
-                                window.location.href = {{ page_link|tojson }} && edit_key
-                            }
-                            else {
-                                alert ('Select one row to edit.')
-                            }
-                        } 
                     },
                     {
                         extend: "csv",
