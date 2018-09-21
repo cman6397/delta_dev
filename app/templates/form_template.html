@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-		<meta charset="utf-8">
+    <title>Delta Billing</title>
+
+	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -69,7 +71,8 @@
             {% endif %}
         </p>
         {% endfor %}
-        <p>{{ form.submit(class='btn btn-primary') }}</p>
+        <p>{{ form.submit(class='btn btn-primary') }}
+        <a class="btn btn-secondary" href="{{ url_for('fee_structure') }}"> Cancel</a> </p>
     	</div>
     	</div>
     </div>
@@ -79,11 +82,15 @@
 
 <script>
 $(document).ready(function(){
+    $("#quarterly_cycle").addClass('hidden');
+    $("#flat_fee").addClass('hidden');
+    $("#flat_rate").addClass('hidden');
+
     $("#frequency").change(function() {
         var val = $(this).val();
         var label = $("label[for='" + $("#quarterly_cycle").attr('id') + "']");
 
-        if (val == "Monthly") {
+        if (val == "Quarterly") {
             $("#quarterly_cycle").removeClass("hidden");
             $("#quarterly_cycle").addClass("form-control");
             $(label).removeClass("hidden");
@@ -101,31 +108,24 @@ $(document).ready(function(){
         var fee_label = $("label[for='" + $("#flat_fee").attr('id') + "']");
 
         if (val == "Flat Rate") {
-            $("#flat_fee").removeClass("form-control");
             $("#flat_fee").addClass("hidden");
             $(fee_label).addClass("hidden");
 
             $("#flat_rate").removeClass("hidden");
-            $("#flat_rate").addClass("form-control");
             $(rate_label).removeClass("hidden");
 
             $("#flat_fee").val('')
         }
         else if (val == "Flat Fee"){
-            $("#flat_rate").removeClass("form-control");
             $("#flat_rate").addClass("hidden");
             $(rate_label).addClass("hidden");
 
             $("#flat_fee").removeClass("hidden");
-            $("#flat_fee").addClass("form-control");
             $(fee_label).removeClass("hidden");
 
             $("#flat_rate").val('')
         }
         else {
-            $("#flat_rate").removeClass("form-control");
-            $("#flat_fee").removeClass("form-control")
-
             $("#flat_fee").addClass("hidden");
             $("#flat_rate").addClass("hidden");
 

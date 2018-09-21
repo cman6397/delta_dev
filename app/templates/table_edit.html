@@ -188,7 +188,7 @@ $( document ).ready( function( $ )
                                     keys.push(selected_rows[i].id);
                                 }
                                 var mymodal = $('#warn_modal');
-                                mymodal.find('.modal-body').text('You have selected ' + length + ' fee structure(s) to delete.');
+                                mymodal.find('.modal-body').text('You have selected ' + length + " {{ title }}" + '(s) to delete.');
                                 mymodal.modal('show'); 
                             }
                             else {

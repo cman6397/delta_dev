@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-		<meta charset="utf-8">
+    <title>Delta Billing</title>
+
+	<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
@@ -11,6 +13,12 @@
  <script type="text/javascript" src="..\static\js\bootstrap.min.js"> </script>
 
 <style>
+   .left {
+        position: fixed;
+        left: 25%;
+        top:40px;
+        transform: translateX(-50%);
+   }  
    .center {
         position: fixed;
         left: 50%;
@@ -41,6 +49,7 @@
     {% endif %}
 {% endwith %}
 
+
 <div class = "center">
 
 <form action="" method="post" novalidate>
@@ -51,9 +60,9 @@
 
         {% for field in form %}
         <p>
-            {% if field.type not in ['SubmitField','CSRFTokenField'] and field.data != 0 %}
+            {% if field.type not in ['SubmitField','CSRFTokenField'] and field.data != 0 and field.data != '' and field.data %}
                 {{field.label}}
-                {{field(class='form-control')}}
+                {{field}}
             {% else %}
                 {{field.label(class='hidden')}}
                 {{field(class='hidden')}}
@@ -68,7 +77,8 @@
             {% endif %}
         </p>
         {% endfor %}
-        <p>{{ form.submit(class='btn btn-primary', value = "Save") }}</p>
+        <p>{{ form.submit(class='btn btn-primary', value = "Save") }}
+        <a class="btn btn-secondary" href="{{ url_for('fee_structure') }}"> Cancel</a> </p>
     	</div>
     	</div>
     </div>
@@ -82,7 +92,7 @@ $(document).ready(function(){
         var val = $(this).val();
         var label = $("label[for='" + $("#quarterly_cycle").attr('id') + "']");
 
-        if (val == "Monthly") {
+        if (val == "Quarterly") {
             $("#quarterly_cycle").removeClass("hidden");
             $("#quarterly_cycle").addClass("form-control");
             $(label).removeClass("hidden");

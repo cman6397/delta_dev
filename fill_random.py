@@ -36,12 +36,12 @@ def generate_fee_structures():
 			valuation_method=random.choice(valuation_methods)
 			flat_rate=0
 			flat_fee=0
-			quarterly_cycle=""
+			quarterly_cycle=''
 			if structure == 'Flat Rate':
 				flat_rate=round(random.uniform(0,0.1),4)
 			elif structure == 'Flat Fee':
 				flat_fee=round(random.uniform(500,10000),2)
-			if frequency=='Monthly':
+			if frequency=='Quarterly':
 				quarterly_cycle=random.choice(quarterly_cycles)
 
 			fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate,flat_fee=flat_fee, quarterly_cycle=quarterly_cycle)

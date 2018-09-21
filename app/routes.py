@@ -202,6 +202,55 @@ def billing_group():
 
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_fee'), columns=columns, title='Billing Groups')
 
+
+#***************************** FORMS ******************************************
+
+@app.route('/fee_structure/create',methods=['GET', 'POST'])
+@login_required
+def create_fee():
+	message = "Fee Structure Name Taken"
+	form = Fee_StructureForm()
+	if form.validate_on_submit():
+		new_fee_structure=Fee_Structure()
+		form.populate_obj(new_fee_structure)
+		try:
+			db.session.add(new_fee_structure)
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash(message)
+			return redirect(url_for('create_fee'))
+
+
+		return redirect(url_for('fee_structure'))
+
+	return render_template('form_template.html', form=form)
+
+@app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_fee_structure(id):
+	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
+	fee_structure=fee_structure_query.first()
+
+	if fee_structure.flat_rate:
+		fee_structure.flat_rate=fee_structure.flat_rate*100
+
+	form = Fee_StructureForm(obj=fee_structure)
+
+	if form.validate_on_submit():
+		form.populate_obj(fee_structure)
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash(message)
+			return redirect(url_for('create_fee'))
+
+		return redirect(url_for('fee_structure'))
+
+	return render_template('edit_template.html',form=form)
+
+
 #********************** DEV **************************
 @app.route('/dev_data/')
 @login_required
@@ -232,49 +281,6 @@ def dev():
 
 	return render_template('dev.html',cols=fee_view)
 
-#***************************** FORMS ******************************************
-
-@app.route('/fee_structure/create',methods=['GET', 'POST'])
-@login_required
-def create_fee():
-	message = "Fee Structure Name Taken"
-	form = Fee_StructureForm()
-	if form.validate_on_submit():
-		new_fee_structure=Fee_Structure()
-		form.populate_obj(new_fee_structure)
-		try:
-			db.session.add(new_fee_structure)
-			db.session.commit()
-		except exc.IntegrityError:
-			db.session.rollback()
-			flash(message)
-			return redirect(url_for('create_fee'))
-
-
-		return redirect(url_for('fee_structure'))
-
-	return render_template('form_template.html', form=form)
-
-@app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_fee_structure(id):
-	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
-	fee_structure=fee_structure_query.first()
-	fee_structure.flat_rate=fee_structure.flat_rate*100
-	form = Fee_StructureForm(obj=fee_structure)
-
-	if form.validate_on_submit():
-		form.populate_obj(fee_structure)
-		try:
-			db.session.commit()
-		except exc.IntegrityError:
-			db.session.rollback()
-			flash(message)
-			return redirect(url_for('create_fee'))
-
-		return redirect(url_for('fee_structure'))
-
-	return render_template('edit_template.html',form=form)
 
 
 
