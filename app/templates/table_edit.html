@@ -146,7 +146,14 @@ $( document ).ready( function( $ )
 
                     {
                         "attr":  {
-                            "title": 'Copy',
+                            "id": 'btnEdit'
+                        },
+                        "text": 'Edit',
+                        "className": 'btn btn-secondary'  
+                    },
+
+                    {
+                        "attr":  {
                             "id": 'tblDelete'
                         },
                         "text": 'Delete',
@@ -215,6 +222,18 @@ $( document ).ready( function( $ )
             $("#tblDelete").removeClass("btn btn-danger");
             $("#tblDelete").addClass("btn btn-secondary");
         }
+
+        if ($("#btnEdit").hasClass("btn btn-secondary") && table.rows('.selected').count() == 1 ) 
+        {
+            $("#btnEdit").removeClass("btn btn-secondary");
+            $("#btnEdit").addClass("btn btn-warning");
+        }
+
+        else if ($("#btnEdit").hasClass("btn btn-warning") && table.rows('.btnEdit').count() != 1 )  
+        {
+            $("#btnEdit").removeClass("btn btn-warning");
+            $("#btnEdit").addClass("btn btn-secondary");
+        }
     }
     })
 });
@@ -222,6 +241,8 @@ $(document).on("click", "#btnDelete", function(event)
 {
     var mymodal = $('#warn_modal');
     mymodal.modal('hide');
+
+    console.log(keys)
 
     $.ajax({
     data : JSON.stringify(keys, null, '\t'),
@@ -233,6 +254,12 @@ $(document).on("click", "#btnDelete", function(event)
         $('#table').DataTable().ajax.reload();
     }
     })
+    keys=[] 
+});
+
+$(document).on("click", "#btnEdit", function(event)
+{
+    console.log(keys)
     keys=[] 
 });
 

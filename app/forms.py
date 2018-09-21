@@ -42,7 +42,7 @@ class Fee_StructureForm(FlaskForm):
 	collection=SelectField('Collection', choices=[('', '---'),('Advance with Proration','Advance with Proration'), ('Arrears','Arrears'),('Advance','Advance')], default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
 	structure=SelectField('Fee Structure', choices=[('', '---'),('Flat Rate','Flat Rate'),('Flat Fee','Flat Fee'),('Favor','Favor')],default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
 	flat_rate = PercentField('Fee Rate (%)', places=2,render_kw={"placeholder": "e.g., 0.5","class": "hidden"}, validators=[Optional(),NumberRange(max=100, min=0)])
-	flat_fee= DollarField('Annual Amount ($)', places=2,render_kw={"placeholder": "e.g., 1500","class": "hidden"}, validators=[Optional(),NumberRange(min=1)])
+	flat_fee= DollarField('Annual Amount ($)', places=2,render_kw={"placeholder": "e.g., $1,500","class": "hidden"}, validators=[Optional(),NumberRange(min=1)])
 	valuation_method=SelectField('Valuation Method', choices=[('', '---'),('Ending Period balance','Ending Period balance'),('Average Daily Balance','Average Daily Balance')], default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
 	frequency=SelectField('Frequency', choices = [('', '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')],default='',render_kw={"class": "custom-select mr-sm-1", "id":"frequency"}, validators=[InputRequired()])
 	quarterly_cycle=SelectField('Quarterly Cycle', choices=[('', '---'),('Mar-Jun-Sep-Dec','Mar-Jun-Sep-Dec'),('Feb-May-Aug-Nov','Feb-May-Aug-Nov'),('Jan-Apr-Jul-Oct','Jan-Apr-Jul-Oct')],default='',render_kw={"class": "hidden custom-select mr-sm-1", "id":"quarterly_cycle"}, validators=[Optional()])

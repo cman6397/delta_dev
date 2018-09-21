@@ -20,9 +20,8 @@ def alchemyencoder(obj):
 		else:
 			return ""
 
-@app.route('/')
-def main():
-	return redirect (url_for('login'))
+
+#********************** LOGIN/LOGOUT **************************
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -45,12 +44,18 @@ def logout():
 	logout_user()
 	return redirect(url_for('login'))
 
+@app.route('/')
+def main():
+	return redirect (url_for('login'))
+
+#********************** DASHBOARD **************************
+
 @app.route('/dashboard/')
 @login_required
 def dashboard():
 	return render_template('dashboard.html')
 
-#********************** HOUSEHOLDS **************************
+#********************** HOUSEHOLD **************************
 @app.route('/household_data/')
 @login_required
 def household_data():
@@ -82,7 +87,7 @@ def household():
 
 	return render_template('table_display.html', data_link=url_for('household_data'),columns=columns, title='Households')
 
-#********************** ACCOUNTS **************************
+#********************** ACCOUNT **************************
 @app.route('/account_data/')
 @login_required
 def account_data():
@@ -248,12 +253,28 @@ def create_fee():
 
 		return redirect(url_for('fee_structure'))
 
-	return render_template('form_template.html', methods=['GET', 'POST'], form=form)
+	return render_template('form_template.html', form=form)
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_fee_structures(id):
-	return render_template('edit_fees.html')
+	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
+	fee_structure=fee_structure_query.first()
+	fee_structure.flat_rate=fee_structure.flat_rate*100
+	form = Fee_StructureForm(obj=fee_structure)
+
+	if form.validate_on_submit():
+		form.populate_obj(fee_structure)
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash(message)
+			return redirect(url_for('create_fee'))
+
+		return redirect(url_for('fee_structure'))
+
+	return render_template('edit_template.html',form=form)
 
 
 
