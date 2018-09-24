@@ -48,6 +48,10 @@ class Fee_StructureForm(FlaskForm):
 	quarterly_cycle=SelectField('Quarterly Cycle', choices=[('', '---'),('Mar-Jun-Sep-Dec','Mar-Jun-Sep-Dec'),('Feb-May-Aug-Nov','Feb-May-Aug-Nov'),('Jan-Apr-Jul-Oct','Jan-Apr-Jul-Oct')],default='',render_kw={"class": "custom-select mr-sm-1", "id":"quarterly_cycle"}, validators=[Optional()])
 	submit = SubmitField('Create Fee Structure')
 
+class Billing_GroupForm(FlaskForm):
+	name= StringField('Name',render_kw={"placeholder": "Enter Billing Group Name","class": "form-control"}, default='', validators=[InputRequired(),Length(max=100)])
+	submit = SubmitField('Save')
+
 
 
 

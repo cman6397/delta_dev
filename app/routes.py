@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, label
 from sqlalchemy import exc
 from app import app
 from app import db
-from app.forms import LoginForm, Fee_StructureForm
+from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure
 from app.content import account_view, household_view, fee_view, dev_view
 import datetime,decimal
@@ -200,7 +200,7 @@ def billing_group():
 		db.session.commit()
 		return redirect(url_for('billing_group'))
 
-	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_fee'), columns=columns, title='Billing Groups')
+	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
 
 
 #***************************** FORMS ******************************************
@@ -231,25 +231,66 @@ def create_fee():
 def edit_fee_structure(id):
 	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
 	fee_structure=fee_structure_query.first()
-
-	if fee_structure.flat_rate:
-		fee_structure.flat_rate=fee_structure.flat_rate*100
-
 	form = Fee_StructureForm(obj=fee_structure)
 
+	if fee_structure:
+
+		if fee_structure.flat_rate:
+			fee_structure.flat_rate=fee_structure.flat_rate*100
+
+		if form.validate_on_submit():
+			form.populate_obj(fee_structure)
+			try:
+				db.session.commit()
+			except exc.IntegrityError:
+				db.session.rollback()
+				flash(message)
+				return redirect(url_for('create_fee'))
+
+			return redirect(url_for('fee_structure'))
+		return render_template('edit_template.html',form=form)
+	return redirect(url_for('fee_structure'))
+
+@app.route('/billing_group/create',methods=['GET', 'POST'])
+@login_required
+def create_billing_group():
+	message = "Billing Group Name Taken"
+	form = Billing_GroupForm()
 	if form.validate_on_submit():
-		form.populate_obj(fee_structure)
+		new_billing_group = Billing_Group()
+		form.populate_obj(new_billing_group)
 		try:
+			db.session.add(new_billing_group)
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
 			flash(message)
-			return redirect(url_for('create_fee'))
+			return redirect(url_for('create_billing_group'))
 
-		return redirect(url_for('fee_structure'))
+		return redirect(url_for('billing_group'))
 
-	return render_template('edit_template.html',form=form)
+	return render_template('form_template.html', form=form)
 
+
+@app.route('/fee_structure_assign/<int:id>', methods=['GET', 'POST'])
+@login_required
+def assign_fee_structure(id):
+	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
+	fee_structure=fee_structure_query.first()
+
+	accounts_query=db.session.query(Account.name.label('Name'),Account.account_number.label('Account Number'), \
+	Account.custodian.label('Custodian'), Account.balance.label('Balance'), Household.name.label('Household'), \
+	Billing_Group.name.label('Billing Group')).outerjoin(Fee_Structure, Fee_Structure.id == Account.fee_id) \
+	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group,Account.billing_group_id == Billing_Group.id). \
+	filter(Fee_Structure.id == id)
+	accounts=accounts_query.all()
+
+	columns=accounts[0].keys()
+
+	if fee_structure:
+		return render_template('assign_template.html', fee_structure=fee_structure, accounts=accounts,columns=columns)
+
+	return redirect(url_for('fee_structure'))
 
 #********************** DEV **************************
 @app.route('/dev_data/')
