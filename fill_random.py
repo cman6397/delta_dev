@@ -34,8 +34,8 @@ def generate_fee_structures():
 			collection=random.choice(collections)
 			structure=random.choice(structures)
 			valuation_method=random.choice(valuation_methods)
-			flat_rate=0
-			flat_fee=0
+			flat_rate=None
+			flat_fee=None
 			quarterly_cycle=''
 			if structure == 'Flat Rate':
 				flat_rate=round(random.uniform(0,0.1),4)

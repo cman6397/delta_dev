@@ -224,7 +224,7 @@ def create_fee():
 
 		return redirect(url_for('fee_structure'))
 
-	return render_template('form_template.html', form=form)
+	return render_template('form_template.html', form=form,page_link=url_for('fee_structure'))
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -238,6 +238,8 @@ def edit_fee_structure(id):
 		if fee_structure.flat_rate:
 			fee_structure.flat_rate=fee_structure.flat_rate*100
 
+		form = Fee_StructureForm(obj=fee_structure)
+
 		if form.validate_on_submit():
 			form.populate_obj(fee_structure)
 			try:
@@ -248,7 +250,7 @@ def edit_fee_structure(id):
 				return redirect(url_for('create_fee'))
 
 			return redirect(url_for('fee_structure'))
-		return render_template('edit_template.html',form=form)
+		return render_template('edit_template.html',form=form,page_link=url_for('fee_structure'))
 	return redirect(url_for('fee_structure'))
 
 @app.route('/billing_group/create',methods=['GET', 'POST'])
@@ -269,7 +271,7 @@ def create_billing_group():
 
 		return redirect(url_for('billing_group'))
 
-	return render_template('form_template.html', form=form)
+	return render_template('form_template.html', form=form, page_link=url_for('billing_group'))
 
 
 @app.route('/fee_structure_assign/<int:id>', methods=['GET', 'POST'])
@@ -279,8 +281,7 @@ def assign_fee_structure(id):
 	fee_structure=fee_structure_query.first()
 
 	accounts_query=db.session.query(Account.name.label('Name'),Account.account_number.label('Account Number'), \
-	Account.custodian.label('Custodian'), Account.balance.label('Balance'), Household.name.label('Household'), \
-	Billing_Group.name.label('Billing Group')).outerjoin(Fee_Structure, Fee_Structure.id == Account.fee_id) \
+	Account.custodian.label('Custodian'), Account.balance.label('Balance')).outerjoin(Fee_Structure, Fee_Structure.id == Account.fee_id) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group,Account.billing_group_id == Billing_Group.id). \
 	filter(Fee_Structure.id == id)
 	accounts=accounts_query.all()

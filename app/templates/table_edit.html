@@ -39,11 +39,11 @@ div.dt-buttons {
 
 </style>
 
-<h1>{{ title }}</h1>
+    <h1>{{ title }}</h1>
 
-<table id="table" class="display compact cell-border" style="width:100%">
+    <table id="table" class="display compact cell-border" style="width:100%">
 
-</table>
+    </table>
 
 <!-- Modal -->
 <div class="modal fade" id="warn_modal" role="dialog">
@@ -140,7 +140,7 @@ $( document ).ready( function( $ )
                         "className": 'btn btn-primary',
                         action: function ( e, dt, button, config ) 
                         {
-                            window.location = {{ create_link|tojson }};
+                            window.location = "{{ create_link }}";
                         },    
                     },
 

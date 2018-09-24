@@ -49,7 +49,7 @@ class Fee_StructureForm(FlaskForm):
 	submit = SubmitField('Create Fee Structure')
 
 class Billing_GroupForm(FlaskForm):
-	name= StringField('Name',render_kw={"placeholder": "Enter Billing Group Name","class": "form-control"}, default='', validators=[InputRequired(),Length(max=100)])
+	name= StringField('Name',render_kw={"placeholder": "Enter Billing Group Name","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
 	submit = SubmitField('Save')
 
 
