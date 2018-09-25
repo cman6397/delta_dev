@@ -94,7 +94,7 @@ def generate_accounts():
 	
 	Account.query.delete()
 	account_numbers=[]
-	for x in range(0,100):
+	for x in range(0,10):
 		for name in names:
 			account_number,balance,date=random_values()
 			while account_number in account_numbers:

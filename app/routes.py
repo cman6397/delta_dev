@@ -298,14 +298,15 @@ def assign_fee_structure(id):
 @login_required
 def dev_data():
 
-	fee_structure_query = db.session.query(Fee_Structure.name.label('fee_name'),Fee_Structure.frequency.label('frequency'),Fee_Structure.collection.label('collection'), \
-	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts'), Fee_Structure.id.label('id')). \
-	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
+	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
+	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 
-	fee_structures=fee_structure_query.all()
-	keys=fee_structures[0].keys()
+	accounts=accounts_query.all()
+	keys=accounts[0].keys()
 
-	data=[dict(zip([key for key in keys],row)) for row in fee_structures]
+	data=[dict(zip([key for key in keys],row)) for row in accounts]
 	data=json.dumps({'data': data}, default = alchemyencoder)
 	
 	return data
@@ -313,15 +314,19 @@ def dev_data():
 @app.route('/dev/',methods=['GET', 'POST'])
 @login_required
 def dev():
-	if request.method == "POST" and request.json:
-		delete_keys = request.json
-		print(delete_keys)
-		delete_query = db.session.query(Fee_Structure).filter(Fee_Structure.id.in_(delete_keys))
-		delete_query.delete(synchronize_session=False)
-		db.session.commit()
-		return redirect(url_for('dev'))
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
+	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
+	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
+	
+	account=accounts_query.first()
+	keys=account.keys()
 
-	return render_template('dev.html',cols=fee_view)
+	columns=[]
+	for key in keys:
+		columns.append({'data': key,'name': key})
+
+	return render_template('dev.html', data_link=url_for('dev_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Accounts')
 
 
 
