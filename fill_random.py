@@ -27,7 +27,7 @@ quarterly_cycles=['Mar-Jun-Sep-Dec','Feb-May-Aug-Nov','Jan-Apr-Jul-Oct']
 
 split_names=['Jackie: 10%','Naylor: 20%','Vanclef:60%']
 splitters=['Jackie','Naylor','Vanclef']
-splits=[10.00,20.00,60.00]
+splits=[.1,.2,.6]
 
 def generate_fee_structures():
 	Fee_Structure.query.delete()

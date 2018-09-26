@@ -46,12 +46,17 @@ class Fee_StructureForm(FlaskForm):
 	valuation_method=SelectField('Valuation Method', choices=[('', '---'),('Ending Period Balance','Ending Period Balance'),('Average Daily Balance','Average Daily Balance')], default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
 	frequency=SelectField('Frequency', choices = [('', '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')],default='',render_kw={"class": "custom-select mr-sm-1", "id":"frequency"}, validators=[InputRequired()])
 	quarterly_cycle=SelectField('Quarterly Cycle', choices=[('', '---'),('Mar-Jun-Sep-Dec','Mar-Jun-Sep-Dec'),('Feb-May-Aug-Nov','Feb-May-Aug-Nov'),('Jan-Apr-Jul-Oct','Jan-Apr-Jul-Oct')],default='',render_kw={"class": "custom-select mr-sm-1", "id":"quarterly_cycle"}, validators=[Optional()])
-	submit = SubmitField('Create Fee Structure')
+	submit = SubmitField('Save')
 
 class Billing_GroupForm(FlaskForm):
 	name= StringField('Name',render_kw={"placeholder": "Enter Billing Group Name","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
 	submit = SubmitField('Save')
 
+class Billing_SplitForm(FlaskForm):
+	name= StringField('Name',render_kw={"placeholder": "Enter Split Name","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
+	splitter= StringField('Splitter',render_kw={"placeholder": "Enter Splitter Name ","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
+	split_percentage= PercentField('Split Percentage (%)', places=2,render_kw={"placeholder": "e.g., 20.0%","class": "form-control"}, validators=[Optional(),NumberRange(max=100, min=0)])
+	submit = SubmitField('Save')
 
 
 

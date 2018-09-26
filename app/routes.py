@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, label
 from sqlalchemy import exc, update
 from app import app
 from app import db
-from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm
+from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, Billing_SplitForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure, Billing_Split
 from app.content import account_view, household_view, fee_view, dev_view
 import datetime,decimal
@@ -339,25 +339,76 @@ def create_billing_group():
 
 	return render_template('form_template.html', form=form, page_link=url_for('billing_group'))
 
+@app.route('/billing_group/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_billing_group(id):
+	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
+	billing_group=billing_group_query.first()
+	form = Billing_GroupForm(obj=billing_group)
+
+	if billing_group:
+
+		form = Billing_GroupForm(obj=billing_group)
+
+		if form.validate_on_submit():
+			form.populate_obj(billing_group)
+			try:
+				db.session.commit()
+			except exc.IntegrityError:
+				db.session.rollback()
+				flash(message)
+				return redirect(url_for('create_fee'))
+
+			return redirect(url_for('billing_group'))
+		return render_template('edit_template.html',form=form,page_link=url_for('billing_group'))
+	return redirect(url_for('billing_group'))
+
 @app.route('/billing_split/create',methods=['GET', 'POST'])
 @login_required
 def create_billing_split():
 	message = "Billing Split Name Taken"
-	form = Billing_GroupForm()
+	form = Billing_SplitForm()
 	if form.validate_on_submit():
-		new_billing_group = Billing_Group()
-		form.populate_obj(new_billing_group)
+		new_billing_split = Billing_Split()
+		form.populate_obj(new_billing_split)
 		try:
-			db.session.add(new_billing_group)
+			db.session.add(new_billing_split)
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
 			flash(message)
-			return redirect(url_for('create_billing_group'))
+			return redirect(url_for('create_billing_split'))
 
-		return redirect(url_for('billing_group'))
+		return redirect(url_for('billing_split'))
 
-	return render_template('form_template.html', form=form, page_link=url_for('billing_group'))
+	return render_template('form_template.html', form=form, page_link=url_for('billing_split'))
+
+@app.route('/billing_split/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_billing_split(id):
+	billing_split_query=db.session.query(Billing_Split).filter(Billing_Split.id == id)
+	billing_split=billing_split_query.first()
+	form = Billing_SplitForm(obj=billing_split)
+
+	if billing_split:
+
+		if billing_split.split_percentage:
+			billing_split.split_percentag=billing_split.split_percentage*100
+
+		form = Billing_Split(obj=billing_split)
+
+		if form.validate_on_submit():
+			form.populate_obj(billing_split)
+			try:
+				db.session.commit()
+			except exc.IntegrityError:
+				db.session.rollback()
+				flash(message)
+				return redirect(url_for('create_fee'))
+
+			return redirect(url_for('billing_split'))
+		return render_template('edit_template.html',form=form,page_link=url_for('billing_split'))
+	return redirect(url_for('billing_split'))
 
 
 @app.route('/fee_structure_assign/<int:id>', methods=['GET', 'POST'])
