@@ -37,7 +37,10 @@ div.dt-buttons {
     float: left;
     margin-bottom:4px;
 }
-.modal_search {
+.modal_search_fee {
+    width:300px;
+}
+.modal_search_billing {
     width:300px;
 }
 </style>
@@ -48,26 +51,52 @@ div.dt-buttons {
 
 </table>
 
-<!-- Modal -->
+<!-- Fee Modal -->
 <div class="modal fade" id="fee_modal" role="dialog">
     <div class="modal-dialog">
     
-      <!-- Modal content-->
+      <!-- Fee Modal content-->
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Assign Fee Structure</h4>
         </div>
         <div class="modal-body">
           <p>
-            <select class="modal_search" id="modal_selection" name="states[]" multiple="multiple">
+            <select class="modal_search_fee" id="modal_fee_selection" name="states[]" multiple="multiple">
 
             </select>
 
           </p>
         </div>
         <div class="modal-footer">
-          <button type="button" id="btnFeeAssign" class="btn btn-primary"> Assign Fee Structure </button>
+          <button type="button" id="btnFeeAssign" class="btn btn-primary" disabled> Assign Fee Structure </button>
           <button type="button" id="btnFeeCancel" class="btn" data-dismiss="modal"> Cancel</button>
+        </div>
+
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Billing Modal -->
+<div class="modal fade" id="billing_modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Billing Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Assign Billing Group</h4>
+        </div>
+        <div class="modal-body">
+          <p>
+            <select class="modal_search_billing" id="modal_billing_selection" name="states[]" multiple="multiple">
+
+            </select>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnBillingAssign" class="btn btn-primary" disabled> Assign Billing Group </button>
+          <button type="button" id="btnBillingCancel" class="btn" data-dismiss="modal"> Cancel</button>
         </div>
 
       </div>
@@ -176,7 +205,30 @@ $( document ).ready( function( $ )
                                     }
                                 }
                             },
-                            {"text": 'Billing Group', "className": "btn btn-light"}
+                            {
+                                "text": 'Billing Group', 
+                                "className": "btn btn-light",
+                                action: function () 
+                                {
+                                    var selected_rows=table.rows('.selected').data();
+                                    var length = table.rows('.selected').count();
+                                    keys = []
+
+                                    if (length > 0)
+                                    {
+                                        for (var i = 0; i < length; i++ )
+                                        {
+                                            keys.push(selected_rows[i].id);
+                                        }
+                                        table.select.blurable(false);
+                                        var mymodal = $('#billing_modal');
+                                        mymodal.modal('show'); 
+                                    }
+                                    else {
+                                        alert("No Rows Selected")
+                                    }
+                                }
+                            }
                         ],
                         "background":false,
 
@@ -198,20 +250,39 @@ $( document ).ready( function( $ )
     var buttons = table.buttons( ['#btnAssign']);
     buttons.disable();
 
-    $(document).on("click", "#btnFeeAssign", function(event)
-    {
-        var fee_modal = $('#fee_modal');
-        fee_modal.modal('hide');
+    function disable_enable(button, modal_selector) {
+        if (modal_selector.val().length == 0) {
+            button.prop('disabled', true);;
+        }
+        else {
+            button.prop('disabled', false);;
+        }          
+    }
 
-        var fee_structure=$('#modal_selection').val()
+    function reset_table(modal, modal_selector) {
+        modal.modal('hide');
+        modal_selector.val('').change();
+
+        table.rows().deselect()
+        table.select.blurable(true); 
+    }
+
+    function post_assignment(name, modal, modal_selector) {
+
+        modal.modal('hide');
+
+        var fee_structure=modal_selector.val()
         var accounts=keys
 
-        $('#modal_selection').val('').change();
+        modal_selector.val('').change();
 
         table.rows().deselect()
         table.select.blurable(true);
 
-        var data= JSON.stringify({'accounts': accounts, 'fee_structure':fee_structure});
+        var data= {};
+        data['accounts']=accounts
+        data[name]=fee_structure
+        var data=JSON.stringify(data)
 
         $.ajax({
             data : data,
@@ -223,20 +294,52 @@ $( document ).ready( function( $ )
             $('#table').DataTable().ajax.reload();
             }
         })
+    }
+
+    $('#modal_fee_selection').change(function(event) {
+        var button = $('#btnFeeAssign')
+        var modal_selector=$('#modal_fee_selection');
+        disable_enable(button,modal_selector);
+    });
+
+    $(document).on("click", "#btnFeeAssign", function(event)
+    {
+        var modal = $('#fee_modal');
+        var modal_selector=$('#modal_fee_selection');
+        var name = 'fee_structure';
+
+        post_assignment(name,modal,modal_selector);
     });
 
     $(document).on("click", "#btnFeeCancel", function(event)
     {
-        var fee_modal = $('#fee_modal');
-        fee_modal.modal('hide');
+        modal = $('#fee_modal');
+        modal_selector=$('#modal_fee_selection');
+        
+        reset_table(modal,modal_selector);
+    });
 
-        var fee_structure=$('#modal_selection').val()
-        var accounts=keys
+     $('#modal_billing_selection').change(function(event) {
+        var button = $('#btnBillingAssign');
+        var modal_selector=$('#modal_billing_selection');
+        disable_enable(button,modal_selector);
+    });
 
-        $('#modal_selection').val('').change();
+    $(document).on("click", "#btnBillingAssign", function(event)
+    {
+        var modal = $('#billing_modal');
+        var modal_selector=$('#modal_billing_selection');
+        var name = 'billing_group';
 
-        table.rows().deselect()
-        table.select.blurable(true);
+        post_assignment(name,modal,modal_selector);
+    });
+
+    $(document).on("click", "#btnBillingCancel", function(event)
+    {
+        modal = $('#billing_modal');
+        modal_selector=$('#modal_billing_selection');
+        
+        reset_table(modal,modal_selector);
     });
 
 
@@ -269,12 +372,22 @@ $( document ).ready( function( $ )
     })
 });
 
-var data = {{ fee_structures|tojson }}
+
+
+var fee_data = {{ fee_structures|tojson }}
+var billing_data = {{ billing_groups|tojson }}
 
 $(document).ready(function() {
-    $(".modal_search").select2({
+    $(".modal_search_fee").select2({
         maximumSelectionLength: 1,
-        data: data
+        data: fee_data
+    });
+});
+
+$(document).ready(function() {
+    $(".modal_search_billing").select2({
+        maximumSelectionLength: 1,
+        data: billing_data
     });
 });
 

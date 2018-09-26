@@ -1,7 +1,7 @@
 from flask import render_template,url_for,redirect,flash, request,jsonify,json
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
-from sqlalchemy import exc
+from sqlalchemy import exc, update
 from app import app
 from app import db
 from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm
@@ -91,7 +91,7 @@ def household():
 @app.route('/account_data/')
 @login_required
 def account_data():
-	accounts_query = db.session.query(Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
 	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
@@ -104,22 +104,52 @@ def account_data():
 
 	return data
 
-@app.route('/account/')
+@app.route('/account/',methods=['GET', 'POST'])
 @login_required
 def account():
-	accounts_query = db.session.query(Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account Number'), Account.custodian.label('Custodian'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
 	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 	
-	account=accounts_query.first()
-	keys=account.keys()
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
+	billing_group_query = db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('text'))
+
+	fee_structures=fee_structure_query.all()
+	billing_groups=billing_group_query.all()
+	accounts=accounts_query.all()
+
+	account_keys=accounts[0].keys()
+	fee_structure_keys=fee_structures[0].keys()
+	billing_group_keys=billing_groups[0].keys()
+
+	fee_structures_json=[dict(zip([key for key in fee_structure_keys],row)) for row in fee_structures]
+	billing_groups_json=[dict(zip([key for key in billing_group_keys],row)) for row in billing_groups]
 
 	columns=[]
-	for key in keys:
-		columns.append({'data': key,'name': key})
 
-	return render_template('table_display.html', data_link=url_for('account_data'),columns=columns, title='Accounts')
+	for account_key in account_keys:
+		columns.append({'data': account_key,'name': account_key})
+
+	if request.method == "POST" and request.json:
+		data=request.json
+		assigned_accounts=data['accounts']
+		if 'fee_structure' in data.keys():
+			assigned_fee_structure=data['fee_structure'][0]
+			db.session.query(Account).filter(Account.id.in_(assigned_accounts)).update({Account.fee_id : assigned_fee_structure},synchronize_session=False)
+			try:
+				db.session.commit()
+			except exc.IntegrityError:
+				db.session.rollback()
+		elif 'billing_group' in data.keys():
+			assigned_billing_group=data['billing_group'][0]
+			db.session.query(Account).filter(Account.id.in_(assigned_accounts)).update({Account.billing_group_id : assigned_billing_group},synchronize_session=False)
+			try:
+				db.session.commit()
+			except exc.IntegrityError:
+				db.session.rollback()
+
+	return render_template('account_display.html',fee_structures=fee_structures_json, billing_groups=billing_groups_json, data_link=url_for('account_data'), page_link = url_for('account'), columns=columns, title='Accounts')
 
 #********************** FEE STRUCTURE **************************
 @app.route('/fee_structure_data/')
@@ -328,12 +358,7 @@ def dev():
 	fee_structure_keys=fee_structures[0].keys()
 
 	data_test=[]
-	for account in accounts:
-		data_row=[]
-		for x in range (0,len(account_keys)):
-			data_row.append(account[x])
-		data_test.append(data_row)
-		
+
 	fee_structures_json=[dict(zip([key for key in fee_structure_keys],row)) for row in fee_structures]
 	data_test=json.dumps(data_test, default = alchemyencoder)
 
@@ -342,7 +367,26 @@ def dev():
 	for account_key in account_keys:
 		columns.append({'data': account_key,'name': account_key})
 
-	return render_template('dev.html',data_test=data_test,fee_structures=fee_structures_json, data_link=url_for('dev_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Accounts')
+	if request.method == "POST" and request.json:
+		data=request.json
+		if 'fee_structure' in data.keys():
+			assigned_accounts=data['accounts']
+			assigned_fee_structure=data['fee_structure'][0]
+			db.session.query(Account).filter(Account.id.in_(assigned_accounts)).update({Account.fee_id : assigned_fee_structure},synchronize_session=False)
+			try:
+				db.session.commit()
+				flash('Success')
+			except exc.IntegrityError:
+				db.session.rollback()
+
+
+	#for account in accounts:
+		#data_row=[]
+		#for x in range (0,len(account_keys)):
+			#data_row.append(account[x])
+		#data_test.append(data_row)
+
+	return render_template('dev.html',data_test=data_test,fee_structures=fee_structures_json, data_link=url_for('dev_data'), page_link = url_for('dev'), create_link = url_for('create_billing_group'), columns=columns, title='Accounts')
 
 
 
