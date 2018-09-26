@@ -77,7 +77,6 @@ div.dt-buttons {
 
 <script>
 var keys;
-
 $( document ).ready( function( $ ) 
 {
     var tableHeaders="";
@@ -108,8 +107,14 @@ $( document ).ready( function( $ )
     });
 
         var table=$('#table').DataTable({
-            "data": JSON.parse({{ data_test|tojson }}),
+            "ajax": {
+                "url": {{ data_link|tojson }},  
+                "dataType": "json",
+                "dataSrc": "data",
+                "contentType":"application/json"
+            },
             "orderCellsTop": true,
+            "columns":{{ columns|tojson }},
             "scrollY": "60vh",
             "scrollX": true, 
             "scrollCollapse": true,
@@ -117,7 +122,6 @@ $( document ).ready( function( $ )
             "pageLength" : 100,
             "lengthMenu": [[25, 50, 100, 500,-1], [25, 50, 100, 500, "All"]],
             "dom":'<lB<f<t>ip>>',
-            processing: true,
             "columnDefs": [{
                 "targets":   0,
                 "orderable": false,
