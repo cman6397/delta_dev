@@ -13,6 +13,9 @@ thead th
 { 
     white-space: nowrap; 
 }
+.btn-light {
+  margin-bottom:4px;
+}
 h1
 {
   font-size:30px;
@@ -32,8 +35,10 @@ margin-top:6px;
 div.dt-buttons {
     position: relative;
     float: left;
-    margin-bottom:8px;
-
+    margin-bottom:4px;
+}
+.modal_search {
+    width:300px;
 }
 </style>
 
@@ -44,7 +49,7 @@ div.dt-buttons {
 </table>
 
 <!-- Modal -->
-<div class="modal fade" id="warn_modal" role="dialog">
+<div class="modal fade" id="fee_modal" role="dialog">
     <div class="modal-dialog">
     
       <!-- Modal content-->
@@ -53,7 +58,12 @@ div.dt-buttons {
           <h4 class="modal-title">Assign Fee Structure</h4>
         </div>
         <div class="modal-body">
-          <p></p>
+          <p>
+            <select class="modal_search" id="modal_selection" name="states[]" multiple="multiple">
+
+            </select>
+
+          </p>
         </div>
         <div class="modal-footer">
           <button type="button" id="btnFee" class="btn btn-primary"> Assign Fee Structure </button>
@@ -67,6 +77,7 @@ div.dt-buttons {
 
 <script>
 var keys;
+
 $( document ).ready( function( $ ) 
 {
     var tableHeaders="";
@@ -97,14 +108,8 @@ $( document ).ready( function( $ )
     });
 
         var table=$('#table').DataTable({
-            "ajax": {
-                "url": {{ data_link|tojson }},  
-                "dataType": "json",
-                "dataSrc": "data",
-                "contentType":"application/json"
-            },
+            "data": JSON.parse({{ data_test|tojson }}),
             "orderCellsTop": true,
-            "columns":{{ columns|tojson }},
             "scrollY": "60vh",
             "scrollX": true, 
             "scrollCollapse": true,
@@ -120,8 +125,7 @@ $( document ).ready( function( $ )
                 }
             }],
             "select": {
-                "style": 'multi',
-                "blurable": true
+                "style": 'multi'
             },
             "buttons": 
             {
@@ -144,7 +148,7 @@ $( document ).ready( function( $ )
                         "buttons":[
                             {
                                 "text": 'Fee Structure', 
-                                "className": "dt-button",
+                                "className": "btn btn-light",
                                 action: function () 
                                 {
                                     var selected_rows=table.rows('.selected').data();
@@ -157,8 +161,7 @@ $( document ).ready( function( $ )
                                         {
                                             keys.push(selected_rows[i].id);
                                         }
-                                        var mymodal = $('#warn_modal');
-                                        mymodal.find('.modal-body').text('You have selected ' + length + " {{ title }}" + '(s) to delete.');
+                                        var mymodal = $('#fee_modal');
                                         mymodal.modal('show'); 
                                     }
                                     else {
@@ -166,7 +169,7 @@ $( document ).ready( function( $ )
                                     }
                                 }
                             },
-                            {"text": 'Billing Group', "className": "dt-button"}
+                            {"text": 'Billing Group', "className": "btn btn-light"}
                         ],
                         "background":false,
 
@@ -232,6 +235,29 @@ $(document).on("click", "#btnDelete", function(event)
     }
     })
     keys=[] 
+});
+
+$(document).on("click", "#btnFee", function(event)
+{
+    var fee_modal = $('#fee_modal');
+    fee_modal.modal('hide');
+
+    var fee_structure=$('#modal_selection').val()
+    var accounts=keys
+
+    $('#modal_selection').val('').change();
+
+    console.log(fee_structure)
+    console.log(keys)
+});
+
+var data = {{ fee_structures|tojson }}
+
+$(document).ready(function() {
+    $(".modal_search").select2({
+        maximumSelectionLength: 1,
+        data: data
+    });
 });
 
 </script>

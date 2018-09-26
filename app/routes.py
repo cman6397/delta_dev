@@ -319,14 +319,30 @@ def dev():
 	Fee_Structure.name.label('Fee Structure')).outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id)
 	
-	account=accounts_query.first()
-	keys=account.keys()
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
+
+	fee_structures=fee_structure_query.all()
+	accounts=accounts_query.all()
+
+	account_keys=accounts[0].keys()
+	fee_structure_keys=fee_structures[0].keys()
+
+	data_test=[]
+	for account in accounts:
+		data_row=[]
+		for x in range (0,len(account_keys)):
+			data_row.append(account[x])
+		data_test.append(data_row)
+		
+	fee_structures_json=[dict(zip([key for key in fee_structure_keys],row)) for row in fee_structures]
+	data_test=json.dumps(data_test, default = alchemyencoder)
 
 	columns=[]
-	for key in keys:
-		columns.append({'data': key,'name': key})
 
-	return render_template('dev.html', data_link=url_for('dev_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Accounts')
+	for account_key in account_keys:
+		columns.append({'data': account_key,'name': account_key})
+
+	return render_template('dev.html',data_test=data_test,fee_structures=fee_structures_json, data_link=url_for('dev_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Accounts')
 
 
 
