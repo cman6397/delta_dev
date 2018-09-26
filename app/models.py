@@ -36,6 +36,15 @@ class Fee_Structure(db.Model):
 	def __repr__(self):
 		return '<id = %r, name= %r>' % (self.id, self.name)
 
+class Billing_Split(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(500), unique=True, nullable=False)
+	splitter=db.Column(db.String(100), unique=False, nullable=False)
+	split_percentage=db.Column(db.Numeric(precision=4), unique=False, nullable=True)
+
+	def __repr__(self):
+		return '<id = %r, name= %r>' % (self.id, self.name)
+
 class Household(db.Model):
 	id = db.Column(db.Integer,primary_key=True)
 	name = db.Column(db.String(500), unique=True, nullable=False)

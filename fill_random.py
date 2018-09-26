@@ -1,6 +1,6 @@
 from app import app
 from app import db
-from app.models import Account, Household, Fee_Structure, Billing_Group
+from app.models import Account, Household, Fee_Structure, Billing_Group, Billing_Split
 from app.content import account_view,household_view
 import random
 import time
@@ -25,6 +25,10 @@ structures = ['Flat Rate', 'Flat Fee', 'Favor']
 valuation_methods = ['Ending Period Balance', 'Average Daily Balance']
 quarterly_cycles=['Mar-Jun-Sep-Dec','Feb-May-Aug-Nov','Jan-Apr-Jul-Oct']
 
+split_names=['Jackie: 10%','Naylor: 20%','Vanclef:60%']
+splitters=['Jackie','Naylor','Vanclef']
+splits=[10.00,20.00,60.00]
+
 def generate_fee_structures():
 	Fee_Structure.query.delete()
 	for x in range(0,10):
@@ -46,6 +50,19 @@ def generate_fee_structures():
 
 			fee_structure=Fee_Structure(name=name,frequency=frequency,collection=collection,structure=structure,valuation_method=valuation_method, flat_rate=flat_rate,flat_fee=flat_fee, quarterly_cycle=quarterly_cycle)
 			db.session.add(fee_structure)
+
+def generate_splits():
+	Billing_Split.query.delete()
+	count=0
+	for split_name in split_names:
+		name=split_name
+		splitter=splitters[count]
+		split=splits[count]
+
+		billing_split=Billing_Split(name=name,splitter=splitter,split_percentage=split)
+		db.session.add(billing_split)
+
+		count+=1
 
 def generate_households():
 	Household.query.delete()
@@ -114,4 +131,5 @@ if __name__ == '__main__':
 	generate_households()
 	generate_billing_groups()
 	generate_accounts()
+	generate_splits()
 	db.session.commit()

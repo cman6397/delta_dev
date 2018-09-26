@@ -3,7 +3,7 @@ from flask_login import current_user, login_user
 from app import app
 from app import db
 from app.forms import LoginForm
-from app.models import User, Account, Household, Fee_Structure, Billing_Group
+from app.models import User, Account, Household, Fee_Structure, Billing_Group, Billing_Split
 from passlib.hash import sha256_crypt
 from app.content import account_view
 from flask_sqlalchemy import SQLAlchemy
@@ -83,6 +83,9 @@ def household_account_relationships():
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
+	billing_split_query=db.session.query(Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
+	print(billing_split_query)
+	print(billing_split_query.all())
 	return success,msg
 
 def json_testing():

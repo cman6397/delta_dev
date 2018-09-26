@@ -5,7 +5,7 @@ from sqlalchemy import exc, update
 from app import app
 from app import db
 from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm
-from app.models import User, Account, Household, Billing_Group, Fee_Structure
+from app.models import User, Account, Household, Billing_Group, Fee_Structure, Billing_Split
 from app.content import account_view, household_view, fee_view, dev_view
 import datetime,decimal
 
@@ -232,7 +232,43 @@ def billing_group():
 
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
 
+#********************** Billing Split **************************
+@app.route('/billing_split_data/')
+@login_required
+def billing_split_data():
 
+	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
+
+	billing_splits=billing_split_query.all()
+	keys=billing_splits[0].keys()
+
+	data=[dict(zip([key for key in keys],row)) for row in billing_splits]
+	data=json.dumps({'data': data}, default = alchemyencoder)
+	
+	return data
+
+@app.route('/billing_split/',methods=['GET', 'POST'])
+@login_required
+def billing_split():
+
+	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
+
+	billing_splits=billing_split_query.first()
+	keys=billing_splits.keys()
+
+	columns=[]
+	for key in keys:
+		columns.append({'data': key,'name': key})
+
+	if request.method == "POST" and request.json:
+		delete_keys = request.json
+		print(delete_keys)
+		delete_query = db.session.query(Billing_Split).filter(Billing_Split.id.in_(delete_keys))
+		delete_query.delete(synchronize_session=False)
+		db.session.commit()
+		return redirect(url_for('billing_split'))
+
+	return render_template('table_edit.html', data_link=url_for('billing_split_data'), page_link = url_for('billing_split'), create_link = url_for('create_billing_split'), columns=columns, title='Billing Splits')
 #***************************** FORMS ******************************************
 
 @app.route('/fee_structure/create',methods=['GET', 'POST'])
@@ -287,6 +323,26 @@ def edit_fee_structure(id):
 @login_required
 def create_billing_group():
 	message = "Billing Group Name Taken"
+	form = Billing_GroupForm()
+	if form.validate_on_submit():
+		new_billing_group = Billing_Group()
+		form.populate_obj(new_billing_group)
+		try:
+			db.session.add(new_billing_group)
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash(message)
+			return redirect(url_for('create_billing_group'))
+
+		return redirect(url_for('billing_group'))
+
+	return render_template('form_template.html', form=form, page_link=url_for('billing_group'))
+
+@app.route('/billing_split/create',methods=['GET', 'POST'])
+@login_required
+def create_billing_split():
+	message = "Billing Split Name Taken"
 	form = Billing_GroupForm()
 	if form.validate_on_submit():
 		new_billing_group = Billing_Group()
