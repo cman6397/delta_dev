@@ -4,48 +4,93 @@
     {% block body %}
     <style>
     	.graph_container {
-    		width:85%;
+    		width:90%;
     		margin:20px;
     	}
+      .table_container {
+        float:left;
+        margin-top:15px;
+        width:40%;
+      }
+      .all_container {
+        width:95%;
+        margin:10px;
+        /*background:#f0f0f0;*/
+      }
 
 	</style>
 
-   	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-   	<div class = "graph_container">
-  		<div id="chart_div"></div>
-  	</div>
+  <script>
+    var data_rows=JSON.parse("{{ data_rows|tojson }}")
 
-	<script>
-		var x_vals=JSON.parse("{{ x_vals|tojson }}")
-		var y_vals=JSON.parse("{{ y_vals|tojson }}")
-		var data_rows=JSON.parse("{{ data_rows|tojson }}")
+    google.charts.load('current', {packages: ['corechart', 'line']});
+    google.charts.setOnLoadCallback(drawBackgroundColor);
 
-		google.charts.load('current', {packages: ['corechart', 'line']});
-		google.charts.setOnLoadCallback(drawBackgroundColor);
+    function drawBackgroundColor() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'X');
+        data.addColumn('number', 'AUM');
 
-		function drawBackgroundColor() {
-      	var data = new google.visualization.DataTable();
-      	data.addColumn('number', 'X');
-      	data.addColumn('number', 'AUM');
+        data.addRows(data_rows);
 
-      	data.addRows(data_rows);
-
-      	var options = {
-      	'title':'Total Assets Under Management',
-      	'height':500,
-      	'backgroundColor': '#F5F7FA',
+        var options = {
+        'title':'Total Assets Under Management',
+        'height':500,
+        'backgroundColor': '#F5F7FA',
         hAxis: {
           title: 'Time (days)'
         },
         vAxis: {
           title: 'AUM (USD)'
         },
-      	};
+        };
 
-      	var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-      	chart.draw(data, options);
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+
+        function resize () {
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+
+        window.onload = resize;
+        window.onresize = resize;
     }
 
-	</script>
+  </script>
 
-    {% endblock %}
+  <div class = "all_container">
+   	<div class = "graph_container">
+  		<div id="chart_div"></div>
+      <div class="table_container">
+        <table class="table table-bordered">
+
+        <thead>
+          <tr>
+          {% for column in household_columns %}
+            <th>
+            {{ column }}
+            </th>
+          {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in top_households %}
+            <tr>
+            {% for x in range(0, household_columns|length) %}
+              <td>
+              {{ row[x] }} 
+              </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+
+  {% endblock %}

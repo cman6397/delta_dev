@@ -16,8 +16,8 @@ names=['Liam','Noah','William','James','Logan','Benjamin','Mason','Elijah','Oliv
 custodians=['Td Ameritrade','Charles Schwab']
 payment_sources=['Custodian Billed', 'Directly Billed']
 
-households=['Household1','Household2','Household3','Household4','Household5']
-billing_groups = ['Billing_Group1','Billing_Group2','Billing_Group3','Billing_Group4','Billing_Group5']
+households=['Chris Household','Nick Household','Andrew Household','Billy Household','Tom Household']
+billing_groups = ['Chris Billing_Group','Nick Billing_Group','Andrew Billing_Group','Billy Billing_Group','Tom Billing_Group']
 
 fee_names=['1.0 percent Annual','2.0 percent Annual','0.5 percent Annual','0.7 percent Annual', '1.5 percent Annual']
 frequencies = ['Quarterly', 'Monthly']
@@ -67,10 +67,11 @@ def generate_splits():
 
 def generate_households():
 	Household.query.delete()
-
-	for household_name in households:
-		household=Household(name=household_name)
-		db.session.add(household)
+	for x in range(0,10):
+		for household_name in households:
+			name=household_name + str(x)
+			household=Household(name=name)
+			db.session.add(household)
 
 def sample_household_billing_group_fees():
 	households=Household.query.all()
@@ -88,13 +89,15 @@ def sample_household_billing_group_fees():
 
 def generate_billing_groups():
 	Billing_Group.query.delete()
+
 	households=Household.query.all()
 
-	for x in range (0,len(billing_groups)):
-		name = billing_groups[x]
-		household=households[x]
-		billing_group = Billing_Group(name=name,household=household)
-		db.session.add(billing_group)
+	for y in range(0,10):
+		for x in range (0,len(billing_groups)):
+			name = billing_groups[x] + str(y)
+			household=households[y*len(billing_groups)+x]
+			billing_group = Billing_Group(name=name,household=household)
+			db.session.add(billing_group)
 
 
 def random_values():

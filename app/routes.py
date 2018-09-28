@@ -19,6 +19,21 @@ def alchemyencoder(obj):
 			return '{0:.2f}%'.format(obj*100)
 		else:
 			return ""
+def num_serializer(query_result):
+	serialized_data=[]
+	for row in query_result:
+		current_row=[]
+		for x in range(0,len(row)):
+			obj=row[x]
+			if isinstance(obj,decimal.Decimal):
+				if obj > 1:
+					obj='${:,.2f}'.format(obj)
+				elif obj>0.0001:
+					obj=obj*100
+					obj='{0:.2f}%'.format(obj)
+			current_row.append(obj)
+		serialized_data.append(current_row)
+	return serialized_data
 
 
 #********************** LOGIN/LOGOUT **************************
@@ -54,16 +69,26 @@ def main():
 @login_required
 def dashboard():
 	from numpy import random
+
+	total_AUM = db.session.query(func.sum(Account.balance).label('Balance')).first()[0]
+
+	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),(func.sum(Account.balance)/total_AUM).label('Percent of Book')). \
+	outerjoin(Account, Account.household_id == Household.id).group_by(Household.id).order_by(func.sum(Account.balance).desc())
+	print(household_query)
+
+	top_households=household_query.all()[0:5]
+	household_columns=top_households[0].keys()
+
+	top_households=num_serializer(top_households)
+
 	num_days=300
-	x_vals=[0]
-	y_vals=[1000000]
 	rows=[[0,1000000]]
 	for x in range(1,num_days):
 		x_val = x
 		y_val = rows[x-1][1]*(1+random.normal(0.002,0.015))
 		rows.append([x_val,y_val])
 
-	return render_template('dashboard.html',x_vals=x_vals,y_vals=y_vals,data_rows=rows)
+	return render_template('dashboard.html',data_rows=rows, top_households=top_households, household_columns=household_columns)
 
 #********************** HOUSEHOLD **************************
 @app.route('/household_data/')
@@ -305,6 +330,7 @@ def create_fee():
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_fee_structure(id):
+	message = "Fee Structure Name Taken"
 	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
 	fee_structure=fee_structure_query.first()
 	form = Fee_StructureForm(obj=fee_structure)
@@ -352,12 +378,12 @@ def create_billing_group():
 @app.route('/billing_group/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_billing_group(id):
+	message = "Billing Group Name Taken"
 	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
 	billing_group=billing_group_query.first()
 	form = Billing_GroupForm(obj=billing_group)
 
 	if billing_group:
-
 		form = Billing_GroupForm(obj=billing_group)
 
 		if form.validate_on_submit():
@@ -396,6 +422,7 @@ def create_billing_split():
 @app.route('/billing_split/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_billing_split(id):
+	message = "Billing Split Name Taken"
 	billing_split_query=db.session.query(Billing_Split).filter(Billing_Split.id == id)
 	billing_split=billing_split_query.first()
 	form = Billing_SplitForm(obj=billing_split)
