@@ -3,15 +3,15 @@
 
     {% block body %}
     <style>
-    	.container {
-    		width:95%;
+    	.graph_container {
+    		width:85%;
     		margin:20px;
     	}
 
 	</style>
 
    	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-   	<div class = "container">
+   	<div class = "graph_container">
   		<div id="chart_div"></div>
   	</div>
 
@@ -32,7 +32,7 @@
 
       	var options = {
       	'title':'Total Assets Under Management',
-      	'height':400,
+      	'height':500,
       	'backgroundColor': '#F5F7FA',
         hAxis: {
           title: 'Time (days)'
