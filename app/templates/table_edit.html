@@ -45,8 +45,9 @@ div.dt-buttons {
     margin-bottom:4px;
     width:100px;
 }
-.btn-primary {
-    width:100px;
+.btn-light {
+    width:120px;
+    margin-bottom:4px;
 }
 
 
@@ -161,7 +162,7 @@ $( document ).ready( function( $ )
                         [  
                             {
                                 "text": 'Create',
-                                "className": 'btn btn-primary',
+                                "className": 'btn btn-light',
                                 action: function ( e, dt, button, config ) 
                                 {
                                     window.location = "{{ create_link }}";
@@ -173,7 +174,7 @@ $( document ).ready( function( $ )
                                     "id": 'btnEdit'
                                 },
                                 "text": 'Edit',
-                                "className": 'btn btn-outline-warning' ,
+                                "className": 'btn btn-light' ,
                                 action: function () 
                                 {
                                     var selected_rows=table.rows('.selected').data();
@@ -196,7 +197,7 @@ $( document ).ready( function( $ )
                                 "text": 'Delete',
                                 "type": 'submit',
                                 "class": 'close',
-                                "className": 'btn btn-outline-danger',
+                                "className": 'btn btn-light',
 
                                 action: function () 
                                 {
@@ -262,13 +263,10 @@ $( document ).ready( function( $ )
 
         if (table.rows('.selected').count() == 0 ) {
             buttons.disable()
-            jQuery('btn btn-secondary').removeClass('active')
-
+            //$("#btnEdit").removeClass("active");
         }
-
         else if (table.rows('.selected').count() == 1 ) {
             buttons.enable();
-            jQuery('btn btn-secondary').addClass('active')
         }
         else {
             table.buttons(['#tblDelete']).enable()
