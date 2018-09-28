@@ -36,17 +36,16 @@ div.dt-buttons {
     margin-bottom:8px;
 }
 
-.btn-warning {
+.btn-outline-warning {
     margin-top:4px;
     margin-bottom:4px;
     width:100px;
 }
-.btn-danger {
+.btn-outline-danger {
     margin-bottom:4px;
     width:100px;
 }
 .btn-primary {
-    margin-bottom:4px;
     width:100px;
 }
 
@@ -174,7 +173,7 @@ $( document ).ready( function( $ )
                                     "id": 'btnEdit'
                                 },
                                 "text": 'Edit',
-                                "className": 'btn btn-warning' ,
+                                "className": 'btn btn-outline-warning' ,
                                 action: function () 
                                 {
                                     var selected_rows=table.rows('.selected').data();
@@ -197,7 +196,7 @@ $( document ).ready( function( $ )
                                 "text": 'Delete',
                                 "type": 'submit',
                                 "class": 'close',
-                                "className": 'btn btn-danger',
+                                "className": 'btn btn-outline-danger',
 
                                 action: function () 
                                 {
@@ -260,16 +259,20 @@ $( document ).ready( function( $ )
         $("th.select-checkbox").addClass("selected");
         //Controlling Button Activation
         var buttons=table.buttons(['#btnEdit', '#tblDelete'])
+
         if (table.rows('.selected').count() == 0 ) {
             buttons.disable()
+            jQuery('btn btn-secondary').removeClass('active')
+
         }
 
         else if (table.rows('.selected').count() == 1 ) {
-            buttons.enable()
+            buttons.enable();
+            jQuery('btn btn-secondary').addClass('active')
         }
         else {
-            table.buttons( ['#tblDelete']).enable()
-            table.buttons( ['#btnEdit']).disable()
+            table.buttons(['#tblDelete']).enable()
+            table.buttons(['#btnEdit']).disable()
         }
     }
     })
