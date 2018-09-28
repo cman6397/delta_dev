@@ -71,6 +71,7 @@ class Account(db.Model):
 	custodian = db.Column(db.String(100), unique=False, nullable=True)
 	opening_date = db.Column(db.Date(), unique=False, nullable=True)
 	balance=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
+	payment_source = db.Column(db.String(100), unique=False, nullable=True)
 	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
 	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_Structure.id, ondelete='SET NULL'), nullable=True)
 	billing_group_id= db.Column(db.Integer, db.ForeignKey(Billing_Group.id, ondelete='SET NULL'), nullable=True)

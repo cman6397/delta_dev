@@ -85,8 +85,13 @@ def household_account_relationships():
 
 	billing_split_query=db.session.query(Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
 	print(billing_split_query)
-	print(billing_split_query.all())
+
 	return success,msg
+
+def account_adjacent_test():
+	account=db.session.query(Account).first()
+	account.fee_location_id=account.id
+	print(account.fee_location_id)
 
 def json_testing():
 	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
@@ -111,9 +116,12 @@ def show_table():
 
 if __name__ == '__main__':
 	with warnings.catch_warnings():
+
 		warnings.simplefilter("ignore", category=sa_exc.SAWarning)
 		username='admin'
 		password='1234'
+
+		#account_adjacent_test()
 
 		remove_user(username)
 

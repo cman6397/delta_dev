@@ -14,6 +14,7 @@ names=['Liam','Noah','William','James','Logan','Benjamin','Mason','Elijah','Oliv
 'Santiago','Chase','Sawyer','Gavin','Leonardo','Kayden','Ayden','Jameson']
 
 custodians=['Td Ameritrade','Charles Schwab']
+payment_sources=['Custodian Billed', 'Directly Billed']
 
 households=['Household1','Household2','Household3','Household4','Household5']
 billing_groups = ['Billing_Group1','Billing_Group2','Billing_Group3','Billing_Group4','Billing_Group5']
@@ -111,6 +112,7 @@ def generate_accounts():
 	
 	Account.query.delete()
 	account_numbers=[]
+	count=0
 	for x in range(0,10):
 		for name in names:
 			account_number,balance,date=random_values()
@@ -119,11 +121,23 @@ def generate_accounts():
 
 			account_numbers.append(account_number)
 			custodian=random.choice(custodians)
+			payment_source=random.choice(payment_sources)
 
 			household,billing_group,fee_structure=sample_household_billing_group_fees()
 
-			account = Account(name=name,account_number=account_number,custodian=custodian,opening_date=date,balance=balance, household=household,billing_group=billing_group,fee_structure=fee_structure)
+			account = Account(name=name,account_number=account_number,custodian=custodian,opening_date=date,balance=balance, payment_source=payment_source,household=household,billing_group=billing_group,fee_structure=fee_structure)
 			db.session.add(account)
+
+def add_fee_locations():
+	accounts=db.session.query(Account).all()[1:5]
+	first_account=db.session.query(Account).first()
+	for account in accounts:
+		account.fee_location=first_account
+
+def check_fee_locations():
+	accounts=db.session.query(Account).all()[0:5]
+	for account in accounts:
+		print(account.fee_location)
 	
 
 if __name__ == '__main__':
