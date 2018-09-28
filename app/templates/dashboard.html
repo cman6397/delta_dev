@@ -2,5 +2,50 @@
     {% extends "header.html" %}
 
     {% block body %}
+    <style>
+    	.container {
+    		width:95%;
+    		margin:20px;
+    	}
+
+	</style>
+
+   	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   	<div class = "container">
+  		<div id="chart_div"></div>
+  	</div>
+
+	<script>
+		var x_vals=JSON.parse("{{ x_vals|tojson }}")
+		var y_vals=JSON.parse("{{ y_vals|tojson }}")
+		var data_rows=JSON.parse("{{ data_rows|tojson }}")
+
+		google.charts.load('current', {packages: ['corechart', 'line']});
+		google.charts.setOnLoadCallback(drawBackgroundColor);
+
+		function drawBackgroundColor() {
+      	var data = new google.visualization.DataTable();
+      	data.addColumn('number', 'X');
+      	data.addColumn('number', 'AUM');
+
+      	data.addRows(data_rows);
+
+      	var options = {
+      	'title':'Total Assets Under Management',
+      	'height':400,
+      	'backgroundColor': '#F5F7FA',
+        hAxis: {
+          title: 'Time (days)'
+        },
+        vAxis: {
+          title: 'AUM (USD)'
+        },
+      	};
+
+      	var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      	chart.draw(data, options);
+    }
+
+	</script>
 
     {% endblock %}

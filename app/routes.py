@@ -53,7 +53,17 @@ def main():
 @app.route('/dashboard/')
 @login_required
 def dashboard():
-	return render_template('dashboard.html')
+	from numpy import random
+	num_days=300
+	x_vals=[0]
+	y_vals=[1000000]
+	rows=[[0,1000000]]
+	for x in range(1,num_days):
+		x_val = x
+		y_val = rows[x-1][1]*(1+random.normal(0.002,0.015))
+		rows.append([x_val,y_val])
+
+	return render_template('dashboard.html',x_vals=x_vals,y_vals=y_vals,data_rows=rows)
 
 #********************** HOUSEHOLD **************************
 @app.route('/household_data/')
