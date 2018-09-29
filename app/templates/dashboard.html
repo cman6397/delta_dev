@@ -3,21 +3,25 @@
 
     {% block body %}
     <style>
-    	.graph_container {
-    		width:90%;
-    		margin:20px;
+      .graph_container {
+    	width:90%;
+    	margin:20px;
+    	border: 20px solid #f5f5fa;
     	}
-      .table_container {
-        float:left;
-        margin-top:15px;
-        width:40%;
+      .top_household {
+      	width:44%;
+    	margin-left:5%;
+    	float: left;
+    	margin-bottom:50px;
+    	border: 20px solid #f5f5fa;
       }
-      .all_container {
-        width:95%;
-        margin:10px;
-        /*background:#f0f0f0;*/
-      }
-
+      .top_account {
+      	width:44%;
+    	margin-right:5%;
+    	float: right;
+    	margin-bottom:50px;
+    	border: 20px solid #f5f5fa;
+   	  } 
 	</style>
 
   <script>
@@ -36,7 +40,10 @@
         var options = {
         'title':'Total Assets Under Management',
         'height':500,
-        'backgroundColor': '#F5F7FA',
+        'chartArea': {'width': '75%','height': '80%'},
+        //'backgroundColor': '#f5f5fa',
+        'display': 'block',
+        'margin' : '0 auto',
         hAxis: {
           title: 'Time (days)'
         },
@@ -48,6 +55,8 @@
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         chart.draw(data, options);
 
+        resize();
+
         function resize () {
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
             chart.draw(data, options);
@@ -58,13 +67,11 @@
     }
 
   </script>
-
-  <div class = "all_container">
    	<div class = "graph_container">
-  		<div id="chart_div"></div>
-      <div class="table_container">
+  	  <div id="chart_div"></div>
+  		</div>
+      	<div class="top_household">
         <table class="table table-bordered">
-
         <thead>
           <tr>
           {% for column in household_columns %}
@@ -87,10 +94,33 @@
             {% endfor %}
           </tbody>
         </table>
+    	</div>
+    	<div class="top_account">
+        <table class="table table-bordered">
+        <thead>
+          <tr>
+          {% for column in account_columns %}
+            <th>
+            {{ column }}
+            </th>
+          {% endfor %}
+          </tr>
+        </thead>
 
+        <tbody>
+          {% for row in top_accounts %}
+            <tr>
+            {% for x in range(0, account_columns|length) %}
+              <td>
+              {{ row[x] }} 
+              </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
 
 
   {% endblock %}

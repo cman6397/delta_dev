@@ -74,12 +74,21 @@ def dashboard():
 
 	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),(func.sum(Account.balance)/total_AUM).label('Percent of Book')). \
 	outerjoin(Account, Account.household_id == Household.id).group_by(Household.id).order_by(func.sum(Account.balance).desc())
-	print(household_query)
+
+	account_query=db.session.query(Account.name.label('Account Name'),Account.balance.label('Balance'),(Account.balance/total_AUM).label('Percent of Book')). \
+	order_by(Account.balance.desc())
+
 
 	top_households=household_query.all()[0:5]
+	top_accounts=account_query.all()[0:5]
+
 	household_columns=top_households[0].keys()
+	account_columns=top_accounts[0].keys()
 
 	top_households=num_serializer(top_households)
+	top_accounts=num_serializer(top_accounts)
+
+	print(top_accounts)
 
 	num_days=300
 	rows=[[0,1000000]]
@@ -88,7 +97,7 @@ def dashboard():
 		y_val = rows[x-1][1]*(1+random.normal(0.002,0.015))
 		rows.append([x_val,y_val])
 
-	return render_template('dashboard.html',data_rows=rows, top_households=top_households, household_columns=household_columns)
+	return render_template('dashboard.html',data_rows=rows, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
 
 #********************** HOUSEHOLD **************************
 @app.route('/household_data/')
