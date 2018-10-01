@@ -72,10 +72,10 @@ def dashboard():
 
 	total_AUM = db.session.query(func.sum(Account.balance).label('Balance')).first()[0]
 
-	household_query=db.session.query(Household.name.label('Household Name'),func.sum(Account.balance).label('Balance'),(func.sum(Account.balance)/total_AUM).label('Percent of Book')). \
+	household_query=db.session.query(Household.name.label('Household'),func.sum(Account.balance).label('Balance'),(func.sum(Account.balance)/total_AUM).label('Percent of Book')). \
 	outerjoin(Account, Account.household_id == Household.id).group_by(Household.id).order_by(func.sum(Account.balance).desc())
 
-	account_query=db.session.query(Account.name.label('Account Name'),Account.balance.label('Balance'),(Account.balance/total_AUM).label('Percent of Book')). \
+	account_query=db.session.query(Account.name.label('Account'),Account.balance.label('Balance'),(Account.balance/total_AUM).label('Percent of Book')). \
 	order_by(Account.balance.desc())
 
 
@@ -88,16 +88,24 @@ def dashboard():
 	top_households=num_serializer(top_households)
 	top_accounts=num_serializer(top_accounts)
 
-	print(top_accounts)
+	x_vals=[0]
+	y_vals=[1000000]
+
+	json_data=[]
 
 	num_days=300
 	rows=[[0,1000000]]
 	for x in range(1,num_days):
 		x_val = x
-		y_val = rows[x-1][1]*(1+random.normal(0.002,0.015))
-		rows.append([x_val,y_val])
+		y_val = y_vals[x-1]*(1+random.normal(0.002,0.015))
 
-	return render_template('dashboard.html',data_rows=rows, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
+		x_vals.append(x_val)
+		y_vals.append(y_val)
+
+		json_data.append({'x': x_val,'y': y_val})
+		rows.append([x_val,round(y_val,2)])
+
+	return render_template('dashboard.html',Hchart_data=rows,x_vals=x_vals,y_vals=y_vals,json_data=json_data, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
 
 #********************** HOUSEHOLD **************************
 @app.route('/household_data/')

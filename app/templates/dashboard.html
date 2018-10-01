@@ -3,75 +3,34 @@
 
     {% block body %}
     <style>
-      .graph_container {
-    	width:90%;
-    	margin:20px;
-    	border: 20px solid #f5f5fa;
-    	}
-      .top_household {
-      	width:44%;
-    	margin-left:5%;
-    	float: left;
-    	margin-bottom:50px;
-    	border: 20px solid #f5f5fa;
+      .ct-chart {
+      	height:500px;
       }
-      .top_account {
-      	width:44%;
-    	margin-right:5%;
-    	float: right;
+      .graph_container {
+      	width:90%;
+    	border: 20px solid #f5f5fa;
+    	margin-top:20px;
+    	}
+   	  .table {
+   	  	width:44.5%;
     	margin-bottom:50px;
     	border: 20px solid #f5f5fa;
-   	  } 
-	</style>
-
-  <script>
-    var data_rows=JSON.parse("{{ data_rows|tojson }}")
-
-    google.charts.load('current', {packages: ['corechart', 'line']});
-    google.charts.setOnLoadCallback(drawBackgroundColor);
-
-    function drawBackgroundColor() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('number', 'X');
-        data.addColumn('number', 'AUM');
-
-        data.addRows(data_rows);
-
-        var options = {
-        'title':'Total Assets Under Management',
-        'height':500,
-        'chartArea': {'width': '75%','height': '80%'},
-        //'backgroundColor': '#f5f5fa',
-        'display': 'block',
-        'margin' : '0 auto',
-        hAxis: {
-          title: 'Time (days)'
-        },
-        vAxis: {
-          title: 'AUM (USD)'
-        },
-        };
-
-        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
-
-        resize();
-
-        function resize () {
-            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-            chart.draw(data, options);
-        }
-
-        window.onload = resize;
-        window.onresize = resize;
-    }
-
-  </script>
+    	height:350px;
+    	white-space:nowrap;
+   	  }
+   	  caption { 
+    	font-weight: bold;
+    	text-align:center;
+    	caption-side: top;
+    	font-size:120%;
+	  }
+  </style>
+  
    	<div class = "graph_container">
-  	  <div id="chart_div"></div>
-  		</div>
-      	<div class="top_household">
-        <table class="table table-bordered">
+  	  <div id="container" style="width: 97%;"></div>
+  	</div>
+        <table class="table table-bordered" style="float: right; margin-right:5%;">
+        <caption> Top Households </caption>
         <thead>
           <tr>
           {% for column in household_columns %}
@@ -94,9 +53,9 @@
             {% endfor %}
           </tbody>
         </table>
-    	</div>
-    	<div class="top_account">
-        <table class="table table-bordered">
+
+        <table class="table table-bordered" style="float: left; margin-left:5%;">
+        <caption>Top Accounts</caption>
         <thead>
           <tr>
           {% for column in account_columns %}
@@ -119,8 +78,83 @@
             {% endfor %}
           </tbody>
         </table>
-      </div>
-    </div>
+
+  <Script>
+  	var x_vals=JSON.parse("{{ x_vals|tojson }}")
+  	var y_vals=JSON.parse("{{ y_vals|tojson }}")
+  	var Hchart_data=JSON.parse("{{ Hchart_data|tojson}}")
+
+  	create_chart()
+
+  	function create_chart() {
+	  	Highcharts.setOptions({
+	    lang: {
+	        thousandsSep: ','
+	    }
+		});
+
+	    Highcharts.chart('container', {
+	      chart: {
+	        zoomType: 'x'
+	      },
+	      title: {
+	        text: 'Total Assets Under Management'
+	      },
+	      xAxis: {
+	        //type: 'datetime'
+	      },
+	      yAxis: {
+	        title: {
+	          text: 'AUM (Millions)'
+	        },
+	        labels: {formatter: function() {
+	          	return this.value / 1000000 + 'M';
+	        	}
+	        }
+	      },
+	      legend: {
+	        enabled: false
+	      },
+	      plotOptions: {
+	        area: {
+	          fillColor: {
+	            linearGradient: {
+	              x1: 0,
+	              y1: 0,
+	              x2: 0,
+	              y2: 1
+	            },
+	            stops: [
+	              [0, Highcharts.getOptions().colors[1]],
+	              [1, Highcharts.Color(Highcharts.getOptions().colors[1]).setOpacity(0).get('rgba')]
+	            ]
+	          },
+	          marker: {
+	            radius: 2,
+	            fillColor: Highcharts.getOptions().colors[1]
+	          },
+	          lineWidth: 1,
+	          lineColor:Highcharts.getOptions().colors[1],
+	          states: {
+	            hover: {
+	              lineWidth: 2
+	            }
+	          },
+	          threshold: null
+	        }
+	      },
+
+	      series: [{
+	        type: 'area',
+	        name: 'AUM',
+	        lineColor: Highcharts.getOptions().colors[1],
+	        color: Highcharts.getOptions().colors[1],
+	        data: Hchart_data,
+	      }]
+	    });
+   }
+
+  </Script>
 
 
   {% endblock %}
