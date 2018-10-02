@@ -11,6 +11,8 @@ div.dataTables_wrapper
 table.dataTable td {
     white-space: nowrap; 
     font-size:14px;
+    padding-left:10px !important;
+    padding-right:10px !important;
 }
 h1
 {
@@ -32,11 +34,10 @@ margin-top:6px;
 }
 
 thead input {
-        width: 105%;
-        font-size:10px;
-        text-indent: 3px;
-        font-weight: 600;
-        margin:2px;
+    font-size:13px;
+    font-weight:150;
+    width: 105%;
+    text-indent: 3px;
 }
 
 
@@ -61,7 +62,7 @@ $( document ).ready( function( $ )
 
     $('#table thead tr:eq(1) th').each( function (i) {
         var title = $(this).text();
-        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+        $(this).html( '<input type="text" placeholder="&#xF002;" style="font-family:FontAwesome"/> ');
         //$(this).html( '<input type="text" placeholder="Search" />' );
  
         $( 'input', this ).on( 'keyup change', function () {

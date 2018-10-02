@@ -9,6 +9,8 @@ div.dataTables_wrapper
 table.dataTable td {
     white-space: nowrap; 
     font-size:14px;
+    padding-left:10px !important;
+    padding-right:10px !important;
 }
 thead th 
 { 
@@ -19,11 +21,10 @@ h1
   font-size:30px;
 }
 thead input {
-    width: 105%;
-    font-size:10px;
+    font-size:13px;
+    font-weight:150;
+    width: 103%;
     text-indent: 3px;
-    font-weight: 600;
-    margin:2px;
 }
 .dataTables_length {
     margin-right:15px;
@@ -96,7 +97,7 @@ $( document ).ready( function( $ )
     $('#table thead tr:eq(1) th').each( function (i) {
         var title = $(this).text();
         if (i >= 1){
-        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+        $(this).html( '<input type="text" placeholder="&#xF002;" style="font-family:FontAwesome"/> ');
         //$(this).html( '<input type="text" placeholder="Search" />' );
  
         $( 'input', this ).on( 'keyup change', function () {
@@ -109,7 +110,7 @@ $( document ).ready( function( $ )
         });
         }
         else {
-            $(this).html( '&nbsp;&nbsp;&nbsp;&nbsp;' );
+            $(this).html( '' );
         }
     });
 
