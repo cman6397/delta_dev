@@ -111,7 +111,7 @@ def dashboard():
 @app.route('/household_data/')
 @login_required
 def household_data():
-	household_query=db.session.query(Household.name.label('Household Name'),Billing_Group.name.label('Billing Group'),func.min(Account.opening_date).label('Opening Date'), \
+	household_query=db.session.query(Household.name.label('Name'),Billing_Group.name.label('Billing Group'),func.min(Account.opening_date).label('Opening Date'), \
 	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.household_id == Household.id) \
 	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 
@@ -126,7 +126,7 @@ def household_data():
 @app.route('/household/')
 @login_required
 def household():
-	household_query=db.session.query(Household.name.label('Household Name'),Billing_Group.name.label('Billing Group'),func.min(Account.opening_date).label('Opening Date'), \
+	household_query=db.session.query(Household.name.label('Name'),Billing_Group.name.label('Billing Group'),func.min(Account.opening_date).label('Opening Date'), \
 	func.count(Account.id).label('Total Accounts'),func.sum(Account.balance).label('Balance')).outerjoin(Account, Account.household_id == Household.id) \
 	.outerjoin(Billing_Group, Household.id == Billing_Group.household_id).group_by(Household.id)
 	
@@ -145,7 +145,7 @@ def household():
 def account_data():
 	Account_Fee_Location = aliased(Account)
 
-	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
 	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
@@ -164,7 +164,7 @@ def account_data():
 def account():
 	Account_Fee_Location = aliased(Account)
 
-	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
 	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
@@ -214,7 +214,7 @@ def account():
 @login_required
 def fee_structure_data():
 
-	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Fee Name'),Fee_Structure.frequency.label('Frequency'), \
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Name'),Fee_Structure.frequency.label('Frequency'), \
 	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
 	func.count(Account.id).label('Total Accounts'),Fee_Structure.flat_rate.label('Flat Rate'),Fee_Structure.flat_fee.label('Flat Fee'), \
 	Fee_Structure.quarterly_cycle.label('Quarterly Cycle')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
@@ -230,7 +230,7 @@ def fee_structure_data():
 @app.route('/fee_structure/',methods=['GET', 'POST'])
 @login_required
 def fee_structure():
-	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Fee Name'),Fee_Structure.frequency.label('Frequency'), \
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('Name'),Fee_Structure.frequency.label('Frequency'), \
 	Fee_Structure.collection.label('Collection'),Fee_Structure.structure.label('Structure'),Fee_Structure.valuation_method.label('Valuation Method'), \
 	func.count(Account.id).label('Total Accounts'),Fee_Structure.flat_rate.label('Flat Rate'),Fee_Structure.flat_fee.label('Flat Fee'), \
 	Fee_Structure.quarterly_cycle.label('Quarterly Cycle')).outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
@@ -295,7 +295,7 @@ def billing_group():
 @login_required
 def billing_split_data():
 
-	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
+	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('Name'),Billing_Split.splitter.label('Splitter'),Billing_Split.split_percentage.label('Split Percentage'))
 
 	billing_splits=billing_split_query.all()
 	keys=billing_splits[0].keys()
@@ -309,7 +309,7 @@ def billing_split_data():
 @login_required
 def billing_split():
 
-	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
+	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('Name'),Billing_Split.splitter.label('Splitter'),Billing_Split.split_percentage.label('Split Percentage'))
 
 	billing_splits=billing_split_query.first()
 	keys=billing_splits.keys()
