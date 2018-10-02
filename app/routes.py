@@ -209,6 +209,30 @@ def account():
 
 	return render_template('account_display.html',fee_structures=fee_structures_json, billing_groups=billing_groups_json, data_link=url_for('account_data'), page_link = url_for('account'), columns=columns, title='Accounts')
 
+@app.route('/account/<int:id>', methods=['GET', 'POST'])
+@login_required
+def account_details(id):
+	account_query=db.session.query(Account).filter(Account.id == id)
+	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
+	billing_group_query = db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('text'))
+
+	fee_structures=fee_structure_query.all()
+	billing_groups=billing_group_query.all()
+
+	fee_structure_keys=fee_structures[0].keys()
+	billing_group_keys=billing_groups[0].keys()
+
+	fee_structures_json=[dict(zip([key for key in fee_structure_keys],row)) for row in fee_structures]
+	billing_groups_json=[dict(zip([key for key in billing_group_keys],row)) for row in billing_groups]
+
+	account=account_query.first()
+	form = Billing_SplitForm(obj=billing_split)
+
+	if account:
+		return render_template('account_details.html',fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
+	return redirect(url_for('account'))
+
+
 #********************** FEE STRUCTURE **************************
 @app.route('/fee_structure_data/')
 @login_required

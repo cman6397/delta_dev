@@ -1,0 +1,42 @@
+
+{% extends "header.html" %}
+
+{% block body %}
+<style>
+.modal_search_fee {
+    top:100px;
+    width:300px;
+}
+.modal_search_billing {
+    top:300px;
+    width:300px;
+}
+</style>
+
+<select class="modal_search_billing" id="modal_billing_selection" name="states[]" multiple="multiple"> 
+
+<select class="modal_search_fee" id="modal_fee_selection" name="states[]" multiple="multiple">
+
+<script>
+
+var fee_data = {{ fee_structures|tojson }}
+var billing_data = {{ billing_groups|tojson }}
+
+$(document).ready(function() {
+    $(".modal_search_fee").select2({
+        maximumSelectionLength: 1,
+        data: fee_data
+    });
+});
+
+$(document).ready(function() {
+    $(".modal_search_billing").select2({
+        maximumSelectionLength: 1,
+        data: billing_data
+    });
+});
+</script>
+
+{% endblock %}
+
+
