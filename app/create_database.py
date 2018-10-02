@@ -74,5 +74,7 @@ class Account(db.Model):
 	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
 	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_Structure.id, ondelete='SET NULL'), nullable=True)
 	billing_group_id= db.Column(db.Integer, db.ForeignKey(Billing_Group.id, ondelete='SET NULL'), nullable=True)
+	fee_location_id = db.Column(db.Integer, db.ForeignKey(id, ondelete='SET NULL'), nullable=True)
+	fee_location = db.relationship("Account", backref='accounts', remote_side=[id])
 
 db.create_all()

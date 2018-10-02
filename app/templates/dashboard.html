@@ -4,17 +4,18 @@
     {% block body %}
     <style>
       .ct-chart {
-      	height:500px;
+      height:500px;
       }
       .graph_container {
-      	width:90%;
-    	border: 20px solid #f5f5fa;
+      width:90%;
+    	border: 20px solid #F5F5F5;
     	margin-top:20px;
+      border-radius: 20px;
     	}
    	  .table {
-   	  	width:44.5%;
+   	  width:44.5%;
     	margin-bottom:50px;
-    	border: 20px solid #f5f5fa;
+    	border: 20px solid #F5F5F5;
     	height:350px;
     	white-space:nowrap;
    	  }
@@ -29,7 +30,7 @@
    	<div class = "graph_container">
   	  <div id="container" style="width: 97%;"></div>
   	</div>
-        <table class="table table-bordered" style="float: right; margin-right:5%;">
+        <table class="table" style="float: right; margin-right:5%;">
         <caption> Top Households </caption>
         <thead>
           <tr>
@@ -54,7 +55,7 @@
           </tbody>
         </table>
 
-        <table class="table table-bordered" style="float: left; margin-left:5%;">
+        <table class="table" style="float: left; margin-left:5%;">
         <caption>Top Accounts</caption>
         <thead>
           <tr>
@@ -79,7 +80,10 @@
           </tbody>
         </table>
 
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+
   <Script>
+
   	var x_vals=JSON.parse("{{ x_vals|tojson }}")
   	var y_vals=JSON.parse("{{ y_vals|tojson }}")
   	var Hchart_data=JSON.parse("{{ Hchart_data|tojson}}")

@@ -75,6 +75,8 @@ class Account(db.Model):
 	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
 	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_Structure.id, ondelete='SET NULL'), nullable=True)
 	billing_group_id= db.Column(db.Integer, db.ForeignKey(Billing_Group.id, ondelete='SET NULL'), nullable=True)
+	fee_location_id = db.Column(db.Integer, db.ForeignKey(id, ondelete='SET NULL'), nullable=True)
+	fee_location = db.relationship("Account", backref='accounts', remote_side=[id])
 	
 	def __repr__(self):
 		return '<id = %r, name = %r, account_number= %r, custodian= %r, opening_date= %r, balance= %r>' % (self.id, self.name, self.account_number,self.custodian,self.opening_date,self.balance)

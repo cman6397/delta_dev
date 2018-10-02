@@ -10,6 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func, label
 import warnings
 from sqlalchemy import exc as sa_exc
+from sqlalchemy.orm import aliased
 
 def create_user(username,password):
 	registered=False
@@ -89,9 +90,10 @@ def household_account_relationships():
 	return success,msg
 
 def account_adjacent_test():
-	account=db.session.query(Account).first()
-	account.fee_location_id=account.id
-	print(account.fee_location_id)
+
+	accountalias = aliased(Account)
+	account=db.session.query(Account.name,accountalias.name).join(accountalias,Account.fee_location).all()
+	print(account[1])
 
 def json_testing():
 	accounts_query=db.session.query(Account.name.label('account_name'),Account.account_number.label('account_number'), Account.custodian.label('custodian'), \
@@ -121,7 +123,7 @@ if __name__ == '__main__':
 		username='admin'
 		password='1234'
 
-		#account_adjacent_test()
+		account_adjacent_test()
 
 		remove_user(username)
 

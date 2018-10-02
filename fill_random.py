@@ -150,3 +150,6 @@ if __name__ == '__main__':
 	generate_accounts()
 	generate_splits()
 	db.session.commit()
+	add_fee_locations()
+	db.session.commit()
+	check_fee_locations()
