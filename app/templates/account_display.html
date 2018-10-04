@@ -66,12 +66,8 @@ div.dt-buttons {
 </style>
 
 <div class="table_container shadow">
-
-    <table id="table" class="display compact cell-border" style="width:100%">
-
-    </table>
+    <table id="table" class="display compact cell-border" style="width:100%"></table>
 </div>
-
 <!-- Fee Modal -->
 <div class="modal fade" id="fee_modal" role="dialog">
     <div class="modal-dialog">
@@ -165,7 +161,7 @@ $( document ).ready( function( $ )
             },
             "orderCellsTop": true,
             "columns":{{ columns|tojson }},
-            "scrollY": "70vh",
+            "scrollY": "65vh",
             "scrollX": true, 
             "scrollCollapse": true,
             "oLanguage": {"sSearch": "Search All"},
@@ -184,8 +180,7 @@ $( document ).ready( function( $ )
                 "render": function ( data, type, row, meta ) {
                     return '<a href="'+row.id+'">'+ data + '</a>';
                     }
-                }
-            ],
+                }],
             "select": {
                 "style": 'multi',
                 "blurable": true
