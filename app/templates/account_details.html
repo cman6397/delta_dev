@@ -4,36 +4,92 @@
 {% block body %}
 <style>
 .modal_search_fee {
-    top:100px;
     width:300px;
 }
 .modal_search_billing {
-    top:300px;
     width:300px;
 }
+.select2-choices {
+  min-height: 200px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.select2-selection__rendered {
+    line-height: 31px !important;
+}
+.select2-container .select2-selection--single {
+    height: 35px !important;
+}
+.select2-selection__arrow {
+    height: 34px !important;
+}
+.search_fee {
+    width: 300px;
+
+}
+.search_billing {
+    width: 300px;
+}
+.center {
+    position: absolute;
+    left: 50%;
+    top:100px;
+    transform: translateX(-50%);
+    text-align:left;
+}  
 </style>
 
-<select class="modal_search_billing" id="modal_billing_selection" name="states[]" multiple="multiple"> 
+<div class = "center">
+    <p>
+    Account Name:
+    {{account.name}}
+    </p>
 
-<select class="modal_search_fee" id="modal_fee_selection" name="states[]" multiple="multiple">
+    <p>
+    Account Number:
+    {{account.account_number}}
+    </p>
+
+    <p>
+    Household:
+    {{account.household.name}}
+    </p>
+
+    <p>
+    Billing Group:   
+    <select class="search_billing" id="billing_selection"> </select>
+    </p>
+    <p>
+
+    Fee Structure:
+    <select class="search_fee" id="fee_selection"> </select>
+    </p>
+
+    <button type="button" id="btnFeeAssign" class="btn btn-primary" disabled> Save </button>
+    <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
+
+</div>
 
 <script>
 
+
 var fee_data = {{ fee_structures|tojson }}
 var billing_data = {{ billing_groups|tojson }}
+var account_id = {{ account.id }}
 
 $(document).ready(function() {
-    $(".modal_search_fee").select2({
-        maximumSelectionLength: 1,
-        data: fee_data
+    $(".search_fee").select2({
+        placeholder: "Test",
+        data: fee_data 
     });
-});
 
-$(document).ready(function() {
-    $(".modal_search_billing").select2({
-        maximumSelectionLength: 1,
+    $(".search_billing").select2({
+        placeholder: "Test",
         data: billing_data
     });
+
+    $(".search_fee").val(account_id).change();
+    $(".search_billing").val(account_id).change();
 });
 </script>
 

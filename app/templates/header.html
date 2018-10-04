@@ -21,18 +21,24 @@
     <link href="../static/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+
 <style>
 .navbar {
   background-color:#f5f5fa;;
   box-shadow: none;
-  margin: 10px;
+  margin-bottom:10px;
+}
+html, 
+body {
+  height: 100%;
 }
 </style>
 <head>
  
 <body>
 
-<div class = "container-fluid" align="center" style="min-height:100%">
+<div class = "container-fullwidth ontainer-fluid" align="center" style="min-height:100%">
 	<nav class="navbar navbar-expand-lg navbar-light">
 		<a class="navbar-brand" href="{{ url_for('dashboard') }}"><strong>Dashboard</strong></a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">

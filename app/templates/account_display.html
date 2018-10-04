@@ -17,11 +17,11 @@ thead th
     white-space: nowrap; 
 }
 .btn-light {
-  margin-bottom:4px;
+    margin-bottom:4px;
 }
 h1
 {
-  font-size:30px;
+    font-size:30px;
 }
 thead input {
     font-size:13px;
@@ -29,9 +29,19 @@ thead input {
     width: 105%;
     text-indent: 3px;
 }
+.center {
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+}  
 .dataTables_length {
     margin-right:15px;
     margin-top:6px;
+}
+.modal-body {
+    position:relative;
+    height:90px; 
 }
 
 div.dt-buttons {
@@ -39,11 +49,21 @@ div.dt-buttons {
     float: left;
     margin-bottom:4px;
 }
+.select2-selection__rendered {
+    line-height: 31px !important;
+}
+.select2-container .select2-selection--single {
+    height: 35px !important;
+}
+.select2-selection__arrow {
+    height: 34px !important;
+}
 .modal_search_fee {
-    width:300px;
+    width: 300px;
+
 }
 .modal_search_billing {
-    width:300px;
+    width: 300px;
 }
 
 </style>
@@ -64,12 +84,11 @@ div.dt-buttons {
           <h4 class="modal-title">Assign Fee Structure</h4>
         </div>
         <div class="modal-body">
-          <p>
-            <select class="modal_search_fee" id="modal_fee_selection" name="states[]" multiple="multiple">
-
+            <div class="center">
+            <select 
+                class="modal_search_fee" id="modal_fee_selection">
             </select>
-
-          </p>
+            </div>
         </div>
         <div class="modal-footer">
           <button type="button" id="btnFeeAssign" class="btn btn-primary" disabled> Assign Fee Structure </button>
@@ -91,11 +110,11 @@ div.dt-buttons {
           <h4 class="modal-title">Assign Billing Group</h4>
         </div>
         <div class="modal-body">
-          <p>
-            <select class="modal_search_billing" id="modal_billing_selection" name="states[]" multiple="multiple">
-
+            <div class="center">
+            <select 
+                class="modal_search_billing" id="modal_billing_selection">
             </select>
-          </p>
+            </div>
         </div>
         <div class="modal-footer">
           <button type="button" id="btnBillingAssign" class="btn btn-primary" disabled> Assign Billing Group </button>
@@ -160,8 +179,15 @@ $( document ).ready( function( $ )
                 "orderable": false,
                 "checkboxes": {
                     "selectRow": true
+                    }
+                },
+                {
+                "targets":   1,
+                "render": function ( data, type, row, meta ) {
+                    return '<a href="'+row.id+'">'+ data + '</a>';
+                    }
                 }
-            }],
+            ],
             "select": {
                 "style": 'multi',
                 "blurable": true
@@ -256,7 +282,7 @@ $( document ).ready( function( $ )
     buttons.disable();
 
     function disable_enable(button, modal_selector) {
-        if (modal_selector.val().length == 0) {
+        if (modal_selector.val() == '') {
             button.prop('disabled', true);;
         }
         else {
@@ -382,16 +408,17 @@ var billing_data = {{ billing_groups|tojson }}
 
 $(document).ready(function() {
     $(".modal_search_fee").select2({
-        maximumSelectionLength: 1,
-        data: fee_data
+        data: fee_data,
+        placeholder: "Select Fee Structure"
     });
-});
 
-$(document).ready(function() {
     $(".modal_search_billing").select2({
-        maximumSelectionLength: 1,
-        data: billing_data
+        data: billing_data,
+        placeholder: "Select Billing Group"
     });
+
+    $(".modal_search_fee").val('').change();
+    $(".modal_search_billing").val('').change();
 });
 
 </script>

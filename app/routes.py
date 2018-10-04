@@ -218,6 +218,7 @@ def account_details(id):
 
 	fee_structures=fee_structure_query.all()
 	billing_groups=billing_group_query.all()
+	account=account_query.first()
 
 	fee_structure_keys=fee_structures[0].keys()
 	billing_group_keys=billing_groups[0].keys()
@@ -229,7 +230,7 @@ def account_details(id):
 	form = Billing_SplitForm(obj=billing_split)
 
 	if account:
-		return render_template('account_details.html',fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
+		return render_template('account_details.html',account=account, fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
 	return redirect(url_for('account'))
 
 
