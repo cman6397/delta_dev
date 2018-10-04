@@ -9,32 +9,29 @@
 .modal_search_billing {
     width:300px;
 }
-.select2-choices {
-  min-height: 200px;
-  max-height: 200px;
-  overflow-y: auto;
-}
 .select2-selection__rendered {
-    line-height: 31px !important;
+    line-height: 27px !important;
 }
 .select2-container .select2-selection--single {
-    height: 35px !important;
+    height: 31px !important;
 }
 .select2-selection__arrow {
-    height: 34px !important;
+    height: 30px !important;
 }
 .search_fee {
-    width: 300px;
-
+    width: 250px;
 }
 .search_billing {
-    width: 300px;
+    width: 250px;
+}
+.search_account {
+    width: 250px;
 }
 .account_container {
     width:45%;
     margin-bottom:50px;
     margin-top:10px;
-    height:350px;
+    height:360px;
     white-space:nowrap;
     float: left;
     text-align:left;
@@ -44,7 +41,7 @@
     width:45%;
     margin-bottom:50px;
     margin-top:10px;
-    height:350px;
+    height:360px;
     white-space:nowrap;
     float: right;
     text-align:left;
@@ -53,6 +50,25 @@
 h1 {
     font-size:25px;
     text-align:center;
+    padding-bottom:5px;
+}
+.result_select {
+    transform: translate(0%,-10%);
+    margin-right:20px;
+    display:inline-block;
+    float:right;
+    text-align:left;
+}
+.result{
+    margin-right:20px;
+    display:inline-block;
+    float:right;
+    text-align:left;
+}
+.label {
+    margin-left:20px;
+    display:inline-block;
+    font-weight: 500;
 }
 
 </style> 
@@ -60,67 +76,118 @@ h1 {
 <div class = "account_container content_container shadow">
     <h1> Account Details </h1>
     <p>
+    <div class = "label">
     Account Name:
-    {{account.name}}
+    </div>
+    <div class = "result">
+        {{account.account_name}}
+    </div>
     </p>
-
+    <hr>
     <p>
+    <div class = "label">
     Account Number:
-    {{account.account_number}}
+    </div>
+    <div class = "result">
+        {{account.account_number}}
+    </div>
     </p>
-
+    <hr>
     <p>
+    <div class = "label">
     Household:
-    {{account.household.name}}
+    </div>
+    <div class = "result">
+        {{account.household}}
+    </div>
     </p>
-
+    <hr>
     <p>
+    <div class = "label">
     Opening Date:
-    {{account.opening_date}}
+    </div>
+    <div class = "result">
+        {{account.opening_date}}
+    </div>
     </p>
-
+    <hr>
     <p>
+    <div class = "label">
     Custodian:
-    {{account.custodian}}
+    </div>
+    <div class = "result">
+        {{account.custodian}}
+    </div>
     </p>
 
 </div>
 <div class = "billing_container content_container shadow">
     <h1> Billing Details </h1>
-    <p>
-    Billing Group:   
-    <select class="search_billing" id="billing_selection"> </select>
-    </p>
-    <p>
 
+    <p>
+    <div class = "label">
+    Billing Group:  
+    </div> 
+    <div class = "result_select">
+        <select class="search_billing" id="billing_selection"> </select>
+    </div>
+    </p>
+    <hr>
+    <p>
+    <div class = "label">
     Fee Structure:
-    <select class="search_fee" id="fee_selection"> </select>
+    </div>
+    <div class = "result_select">
+        <select class="search_fee" id="fee_selection"> </select>
+    </div>
+    </p>
+    <hr>
+    <p>
+    <div class = "label">
+    Moved Fee Location:
+    </div>
+    <div class = "result_select">
+        <select class="search_account" id="account_selection"> </select>
+    </div>
     </p>
 </div>
 
-<button type="button" id="btnFeeAssign" class="btn btn-primary" disabled> Save </button>
+<button type="button" id="btnFeeAssign" class="btn btn-primary"> Save </button>
 <a class="btn btn-secondary" href="{{ page_link }}"> Back</a> </p>
 
 <script>
 
+//Set default values for select lists and read in json variables
+
+var account = JSON.parse({{account_json|tojson}})[0]
 
 var fee_data = {{ fee_structures|tojson }}
 var billing_data = {{ billing_groups|tojson }}
-var account_id = {{ account.id }}
+var account_data = {{ accounts|tojson }}
+
+var fee_id = account.fee_structure_id
+var billing_id = account.fee_structure_id
+var fee_location_id= account.fee_location_id
 
 $(document).ready(function() {
     $(".search_fee").select2({
-        placeholder: "Test",
+        placeholder: "Select Fee Structure",
         data: fee_data 
     });
 
     $(".search_billing").select2({
-        placeholder: "Test",
+        placeholder: "Select Billing Group",
         data: billing_data
     });
 
-    $(".search_fee").val(account_id).change();
-    $(".search_billing").val(account_id).change();
+    $(".search_account").select2({
+        placeholder: "Select Fee Location",
+        data: account_data
+    });
+
+    $(".search_fee").val(fee_id).change();
+    $(".search_billing").val(billing_id).change();
+    $(".search_account").val(fee_location_id).change();
 });
 </script>
 
