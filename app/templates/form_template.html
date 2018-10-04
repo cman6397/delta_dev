@@ -6,7 +6,7 @@
    .center {
         position: absolute;
         left: 50%;
-        top:100px;
+        top:90px;
         transform: translateX(-50%);
         text-align:left;
    }  
@@ -23,39 +23,41 @@
 
 <div class = "center">
 
-<form action="" method="post" novalidate>
-	<div class="form-row align-items-center">
-		<div class="col-auto my-3">
-		<div class="form-check">
-        {{ form.hidden_tag() }}
+    <div class = "content_container shadow">
 
-        {% for field in form %}
-        <p>
-            {% if field.type not in ['SubmitField','CSRFTokenField'] %}
-                {% if field.id not in ['flat_fee','flat_rate', 'quarterly_cycle'] %}
-                    {{field.label}}
-                    {{field}}
-                {% else %}
-                    {{field.label(class='hidden')}}
-                    {{field}}
-                {% endif %}   
-                {% if field.errors %}
-                <ul class=errors>
-                    {% for error in field.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
+    <form action="" method="post" novalidate>
+    	<div class="form-row align-items-center">
+    		<div class="col-auto my-3">
+    		<div class="form-check">
+            {{ form.hidden_tag() }}
+
+            {% for field in form %}
+            <p>
+                {% if field.type not in ['SubmitField','CSRFTokenField'] %}
+                    {% if field.id not in ['flat_fee','flat_rate', 'quarterly_cycle'] %}
+                        {{field.label}}
+                        {{field}}
+                    {% else %}
+                        {{field.label(class='hidden')}}
+                        {{field}}
+                    {% endif %}   
+                    {% if field.errors %}
+                    <ul class=errors>
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-        </p>
-        {% endfor %}
-        <p>{{ form.submit(class='btn btn-primary') }}
-        <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
-    	</div>
-    	</div>
+            </p>
+            {% endfor %}
+            <p>{{ form.submit(class='btn btn-primary') }}
+            <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
+        	</div>
+        	</div>
+        </div>
+    </form>
     </div>
-</form>
-
 </div>
 
 <script>

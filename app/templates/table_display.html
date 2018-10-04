@@ -2,12 +2,7 @@
 
 {% block body %}
 <style>
-div.dataTables_wrapper 
-{
-    width: 85%;
-    margin: 0 auto;
-    white-space: nowrap;
-}
+
 table.dataTable td {
     white-space: nowrap; 
     font-size:14px;
@@ -40,14 +35,15 @@ thead input {
     text-indent: 3px;
 }
 
-
 </style>
 
-<h1>{{ title }}</h1>
+<div class="table_container shadow">
 
-<table id="table" class="display compact cell-border" style="width:100%">
+    <table id="table" class="display compact cell-border" style="width:100%">
 
-</table>
+    </table>
+
+</div>
 
 <script>
 $( document ).ready( function( $ ) 

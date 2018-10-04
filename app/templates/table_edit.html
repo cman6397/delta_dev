@@ -2,10 +2,7 @@
 
 {% block body %}
 <style>
-div.dataTables_wrapper 
-{
-    width: 85%;
-}
+
 table.dataTable td {
     white-space: nowrap; 
     font-size:14px;
@@ -54,11 +51,13 @@ div.dt-buttons {
 
 </style>
 
-    <h1>{{ title }}</h1>
+<div class="table_container shadow">
 
     <table id="table" class="display compact cell-border" style="width:100%">
 
     </table>
+
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="warn_modal" role="dialog">

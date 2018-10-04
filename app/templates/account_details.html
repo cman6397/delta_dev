@@ -30,16 +30,35 @@
 .search_billing {
     width: 300px;
 }
-.center {
-    position: absolute;
-    left: 50%;
-    top:100px;
-    transform: translateX(-50%);
+.account_container {
+    width:45%;
+    margin-bottom:50px;
+    margin-top:30px;
+    height:350px;
+    white-space:nowrap;
+    float: left;
     text-align:left;
-}  
-</style>
+    margin-left:4%;
+} 
+.billing_container {
+    width:45%;
+    margin-bottom:50px;
+    margin-top:30px;
+    height:350px;
+    white-space:nowrap;
+    float: right;
+    text-align:left;
+    margin-right:4%;
+} 
+h1 {
+    font-size:25px;
+    text-align:center;
+}
 
-<div class = "center">
+</style> 
+
+<div class = "account_container content_container shadow">
+    <h1> Account Details </h1>
     <p>
     Account Name:
     {{account.name}}
@@ -56,6 +75,19 @@
     </p>
 
     <p>
+    Opening Date:
+    {{account.opening_date}}
+    </p>
+
+    <p>
+    Custodian:
+    {{account.custodian}}
+    </p>
+
+</div>
+<div class = "billing_container content_container shadow">
+    <h1> Billing Details </h1>
+    <p>
     Billing Group:   
     <select class="search_billing" id="billing_selection"> </select>
     </p>
@@ -64,11 +96,10 @@
     Fee Structure:
     <select class="search_fee" id="fee_selection"> </select>
     </p>
-
-    <button type="button" id="btnFeeAssign" class="btn btn-primary" disabled> Save </button>
-    <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
-
 </div>
+
+<button type="button" id="btnFeeAssign" class="btn btn-primary" disabled> Save </button>
+<a class="btn btn-secondary" href="{{ page_link }}"> Back</a> </p>
 
 <script>
 
