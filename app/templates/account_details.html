@@ -166,7 +166,7 @@ var billing_data = {{ billing_groups|tojson }}
 var account_data = {{ accounts|tojson }}
 
 var fee_id = account.fee_structure_id
-var billing_id = account.fee_structure_id
+var billing_id = account.billing_group_id
 var fee_location_id= account.fee_location_id
 
 $(document).ready(function() {
