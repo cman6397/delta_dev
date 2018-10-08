@@ -1,0 +1,49 @@
+{% extends "header.html" %}
+
+  {% block body %}
+  <style>
+  .table {
+    white-space:nowrap;
+  }
+  caption { 
+		font-weight: bold;
+		text-align:center;
+		caption-side: top;
+		font-size:18px;
+		color: #696969;
+	}
+  .content_container {
+    margin:50px;
+    padding-top:2px;
+
+  }
+  </style>
+
+  	<div class = "content_container shadow">
+        <table class="table">
+        <caption> Accounts </caption>
+        <thead>
+          <tr>
+          {% for column in account_columns %}
+            <th>
+            {{ column }}
+            </th>
+          {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for row in account_rows %}
+            <tr>
+            {% for x in range(0, account_columns|length) %}
+              <td>
+              {{ row[x] }} 
+              </td>
+            {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+
+  {% endblock %}

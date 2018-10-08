@@ -147,10 +147,10 @@ def account_data():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location'), func.group_concat(Split.name, "; ").label('Splits')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Fee Relocation'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
-	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location) \
-	.outerjoin(Account_Split).outerjoin(Split).group_by(Account.id)
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Split).outerjoin(Split).group_by(Account.id) \
+	.outerjoin(Account_Fee_Location, Account.fee_location) 
 
 	accounts=accounts_query.all()
 	keys=accounts[0].keys()
@@ -167,10 +167,11 @@ def account():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location'), func.group_concat(Split.name, "; ").label('Splits')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Fee Relocation'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
-	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location) \
-	.outerjoin(Account_Split).outerjoin(Split).group_by(Account.id)
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Split).outerjoin(Split).group_by(Account.id) \
+	.outerjoin(Account_Fee_Location, Account.fee_location) 
+	
 	
 	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
 	billing_group_query = db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('text'))
@@ -221,7 +222,7 @@ def account_details(id):
 	Billing_Group.id.label('billing_group_id'), Fee_Structure.id.label('fee_structure_id'), Account.payment_source.label('payment_source'), \
 	Account_Fee_Location.id.label('fee_location_id'), func.group_concat(Split.id, ",").label('split_ids')).outerjoin(Household, Account.household_id == Household.id) \
 	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id) \
-	.outerjoin(Account_Fee_Location, Account.fee_location).outerjoin(Account_Split).outerjoin(Split).filter(Account.id == id).group_by(Account.id)
+	.outerjoin(Account_Split).outerjoin(Split).filter(Account.id == id).outerjoin(Account_Fee_Location, Account.fee_location).group_by(Account.id)
 
 	accounts_query=db.session.query(Account.id.label('id'),Account.name.label('text'))
 	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
@@ -255,24 +256,17 @@ def account_details(id):
 		fee_location=db.session.query(Account).filter(Account.id == data["fee_location"]).first()
 		splits=db.session.query(Split).filter(Split.id.in_(data["splits"])).all()
 
-		print("original splits: ", edit_account.splits)
-
 		edit_account.fee_structure=fee_structure
 		edit_account.fee_location=fee_location
 		edit_account.billing_group=billing_group
 		edit_account.splits=splits
-
-		print("new splits: ",splits)
 
 		try:
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
 			return redirect(url_for('account_details'))
-
-		edit_account=db.session.query(Account).filter(Account.id == id).first()
-		print("Splits After: ", edit_account.splits)
-
+		#Not Redirecting!! Have to do it in javascript. Not Ideal!
 		return redirect(url_for('account'))
 
 	if account:
@@ -361,6 +355,53 @@ def billing_group():
 		return redirect(url_for('billing_group'))
 
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
+
+@app.route('/billing_group/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_billing_group(id):
+	message = "Billing Group Name Taken"
+	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
+	billing_group=billing_group_query.first()
+	form = Billing_GroupForm(obj=billing_group)
+
+	if billing_group:
+		form = Billing_GroupForm(obj=billing_group)
+
+		if form.validate_on_submit():
+			form.populate_obj(billing_group)
+			try:
+				db.session.commit()
+			except exc.IntegrityError:
+				db.session.rollback()
+				flash(message)
+				return redirect(url_for('create_fee'))
+
+			return redirect(url_for('billing_group'))
+		return render_template('edit_template.html',form=form,page_link=url_for('billing_group'))
+	return redirect(url_for('billing_group'))
+
+@app.route('/billing_details/')
+@login_required
+def billing_details():
+	total_AUM = db.session.query(func.sum(Account.balance).label('Balance')).first()[0]
+
+	household_query=db.session.query(Household.name.label('Household'),func.sum(Account.balance).label('Balance'),(func.sum(Account.balance)/total_AUM).label('Percent of Book')). \
+	outerjoin(Account, Account.household_id == Household.id).group_by(Household.id).order_by(func.sum(Account.balance).desc())
+
+	account_query=db.session.query(Account.name.label('Account'),Account.balance.label('Balance'),(Account.balance/total_AUM).label('Percent of Book')). \
+	order_by(Account.balance.desc())
+
+	top_households=household_query.all()[0:5]
+	top_accounts=account_query.all()[0:5]
+
+	household_columns=top_households[0].keys()
+	account_columns=top_accounts[0].keys()
+
+	top_households=num_serializer(top_households)
+	top_accounts=num_serializer(top_accounts)
+
+
+	return render_template('billing_details.html',account_rows=top_households, account_columns=household_columns)
 
 #********************** Billing Split **************************
 @app.route('/split_data/')
@@ -468,29 +509,6 @@ def create_billing_group():
 
 	return render_template('form_template.html', form=form, page_link=url_for('billing_group'))
 
-@app.route('/billing_group/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_billing_group(id):
-	message = "Billing Group Name Taken"
-	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
-	billing_group=billing_group_query.first()
-	form = Billing_GroupForm(obj=billing_group)
-
-	if billing_group:
-		form = Billing_GroupForm(obj=billing_group)
-
-		if form.validate_on_submit():
-			form.populate_obj(billing_group)
-			try:
-				db.session.commit()
-			except exc.IntegrityError:
-				db.session.rollback()
-				flash(message)
-				return redirect(url_for('create_fee'))
-
-			return redirect(url_for('billing_group'))
-		return render_template('edit_template.html',form=form,page_link=url_for('billing_group'))
-	return redirect(url_for('billing_group'))
 
 @app.route('/Split/create',methods=['GET', 'POST'])
 @login_required
