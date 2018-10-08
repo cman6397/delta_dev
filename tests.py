@@ -3,7 +3,7 @@ from flask_login import current_user, login_user
 from app import app
 from app import db
 from app.forms import LoginForm
-from app.models import User, Account, Household, Fee_Structure, Billing_Group, Billing_Split
+from app.models import User, Account, Household, Fee_Structure, Billing_Group, Split, Account_Split
 from passlib.hash import sha256_crypt
 from app.content import account_view
 from flask_sqlalchemy import SQLAlchemy
@@ -84,7 +84,7 @@ def household_account_relationships():
 	Fee_Structure.structure.label('structure'),Fee_Structure.valuation_method.label('valuation_method'),func.count(Account.id).label('num_accounts')). \
 	outerjoin(Account, Account.fee_id == Fee_Structure.id).group_by(Fee_Structure.name)
 
-	billing_split_query=db.session.query(Billing_Split.name.label('name'),Billing_Split.splitter.label('splitter'),Billing_Split.split_percentage.label('split_percentage'))
+	billing_split_query=db.session.query(Split.name.label('name'),Split.splitter.label('splitter'),Split.split_percentage.label('split_percentage'))
 	print(billing_split_query)
 
 	return success,msg
@@ -116,6 +116,28 @@ def show_table():
 	for fee_struct in fee_structures:
 		print(fee_struct)
 
+def test_splits():
+	billing_split_query=db.session.query(Split)
+
+	Account_Fee_Location = aliased(Account)
+
+	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
+	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location'), Split.name.label('Splits')) \
+	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location) \
+	.outerjoin(Account_Split).outerjoin(Split)
+
+	account=db.session.query(Account).first()
+	print(account.id,account.name,account.account_number,account.opening_date, \
+		account.balance,account.custodian,account.household.name, account.billing_group.name, \
+		account.fee_structure.name, account.splits)
+
+	accounts=accounts_query.all()
+	print(accounts[1])
+
+
+
 if __name__ == '__main__':
 	with warnings.catch_warnings():
 
@@ -140,6 +162,8 @@ if __name__ == '__main__':
 		print(msg)
 
 		json_testing()
+
+		test_splits()
 
 	#show_table()
 

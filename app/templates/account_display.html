@@ -67,6 +67,7 @@ div.dt-buttons {
 
 <div class="table_container shadow">
     <table id="table" class="display compact cell-border" style="width:100%"></table>
+    
 </div>
 <!-- Fee Modal -->
 <div class="modal fade" id="fee_modal" role="dialog">
@@ -402,11 +403,13 @@ var billing_data = {{ billing_groups|tojson }}
 $(document).ready(function() {
     $(".modal_search_fee").select2({
         data: fee_data,
+        allowClear: true,
         placeholder: "Select Fee Structure"
     });
 
     $(".modal_search_billing").select2({
         data: billing_data,
+        allowClear: true,
         placeholder: "Select Billing Group"
     });
 

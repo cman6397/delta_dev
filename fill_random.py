@@ -1,6 +1,6 @@
 from app import app
 from app import db
-from app.models import Account, Household, Fee_Structure, Billing_Group, Billing_Split
+from app.models import Account, Household, Fee_Structure, Billing_Group, Split, Account_Split
 from app.content import account_view,household_view
 import random
 import time
@@ -53,15 +53,15 @@ def generate_fee_structures():
 			db.session.add(fee_structure)
 
 def generate_splits():
-	Billing_Split.query.delete()
+	Split.query.delete()
 	count=0
 	for split_name in split_names:
 		name=split_name
 		splitter=splitters[count]
 		split=splits[count]
 
-		billing_split=Billing_Split(name=name,splitter=splitter,split_percentage=split)
-		db.session.add(billing_split)
+		new_split=Split(name=name,splitter=splitter,split_percentage=split)
+		db.session.add(new_split)
 
 		count+=1
 
@@ -141,6 +141,13 @@ def check_fee_locations():
 	accounts=db.session.query(Account).all()[0:5]
 	for account in accounts:
 		print(account.fee_location)
+
+def add_splits():
+	accounts=db.session.query(Account).all()[0:20]
+	splits=db.session.query(Split).all()
+
+	for account in accounts:
+		account.splits.append(random.choice(splits))
 	
 
 if __name__ == '__main__':
@@ -149,7 +156,8 @@ if __name__ == '__main__':
 	generate_billing_groups()
 	generate_accounts()
 	generate_splits()
-	db.session.commit()
 	add_fee_locations()
+	add_splits()
+
 	db.session.commit()
-	check_fee_locations()
+

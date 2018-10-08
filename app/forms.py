@@ -52,7 +52,7 @@ class Billing_GroupForm(FlaskForm):
 	name= StringField('Name',render_kw={"placeholder": "Enter Billing Group Name","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
 	submit = SubmitField('Save')
 
-class Billing_SplitForm(FlaskForm):
+class SplitForm(FlaskForm):
 	name= StringField('Name',render_kw={"placeholder": "Enter Split Name","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
 	splitter= StringField('Splitter',render_kw={"placeholder": "Enter Splitter Name ","class": "form-control", "size": "30"}, default='', validators=[InputRequired(),Length(max=100)])
 	split_percentage= PercentField('Split Percentage (%)', places=2,render_kw={"placeholder": "e.g., 20.0%","class": "form-control"}, validators=[Optional(),NumberRange(max=100, min=0)])

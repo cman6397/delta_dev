@@ -4,8 +4,8 @@ from sqlalchemy.sql import func, label
 from sqlalchemy import exc, update
 from app import app
 from app import db
-from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, Billing_SplitForm
-from app.models import User, Account, Household, Billing_Group, Fee_Structure, Billing_Split
+from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm
+from app.models import User, Account, Household, Billing_Group, Fee_Structure, Split, Account_Split
 from app.content import account_view, household_view, fee_view, dev_view
 from sqlalchemy.orm import aliased
 import datetime,decimal
@@ -147,9 +147,10 @@ def account_data():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
-	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location)
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location) \
+	.outerjoin(Account_Split).outerjoin(Split).group_by(Account.id)
 
 	accounts=accounts_query.all()
 	keys=accounts[0].keys()
@@ -166,9 +167,10 @@ def account():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Moved Fee Location'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
-	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location)
+	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Fee_Location, Account.fee_location) \
+	.outerjoin(Account_Split).outerjoin(Split).group_by(Account.id)
 	
 	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
 	billing_group_query = db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('text'))
@@ -217,34 +219,65 @@ def account_details(id):
 	account_query = db.session.query(Account.id.label('id'),Account.name.label('account_name'),Account.account_number.label('account_number'), \
 	Account.opening_date.label('opening_date'), Account.balance.label('balance'), Account.custodian.label('custodian'),Household.name.label('household'), \
 	Billing_Group.id.label('billing_group_id'), Fee_Structure.id.label('fee_structure_id'), Account.payment_source.label('payment_source'), \
-	Account_Fee_Location.id.label('fee_location_id')) .outerjoin(Household, Account.household_id == Household.id) \
+	Account_Fee_Location.id.label('fee_location_id'), func.group_concat(Split.id, ",").label('split_ids')).outerjoin(Household, Account.household_id == Household.id) \
 	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id) \
-	.outerjoin(Account_Fee_Location, Account.fee_location).filter(Account.id == id)
+	.outerjoin(Account_Fee_Location, Account.fee_location).outerjoin(Account_Split).outerjoin(Split).filter(Account.id == id).group_by(Account.id)
 
 	accounts_query=db.session.query(Account.id.label('id'),Account.name.label('text'))
 	fee_structure_query = db.session.query(Fee_Structure.id.label('id'),Fee_Structure.name.label('text'))
 	billing_group_query = db.session.query(Billing_Group.id.label('id'),Billing_Group.name.label('text'))
+	split_query = db.session.query(Split.id.label('id'),Split.name.label('text'))
 
 	fee_structures=fee_structure_query.all()
 	billing_groups=billing_group_query.all()
+	splits=split_query.all()
 	accounts=accounts_query.all()
 	account=account_query.first()
 
 	fee_structure_keys=fee_structures[0].keys()
 	billing_group_keys=billing_groups[0].keys()
+	split_keys=splits[0].keys()
 	accounts_keys=accounts[0].keys()
 	account_keys=account.keys()
-
 
 	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts]
 	fee_structures_json=[dict(zip([key for key in fee_structure_keys],row)) for row in fee_structures]
 	billing_groups_json=[dict(zip([key for key in billing_group_keys],row)) for row in billing_groups]
+	splits_json=[dict(zip([key for key in split_keys],row)) for row in splits]
 	account_json=json.dumps([dict(zip([key for key in account_keys],account))],default=alchemyencoder)
 
-	form = Billing_SplitForm(obj=billing_split)
+	if request.method == "POST" and request.json:
+		data=request.json
+
+		edit_account=db.session.query(Account).filter(Account.id == id).first()
+		fee_structure=db.session.query(Fee_Structure).filter(Fee_Structure.id == data["fee_structure"]).first()
+		billing_group=db.session.query(Billing_Group).filter(Billing_Group.id == data["billing_group"]).first()
+		fee_location=db.session.query(Account).filter(Account.id == data["fee_location"]).first()
+		splits=db.session.query(Split).filter(Split.id.in_(data["splits"])).all()
+
+		print("original splits: ", edit_account.splits)
+
+		edit_account.fee_structure=fee_structure
+		edit_account.fee_location=fee_location
+		edit_account.billing_group=billing_group
+		edit_account.splits=splits
+
+		print("new splits: ",splits)
+
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			return redirect(url_for('account_details'))
+
+		edit_account=db.session.query(Account).filter(Account.id == id).first()
+		print("Splits After: ", edit_account.splits)
+
+		return redirect(url_for('account'))
 
 	if account:
-		return render_template('account_details.html',account_json=account_json,account=account, accounts=accounts_json, fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
+		return render_template('account_details.html',splits=splits_json,account_json=account_json,account=account, accounts=accounts_json, fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
+	
 	return redirect(url_for('account'))
 
 
@@ -330,28 +363,28 @@ def billing_group():
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
 
 #********************** Billing Split **************************
-@app.route('/billing_split_data/')
+@app.route('/split_data/')
 @login_required
-def billing_split_data():
+def split_data():
 
-	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('Split Name'),Billing_Split.splitter.label('Splitter'),Billing_Split.split_percentage.label('Split Percentage'))
+	split_query=db.session.query(Split.id.label('id'),Split.name.label('Split Name'),Split.splitter.label('Splitter'),Split.split_percentage.label('Split Percentage'))
 
-	billing_splits=billing_split_query.all()
-	keys=billing_splits[0].keys()
+	splits=split_query.all()
+	keys=splits[0].keys()
 
-	data=[dict(zip([key for key in keys],row)) for row in billing_splits]
+	data=[dict(zip([key for key in keys],row)) for row in splits]
 	data=json.dumps({'data': data}, default = alchemyencoder)
 	
 	return data
 
-@app.route('/billing_split/',methods=['GET', 'POST'])
+@app.route('/split/',methods=['GET', 'POST'])
 @login_required
-def billing_split():
+def split():
 
-	billing_split_query=db.session.query(Billing_Split.id.label('id'),Billing_Split.name.label('Split Name'),Billing_Split.splitter.label('Splitter'),Billing_Split.split_percentage.label('Split Percentage'))
+	split_query=db.session.query(Split.id.label('id'),Split.name.label('Split Name'),Split.splitter.label('Splitter'),Split.split_percentage.label('Split Percentage'))
 
-	billing_splits=billing_split_query.first()
-	keys=billing_splits.keys()
+	splits=split_query.first()
+	keys=splits.keys()
 
 	columns=[]
 	for key in keys:
@@ -360,12 +393,12 @@ def billing_split():
 	if request.method == "POST" and request.json:
 		delete_keys = request.json
 		print(delete_keys)
-		delete_query = db.session.query(Billing_Split).filter(Billing_Split.id.in_(delete_keys))
+		delete_query = db.session.query(Split).filter(Split.id.in_(delete_keys))
 		delete_query.delete(synchronize_session=False)
 		db.session.commit()
-		return redirect(url_for('billing_split'))
+		return redirect(url_for('split'))
 
-	return render_template('table_edit.html', data_link=url_for('billing_split_data'), page_link = url_for('billing_split'), create_link = url_for('create_billing_split'), columns=columns, title='Billing Splits')
+	return render_template('table_edit.html', data_link=url_for('split_data'), page_link = url_for('split'), create_link = url_for('create_split'), columns=columns, title='Billing Splits')
 #***************************** FORMS ******************************************
 
 @app.route('/fee_structure/create',methods=['GET', 'POST'])
@@ -384,9 +417,7 @@ def create_fee():
 			flash(message)
 			return redirect(url_for('create_fee'))
 
-
 		return redirect(url_for('fee_structure'))
-
 	return render_template('form_template.html', form=form,page_link=url_for('fee_structure'))
 
 @app.route('/fee_structure/<int:id>', methods=['GET', 'POST'])
@@ -461,43 +492,43 @@ def edit_billing_group(id):
 		return render_template('edit_template.html',form=form,page_link=url_for('billing_group'))
 	return redirect(url_for('billing_group'))
 
-@app.route('/billing_split/create',methods=['GET', 'POST'])
+@app.route('/Split/create',methods=['GET', 'POST'])
 @login_required
-def create_billing_split():
+def create_split():
 	message = "Billing Split Name Taken"
-	form = Billing_SplitForm()
+	form = SplitForm()
 	if form.validate_on_submit():
-		new_billing_split = Billing_Split()
-		form.populate_obj(new_billing_split)
+		new_split = Split()
+		form.populate_obj(new_split)
 		try:
-			db.session.add(new_billing_split)
+			db.session.add(new_split)
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
 			flash(message)
-			return redirect(url_for('create_billing_split'))
+			return redirect(url_for('create_split'))
 
-		return redirect(url_for('billing_split'))
+		return redirect(url_for('split'))
 
-	return render_template('form_template.html', form=form, page_link=url_for('billing_split'))
+	return render_template('form_template.html', form=form, page_link=url_for('split'))
 
-@app.route('/billing_split/<int:id>', methods=['GET', 'POST'])
+@app.route('/split/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_billing_split(id):
+def edit_split(id):
 	message = "Billing Split Name Taken"
-	billing_split_query=db.session.query(Billing_Split).filter(Billing_Split.id == id)
-	billing_split=billing_split_query.first()
-	form = Billing_SplitForm(obj=billing_split)
+	split_query=db.session.query(Split).filter(Split.id == id)
+	split=split_query.first()
+	form = SplitForm(obj=split)
 
-	if billing_split:
+	if split:
 
-		if billing_split.split_percentage:
-			billing_split.split_percentag=billing_split.split_percentage*100
+		if split.split_percentage:
+			split.split_percentag=split.split_percentage*100
 
-		form = Billing_Split(obj=billing_split)
+		form = SplitForm(obj=split)
 
 		if form.validate_on_submit():
-			form.populate_obj(billing_split)
+			form.populate_obj(split)
 			try:
 				db.session.commit()
 			except exc.IntegrityError:
@@ -505,9 +536,9 @@ def edit_billing_split(id):
 				flash(message)
 				return redirect(url_for('create_fee'))
 
-			return redirect(url_for('billing_split'))
-		return render_template('edit_template.html',form=form,page_link=url_for('billing_split'))
-	return redirect(url_for('billing_split'))
+			return redirect(url_for('split'))
+		return render_template('edit_template.html',form=form,page_link=url_for('split'))
+	return redirect(url_for('split'))
 
 
 @app.route('/fee_structure_assign/<int:id>', methods=['GET', 'POST'])

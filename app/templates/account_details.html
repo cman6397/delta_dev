@@ -3,49 +3,64 @@
 
 {% block body %}
 <style>
-.modal_search_fee {
-    width:300px;
-}
-.modal_search_billing {
-    width:300px;
-}
+
 .select2-selection__rendered {
-    line-height: 27px !important;
+    line-height: 31px !important;
 }
 .select2-container .select2-selection--single {
-    height: 31px !important;
+    height: 35px !important;
 }
 .select2-selection__arrow {
-    height: 30px !important;
+    height: 34px !important;
 }
+
 .search_fee {
-    width: 250px;
+    width: 260px;
 }
 .search_billing {
-    width: 250px;
+    width: 260px;
 }
 .search_account {
-    width: 250px;
+    width: 260px;
+}
+.search_split {
+    width: 425px;
+}
+.top_position {
+    overflow-x:auto;
+    min-width:1100px;
+}
+.button_container {
+    position:absolute;
+    float:left;
+    margin-left:4%;
+    padding-left:30px;
 }
 .account_container {
+    position:relative;
     width:45%;
-    margin-bottom:50px;
+    margin-bottom:25px;
     margin-top:10px;
     height:360px;
     white-space:nowrap;
     float: left;
     text-align:left;
     margin-left:4%;
+    min-width:400px;
+    display:inline-block;
 } 
 .billing_container {
+    position:relative;
     width:45%;
-    margin-bottom:50px;
+    margin-bottom:25px;
     margin-top:10px;
     height:360px;
     white-space:nowrap;
     float: right;
     text-align:left;
     margin-right:4%;
+    min-width:500px;
+    display:inline-block;
 } 
 h1 {
     font-size:25px;
@@ -53,7 +68,7 @@ h1 {
     padding-bottom:5px;
 }
 .result_select {
-    transform: translate(0%,-10%);
+    transform: translate(0%,-15%);
     margin-right:20px;
     display:inline-block;
     float:right;
@@ -70,8 +85,9 @@ h1 {
     display:inline-block;
     font-weight: 500;
 }
-
 </style> 
+
+<div class="top_position">
 
 <div class = "account_container content_container shadow">
     <h1> Account Details </h1>
@@ -150,10 +166,23 @@ h1 {
         <select class="search_account" id="account_selection"> </select>
     </div>
     </p>
+    <hr>
+    <p>
+    <div class = "label">
+    Splits:
+    </div>
+    </p>
+    <p>
+    <div class = "result_select">
+        <select class="search_split" id="split_selection"  multiple="multiple"> </select>
+    </div>
+    </p>
 </div>
-
-<button type="button" id="btnFeeAssign" class="btn btn-primary"> Save </button>
-<a class="btn btn-secondary" href="{{ page_link }}"> Back</a> </p>
+</div>
+<div class="button_container">
+    <button type="button" id="save" class="btn btn-primary"> Save </button>
+    <a class="btn btn-secondary" href="{{ page_link }}"> Back</a> </p>
+</div>
 
 <script>
 
@@ -164,31 +193,95 @@ var account = JSON.parse({{account_json|tojson}})[0]
 var fee_data = {{ fee_structures|tojson }}
 var billing_data = {{ billing_groups|tojson }}
 var account_data = {{ accounts|tojson }}
+var split_data = {{ splits|tojson }}
 
 var fee_id = account.fee_structure_id
 var billing_id = account.billing_group_id
 var fee_location_id= account.fee_location_id
+var split_ids=account.split_ids
+
+var split_array = parse_split_ids(split_ids)
+
+function parse_split_ids(split_ids) {
+    var split_array=[]
+
+    if(!split_ids) {
+        return split_array
+    }
+    else {
+        for (var i = 0; i < split_ids.length; i++) {
+            var char = split_ids.charAt(i)
+            if (char != ",") {
+                split_array.push(char)
+            }
+        }
+    }
+    return split_array
+}
 
 $(document).ready(function() {
     $(".search_fee").select2({
         placeholder: "Select Fee Structure",
+        allowClear: true,
         data: fee_data 
     });
 
     $(".search_billing").select2({
         placeholder: "Select Billing Group",
+        allowClear: true,
         data: billing_data
     });
 
     $(".search_account").select2({
         placeholder: "---",
+        allowClear: true,
         data: account_data
+    });
+
+    $(".search_split").select2({
+        placeholder: "---",
+        allowClear: true,
+        data: split_data
     });
 
     $(".search_fee").val(fee_id).change();
     $(".search_billing").val(billing_id).change();
     $(".search_account").val(fee_location_id).change();
+    $(".search_split").val(split_array).change();
+
 });
+
+$(document).on("click", "#save", function(event)
+    {
+        var fee_structure=$(".search_fee").val();
+        var billing_group =$(".search_billing").val();
+        var fee_location = $(".search_account").val();
+        var splits = $(".search_split").val();
+        var detail_url="{{ url_for('account') }}" + "{{account.id}}"
+
+        var data= {};
+        data['fee_structure']=fee_structure
+        data['billing_group']=billing_group
+        data['fee_location']=fee_location
+        data['splits']=splits
+
+        var data=JSON.stringify(data)
+
+        $.ajax({
+            data : data,
+            type : 'POST',
+            url : detail_url,
+            contentType: 'application/json;charset=UTF-8',
+            success: function() 
+            {
+            $('#table').DataTable().ajax.reload();
+            }
+        })
+
+        window.location.href = "{{ page_link }}";
+    });
+
+
 </script>
 
 {% endblock %}

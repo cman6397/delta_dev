@@ -25,34 +25,35 @@
 
 <style>
 .navbar {
-  background-color:#ffffff;
-  /*box-shadow: none;*/
-  margin-bottom:10px;
+	background-color:#ffffff;
+	/*box-shadow: none;*/
+	margin-bottom:10px;
 }
  .table_container {
-   background-color:#ffffff;
-   margin-left:40px;
-   margin-right:40px;
-   margin-bottom:25px;
-   margin-top:25px;
-   padding-left:40px;
-   padding-right:40px;
-   padding-top:25px;
-   padding-bottom:20px;
-   border:20px;
-   border-radius:20px;
+	background-color:#ffffff;
+	margin-left:40px;
+	margin-right:40px;
+	margin-bottom:25px;
+	margin-top:25px;
+	padding-left:40px;
+	padding-right:40px;
+	padding-top:25px;
+	padding-bottom:20px;
+	border:20px;
+	border-radius:20px;
 }
  .content_container {
-   background-color:#ffffff;
-   padding:20px;
-   border:20px;
-   border-radius:20px;
+	background-color:#ffffff;
+	padding:20px;
+	border:20px;
+	border-radius:20px;
 }
 html, 
 body {
-  background-color:#f5f5fa;
-  height:100%;
+	background-color:#f5f5fa;
+	height:100%;
 }
+
 </style>
 <head>
  
@@ -83,7 +84,7 @@ body {
 				<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
 					<a class="dropdown-item" href="{{ url_for('fee_structure') }}">Fee Structures</a>
 					<a class="dropdown-item" href="{{ url_for('billing_group') }}">Billing Groups</a>
-					<a class="dropdown-item" href="{{ url_for('billing_split') }}">Splits</a>
+					<a class="dropdown-item" href="{{ url_for('split') }}">Splits</a>
 					<a class="dropdown-item" href="#">Asset Adjustments</a>
 				</div>
 				</li>
