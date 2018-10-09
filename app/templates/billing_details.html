@@ -7,21 +7,34 @@
   }
   caption { 
 		font-weight: bold;
-		text-align:center;
+		text-align:left;
 		caption-side: top;
 		font-size:18px;
-		color: #696969;
+		color: black;
 	}
   .content_container {
+    position:relative;
     margin:50px;
-    padding-top:2px;
+    padding-top:10px;
+    min-width:700px;
+    max-width:1200px;
+    padding-bottom:10px;
 
+  }
+  .add_button {
+    position:absolute;
+    right:30px;
   }
   </style>
 
   	<div class = "content_container shadow">
         <table class="table">
-        <caption> Accounts </caption>
+        <caption> Billing Group Accounts </caption>
+        <div class = "add_button">
+          <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
+          <button type="button" id="save" class="btn btn-secondary"> Save </button>
+          <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
+        </div>
         <thead>
           <tr>
           {% for column in account_columns %}
@@ -29,6 +42,9 @@
             {{ column }}
             </th>
           {% endfor %}
+          <th>
+            Actions
+          </th>
           </tr>
         </thead>
 
@@ -40,10 +56,22 @@
               {{ row[x] }} 
               </td>
             {% endfor %}
+            <td>
+              <button type="button" id="edit" class="btn btn-light btn-sm"> Edit </button>
+              <button type="button" id="remove" class="btn btn-light btn-sm"> Remove </button>
+            </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
     </div>
+
+    <Script>
+    $(document).on("click", "#remove", function(event)
+    {
+      console.log("hiiii")
+      $(this).parents('tr').detach();
+    });
+    </Script>
 
   {% endblock %}

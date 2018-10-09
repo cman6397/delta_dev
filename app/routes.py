@@ -380,28 +380,20 @@ def edit_billing_group(id):
 		return render_template('edit_template.html',form=form,page_link=url_for('billing_group'))
 	return redirect(url_for('billing_group'))
 
-@app.route('/billing_details/')
+@app.route('/billing_details/<int:id>')
 @login_required
-def billing_details():
-	total_AUM = db.session.query(func.sum(Account.balance).label('Balance')).first()[0]
+def billing_details(id):
 
-	household_query=db.session.query(Household.name.label('Household'),func.sum(Account.balance).label('Balance'),(func.sum(Account.balance)/total_AUM).label('Percent of Book')). \
-	outerjoin(Account, Account.household_id == Household.id).group_by(Household.id).order_by(func.sum(Account.balance).desc())
+	account_query=db.session.query(Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance')) \
+	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).filter(Billing_Group.id == id)
 
-	account_query=db.session.query(Account.name.label('Account'),Account.balance.label('Balance'),(Account.balance/total_AUM).label('Percent of Book')). \
-	order_by(Account.balance.desc())
+	accounts=account_query.all()
+	account_columns=accounts[0].keys()
 
-	top_households=household_query.all()[0:5]
-	top_accounts=account_query.all()[0:5]
-
-	household_columns=top_households[0].keys()
-	account_columns=top_accounts[0].keys()
-
-	top_households=num_serializer(top_households)
-	top_accounts=num_serializer(top_accounts)
+	accounts=num_serializer(accounts)
 
 
-	return render_template('billing_details.html',account_rows=top_households, account_columns=household_columns)
+	return render_template('billing_details.html',account_rows=accounts, account_columns=account_columns, page_link=url_for('billing_group'))
 
 #********************** Billing Split **************************
 @app.route('/split_data/')
