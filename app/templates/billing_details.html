@@ -1,7 +1,7 @@
 {% extends "header.html" %}
 
-  {% block body %}
-  <style>
+{% block body %}
+<style>
   .table {
     white-space:nowrap;
   }
@@ -15,26 +15,62 @@
   .content_container {
     position:relative;
     margin:50px;
+    margin-top:25px;
     padding-top:10px;
-    min-width:700px;
-    max-width:1200px;
+    min-width:1000px;
+    max-width:1500px;
     padding-bottom:10px;
 
   }
   .add_button {
     position:absolute;
     right:30px;
+    top:40px;
+  }
+  .left {
+      position:absolute;
+      text-align:left;
+      float:left;
+      float:top;
+   }  
+   .hidden {
+        display:none;
+   }
+   .content_container {
+        margin-bottom:25px;
+   }
+   h1 {
+    font-size:18px;
+    text-align:left;
+   }
+  td:nth-child(1){
+    display: none
+  }
+  th:nth-child(1){
+    display: none
   }
   </style>
 
-  	<div class = "content_container shadow">
-        <table class="table">
-        <caption> Billing Group Accounts </caption>
-        <div class = "add_button">
+    <div class = "content_container shadow">
+    <form action="" method="post" novalidate>
+      <div class="form-row align-items-center">
+        <div class="col-auto my-3">
+            {{ form.hidden_tag() }}
+            <h1> Billing Group Name </h1>
+            {{ form.name(size=32, class='form-control', placeholder='Enter Name') }}
+        </div>
+        </div>
+    </form>
+      <div class = "add_button">
           <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
           <button type="button" id="save" class="btn btn-secondary"> Save </button>
           <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
-        </div>
+      </div>
+    </div>
+
+  	<div class = "content_container shadow">
+        <table class="table" id="account_table">
+        <caption> Billing Group Accounts </caption>
         <thead>
           <tr>
           {% for column in account_columns %}
@@ -53,7 +89,7 @@
             <tr>
             {% for x in range(0, account_columns|length) %}
               <td>
-              {{ row[x] }} 
+              {{ row[x] if row[x] is not none else ''}} 
               </td>
             {% endfor %}
             <td>
@@ -69,9 +105,22 @@
     <Script>
     $(document).on("click", "#remove", function(event)
     {
-      console.log("hiiii")
       $(this).parents('tr').detach();
     });
+
+    $(document).on("click", "#save", function(event)
+    {
+      var table=document.getElementById("account_table");
+      var billing_accounts = [];
+
+      for (var i=1; i < table.rows.length; i++)
+      {
+        current_account= table.rows[i].cells[0].innerHTML.trim();
+        billing_accounts.push(current_account);
+      }
+      console.log(billing_accounts)
+    });
+
     </Script>
 
   {% endblock %}

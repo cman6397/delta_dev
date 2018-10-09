@@ -356,13 +356,23 @@ def billing_group():
 
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
 
-@app.route('/billing_group/<int:id>', methods=['GET', 'POST'])
+
+@app.route('/billing_group/<int:id>')
 @login_required
-def edit_billing_group(id):
-	message = "Billing Group Name Taken"
+def edit_billing_details(id):
 	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
 	billing_group=billing_group_query.first()
 	form = Billing_GroupForm(obj=billing_group)
+
+	Account_Fee_Location = aliased(Account)
+
+	account_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
+	Account_Fee_Location.name.label('Fee Relocation'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	outerjoin(Account_Fee_Location, Account.fee_location).filter(Billing_Group.id == id)
+
+	accounts=account_query.all()
+	account_columns=accounts[0].keys()
+	accounts=num_serializer(accounts)
 
 	if billing_group:
 		form = Billing_GroupForm(obj=billing_group)
@@ -374,26 +384,11 @@ def edit_billing_group(id):
 			except exc.IntegrityError:
 				db.session.rollback()
 				flash(message)
-				return redirect(url_for('create_fee'))
+				return redirect(url_for('edit_billing_group'))
 
 			return redirect(url_for('billing_group'))
-		return render_template('edit_template.html',form=form,page_link=url_for('billing_group'))
-	return redirect(url_for('billing_group'))
 
-@app.route('/billing_details/<int:id>')
-@login_required
-def billing_details(id):
-
-	account_query=db.session.query(Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance')) \
-	.outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id).filter(Billing_Group.id == id)
-
-	accounts=account_query.all()
-	account_columns=accounts[0].keys()
-
-	accounts=num_serializer(accounts)
-
-
-	return render_template('billing_details.html',account_rows=accounts, account_columns=account_columns, page_link=url_for('billing_group'))
+	return render_template('billing_details.html',account_rows=accounts, account_columns=account_columns, page_link=url_for('billing_group'),form=form)
 
 #********************** Billing Split **************************
 @app.route('/split_data/')
@@ -625,13 +620,6 @@ def dev():
 				flash('Success')
 			except exc.IntegrityError:
 				db.session.rollback()
-
-
-	#for account in accounts:
-		#data_row=[]
-		#for x in range (0,len(account_keys)):
-			#data_row.append(account[x])
-		#data_test.append(data_row)
 
 	return render_template('dev.html',data_test=data_test,fee_structures=fee_structures_json, data_link=url_for('dev_data'), page_link = url_for('dev'), create_link = url_for('create_billing_group'), columns=columns, title='Accounts')
 
