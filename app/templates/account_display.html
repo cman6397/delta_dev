@@ -57,7 +57,6 @@ div.dt-buttons {
 }
 .modal_search_fee {
     width: 300px;
-
 }
 .modal_search_billing {
     width: 300px;
@@ -149,7 +148,7 @@ $( document ).ready( function( $ )
         });
         }
         else {
-            $(this).html( '' );
+            $(this).html( null );
         }
     });
 
@@ -191,7 +190,7 @@ $( document ).ready( function( $ )
                 "dom": {
                 "button": {
                     "tag": 'button',
-                    "className":''
+                    "className":null
                     }
                 },
                 "buttons": 
@@ -276,7 +275,7 @@ $( document ).ready( function( $ )
     buttons.disable();
 
     function disable_enable(button, modal_selector) {
-        if (modal_selector.val() == '') {
+        if (modal_selector.val() == null) {
             button.prop('disabled', true);;
         }
         else {
@@ -286,7 +285,7 @@ $( document ).ready( function( $ )
 
     function reset_table(modal, modal_selector) {
         modal.modal('hide');
-        modal_selector.val('').change();
+        modal_selector.val(null).change();
 
         table.rows().deselect()
         table.select.blurable(true); 
@@ -299,7 +298,7 @@ $( document ).ready( function( $ )
         var fee_structure=modal_selector.val()
         var accounts=keys
 
-        modal_selector.val('').change();
+        modal_selector.val(null).change();
 
         table.rows().deselect()
         table.select.blurable(true);
@@ -413,8 +412,8 @@ $(document).ready(function() {
         placeholder: "Select Billing Group"
     });
 
-    $(".modal_search_fee").val('').change();
-    $(".modal_search_billing").val('').change();
+    $(".modal_search_fee").val(null).change();
+    $(".modal_search_billing").val(null).change();
 });
 
 </script>

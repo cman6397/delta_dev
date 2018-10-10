@@ -48,7 +48,7 @@ class Billing_Group(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(500), unique=True, nullable=False)
 	household_id=db.Column(db.Integer,db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
-	accounts = db.relationship('Account', backref='billing_group', lazy='dynamic')
+	accounts = db.relationship('Account', back_populates='billing_group')
 	household= db.relationship('Household', back_populates="household")
 	
 	def __repr__(self):
@@ -79,6 +79,7 @@ class Account(db.Model):
 	household_id= db.Column(db.Integer, db.ForeignKey(Household.id, ondelete='SET NULL'), nullable=True)
 	fee_id= db.Column(db.Integer, db.ForeignKey(Fee_Structure.id, ondelete='SET NULL'), nullable=True)
 	billing_group_id= db.Column(db.Integer, db.ForeignKey(Billing_Group.id, ondelete='SET NULL'), nullable=True)
+	billing_group= db.relationship("Billing_Group", back_populates="accounts")
 	fee_location_id = db.Column(db.Integer, db.ForeignKey(id, ondelete='SET NULL'), nullable=True)
 	fee_location = db.relationship("Account", backref='accounts', remote_side=[id])
 	splits = db.relationship("Split", secondary=Account_Split, backref=db.backref('accounts'))

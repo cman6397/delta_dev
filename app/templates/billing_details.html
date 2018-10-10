@@ -7,10 +7,11 @@
   }
   caption { 
 		font-weight: bold;
-		text-align:left;
+		text-align:center;
 		caption-side: top;
 		font-size:18px;
 		color: black;
+    margin-top:-45px;
 	}
   .content_container {
     position:relative;
@@ -25,7 +26,7 @@
   .add_button {
     position:absolute;
     right:30px;
-    top:40px;
+    margin-top:10px;
   }
   .left {
       position:absolute;
@@ -37,11 +38,23 @@
         display:none;
    }
    .content_container {
-        margin-bottom:25px;
+    margin-bottom:25px;
    }
+   .search_account {
+    width: 300px;
+    text-align:left;
+  }
+  .form-control{
+    float:left;
+    width:250px;
+    height:35px;
+    margin-top:40px;
+    margin-bottom:25px;
+  }
    h1 {
     font-size:18px;
-    text-align:left;
+    position:absolute;
+    margin-top:10px;
    }
   td:nth-child(1){
     display: none
@@ -51,24 +64,17 @@
   }
   </style>
 
-    <div class = "content_container shadow">
+  <div class = "content_container shadow">
     <form action="" method="post" novalidate>
-      <div class="form-row align-items-center">
-        <div class="col-auto my-3">
-            {{ form.hidden_tag() }}
-            <h1> Billing Group Name </h1>
-            {{ form.name(size=32, class='form-control', placeholder='Enter Name') }}
-        </div>
-        </div>
+      {{ form.hidden_tag() }}
+        <h1> Billing Group Name</h1>
+        {{ form.name(size=32, class='form-control', placeholder='Enter Name') }}
     </form>
-      <div class = "add_button">
-          <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
-          <button type="button" id="save" class="btn btn-secondary"> Save </button>
-          <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
-      </div>
+    <div class = "add_button">
+      <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
+      <button type="button" id="save" class="btn btn-secondary"> Save </button>
+      <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
     </div>
-
-  	<div class = "content_container shadow">
         <table class="table" id="account_table">
         <caption> Billing Group Accounts </caption>
         <thead>
@@ -102,16 +108,70 @@
         </table>
     </div>
 
+    <div class="modal fade" id="account_modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Billing Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Unassigned Accounts</h4>
+        </div>
+        <div class="modal-body">
+            <div class="center">
+            <select 
+                class="search_account" id="account_selection">
+            </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnAccountAdd" class="btn btn-primary" disabled> Add Account </button>
+          <button type="button" id="btnAccountCancel" class="btn" data-dismiss="modal"> Cancel</button>
+        </div>
+
+      </div>
+      
+    </div>
+  </div>
+
     <Script>
+    function disable_enable(button, modal_selector) {
+        if (modal_selector.val() == null) {
+            button.prop('disabled', true);;
+        }
+        else {
+            button.prop('disabled', false);;
+        }          
+    }
+    function reset(modal, modal_selector) {
+        modal.modal('hide');
+        modal_selector.val(null).change();
+    }
+
+    $('#account_selection').change(function(event) {
+        var button = $('#btnAccountAdd')
+        var modal_selector=$('#account_selection');
+        disable_enable(button,modal_selector);
+    });
+
     $(document).on("click", "#remove", function(event)
     {
       $(this).parents('tr').detach();
     });
 
+    $(document).on("click", "#add_account", function(event)
+    {
+      var mymodal = $('#account_modal');
+      mymodal.modal('show'); 
+    });
+
     $(document).on("click", "#save", function(event)
     {
+      var data= {};
       var table=document.getElementById("account_table");
       var billing_accounts = [];
+      var detail_url="{{ url_for('billing_group') }}" + "{{billing_group.id}}"
+
+      console.log(detail_url)
 
       for (var i=1; i < table.rows.length; i++)
       {
@@ -119,6 +179,30 @@
         billing_accounts.push(current_account);
       }
       console.log(billing_accounts)
+
+      data['billing_accounts'] = billing_accounts
+      data=JSON.stringify(data)
+
+      $.ajax({
+        data : data,
+        type : 'POST',
+        url : detail_url,
+        contentType: 'application/json;charset=UTF-8'
+      })
+      window.location.href = "{{ page_link }}";
+    });
+
+    var account_data = {{ accounts_json|tojson }}
+    
+    $(document).ready(function() {
+    $(".search_account").select2({
+        placeholder: "Select Account",
+        allowClear: true,
+        data: account_data
+    });
+
+    $(".search_account").val(null).change();
+
     });
 
     </Script>

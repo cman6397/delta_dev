@@ -357,9 +357,9 @@ def billing_group():
 	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
 
 
-@app.route('/billing_group/<int:id>')
+@app.route('/billing_group/<int:id>',methods=['GET', 'POST'])
 @login_required
-def edit_billing_details(id):
+def edit_billing_group(id):
 	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
 	billing_group=billing_group_query.first()
 	form = Billing_GroupForm(obj=billing_group)
@@ -374,6 +374,26 @@ def edit_billing_details(id):
 	account_columns=accounts[0].keys()
 	accounts=num_serializer(accounts)
 
+
+	accounts_list=db.session.query(Account.id.label('id'),Account.name.label('text')).filter(Account.billing_group_id == None)
+	accounts_list=accounts_list.all()
+	accounts_keys=accounts_list[0].keys()
+	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
+
+
+	if request.method == "POST" and request.json:
+		data=request.json
+		accounts=db.session.query(Account).filter(Account.id.in_(data["billing_accounts"])).all()
+		billing_group.accounts=accounts
+
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			return redirect(url_for('edit_billing_group'))
+
+		return redirect(url_for('billing_group'))
+
 	if billing_group:
 		form = Billing_GroupForm(obj=billing_group)
 
@@ -383,12 +403,12 @@ def edit_billing_details(id):
 				db.session.commit()
 			except exc.IntegrityError:
 				db.session.rollback()
-				flash(message)
+				flash("THERE WAS A TERRIBLE ERROR")
 				return redirect(url_for('edit_billing_group'))
 
 			return redirect(url_for('billing_group'))
 
-	return render_template('billing_details.html',account_rows=accounts, account_columns=account_columns, page_link=url_for('billing_group'),form=form)
+	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=accounts, account_columns=account_columns, page_link=url_for('billing_group'),form=form)
 
 #********************** Billing Split **************************
 @app.route('/split_data/')

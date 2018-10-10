@@ -265,7 +265,7 @@ $(document).on("click", "#save", function(event)
         data['fee_location']=fee_location
         data['splits']=splits
 
-        var data=JSON.stringify(data)
+        data=JSON.stringify(data)
 
         $.ajax({
             data : data,
@@ -274,7 +274,8 @@ $(document).on("click", "#save", function(event)
             contentType: 'application/json;charset=UTF-8',
             success: function() 
             {
-            $('#table').DataTable().ajax.reload();
+            //What to do on success?
+            //$('#table').DataTable().ajax.reload();
             }
         })
 
