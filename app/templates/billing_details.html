@@ -88,7 +88,7 @@
       </div>
 
         <table class="table" id="account_table">
-        <caption> Accounts </caption>
+        <caption> Billing Group Accounts </caption>
         <thead>
           <tr>
           {% for column in account_columns %}
@@ -145,7 +145,7 @@
     </div>
   </div>
 
-    <Script>
+  <Script>
     function disable_enable(button, modal_selector) {
         if (modal_selector.val() == null) {
             button.prop('disabled', true);;
@@ -163,6 +163,30 @@
         var button = $('#btnAccountAdd')
         var modal_selector=$('#account_selection');
         disable_enable(button,modal_selector);
+    });
+
+    $(document).on("click", "#btnAccountAdd", function(event){
+      var table=document.getElementById("account_table");
+      var table_length = table.rows.length;
+      var modal_selector=$('#account_selection')
+      var account=modal_selector.select2('data')[0]
+      var keys=cols
+      
+      keys[1] = "text"
+
+      var row = "<tr>"
+
+      for (var i=0; i < keys.length; i++)
+      {
+        current_cell = account[keys[i]]
+        if (current_cell == null){
+          current_cell = ''
+        }
+        row = row + "<td>" + current_cell + "</td>"
+      }
+      row = row + "<td> <button type='button' id='edit' class='btn btn-outline-warning btn-sm'> Edit </button> <button type='button' id='remove' class='btn btn-outline-danger btn-sm'> Remove </button></td> </tr>"
+
+      $(account_table).find('tbody').append(row);
     });
 
     $(document).on("click", "#remove", function(event)
@@ -205,6 +229,7 @@
     });
 
     var account_data = {{ accounts_json|tojson }}
+    var cols= {{account_columns|tojson}}
     
     $(document).ready(function() {
     $(".search_account").select2({

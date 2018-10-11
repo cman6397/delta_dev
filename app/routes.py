@@ -368,18 +368,21 @@ def edit_billing_group(id):
 
 	account_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
 	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
-	outerjoin(Account_Fee_Location, Account.fee_location).filter(Billing_Group.id == id)
+	outerjoin(Account_Fee_Location, Account.fee_location)
+
+	accounts_list_query=db.session.query(Account.id.label('id'),Account.name.label('text'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
+	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	outerjoin(Account_Fee_Location, Account.fee_location)
 
 	accounts=account_query.all()
-	account_columns=accounts[0].keys()
-	accounts=num_serializer(accounts)
+	billing_accounts=account_query.filter(Billing_Group.id == id).all()
+	account_columns=billing_accounts[0].keys()
+	billing_accounts=num_serializer(billing_accounts)
 
-
-	accounts_list=db.session.query(Account.id.label('id'),Account.name.label('text')).filter(Account.billing_group_id == None)
-	accounts_list=accounts_list.all()
+	accounts_list=accounts_list_query.all()
 	accounts_keys=accounts_list[0].keys()
+	accounts_list=num_serializer(accounts_list)
 	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
-
 
 	if request.method == "POST" and request.json:
 		data=request.json
@@ -408,7 +411,7 @@ def edit_billing_group(id):
 
 			return redirect(url_for('billing_group'))
 
-	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=accounts, account_columns=account_columns, page_link=url_for('billing_group'),form=form)
+	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=billing_accounts, account_columns=account_columns, page_link=url_for('billing_group'),form=form)
 
 #********************** Billing Split **************************
 @app.route('/split_data/')
