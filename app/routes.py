@@ -1,6 +1,7 @@
 from flask import render_template,url_for,redirect,flash, request,jsonify,json
 from flask_login import current_user, login_user, logout_user, login_required
 from sqlalchemy.sql import func, label
+from sqlalchemy.sql.functions import coalesce
 from sqlalchemy import exc, update
 from app import app
 from app import db
@@ -246,6 +247,9 @@ def account_details(id):
 	billing_groups_json=[dict(zip([key for key in billing_group_keys],row)) for row in billing_groups]
 	splits_json=[dict(zip([key for key in split_keys],row)) for row in splits]
 	account_json=json.dumps([dict(zip([key for key in account_keys],account))],default=alchemyencoder)
+	payment_sources_json=[{'id':1, 'text': 'Custodian Billed'},{'id':2, 'text': 'Directly Billed'}]
+
+	print(json.loads(account_json)[0]["balance"])
 
 	if request.method == "POST" and request.json:
 		data=request.json
@@ -260,6 +264,7 @@ def account_details(id):
 		edit_account.fee_location=fee_location
 		edit_account.billing_group=billing_group
 		edit_account.splits=splits
+		edit_account.payment_source=data['payment_source']
 
 		try:
 			db.session.commit()
@@ -270,7 +275,7 @@ def account_details(id):
 		return redirect(url_for('account'))
 
 	if account:
-		return render_template('account_details.html',splits=splits_json,account_json=account_json,account=account, accounts=accounts_json, fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
+		return render_template('account_details.html',splits=splits_json,payment_sources=payment_sources_json, account_json=account_json,account=account, accounts=accounts_json, fee_structures=fee_structures_json, billing_groups=billing_groups_json,page_link=url_for('account'))
 	
 	return redirect(url_for('account'))
 
@@ -370,9 +375,9 @@ def edit_billing_group(id):
 	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location)
 
-	accounts_list_query=db.session.query(Account.id.label('id'),Account.name.label('text'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
+	accounts_list_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),(Account.name + "; " + coalesce(Billing_Group.name,'Open')).label('text'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
 	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
-	outerjoin(Account_Fee_Location, Account.fee_location)
+	outerjoin(Account_Fee_Location, Account.fee_location).order_by(Billing_Group.name)
 
 	accounts=account_query.all()
 	billing_accounts=account_query.filter(Billing_Group.id == id).all()
@@ -383,6 +388,8 @@ def edit_billing_group(id):
 	accounts_keys=accounts_list[0].keys()
 	accounts_list=num_serializer(accounts_list)
 	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
+
+	print(accounts_list)
 
 	if request.method == "POST" and request.json:
 		data=request.json

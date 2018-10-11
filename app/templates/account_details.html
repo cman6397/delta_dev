@@ -23,9 +23,13 @@
 .search_account {
     width: 260px;
 }
+.search_payment_source {
+    width: 260px;
+}
 .search_split {
     width: 425px;
 }
+
 .top_position {
     overflow-x:auto;
     min-width:1100px;
@@ -41,7 +45,7 @@
     width:45%;
     margin-bottom:25px;
     margin-top:10px;
-    height:365px;
+    height:410px;
     white-space:nowrap;
     float: left;
     text-align:left;
@@ -54,7 +58,7 @@
     width:45%;
     margin-bottom:25px;
     margin-top:10px;
-    height:365px;
+    height:410px;
     white-space:nowrap;
     float: right;
     text-align:left;
@@ -100,6 +104,7 @@ h1 {
     </div>
     </p>
     <hr>
+
     <p>
     <div class = "label">
     Account Number:
@@ -109,15 +114,7 @@ h1 {
     </div>
     </p>
     <hr>
-    <p>
-    <div class = "label">
-    Household:
-    </div>
-    <div class = "result">
-        {{account.household}}
-    </div>
-    </p>
-    <hr>
+
     <p>
     <div class = "label">
     Opening Date:
@@ -127,12 +124,33 @@ h1 {
     </div>
     </p>
     <hr>
+
+    <p>
+    <div class = "label">
+    Household:
+    </div>
+    <div class = "result">
+        {{account.household}}
+    </div>
+    </p>
+    <hr>
+
     <p>
     <div class = "label">
     Custodian:
     </div>
     <div class = "result">
         {{account.custodian}}
+    </div>
+    </p>
+    <hr>
+
+    <p>
+    <div class = "label">
+    Balance:
+    </div>
+    <div class = "result">
+        {{"${:,.2f}".format(account.balance)}}
     </div>
     </p>
 
@@ -169,6 +187,15 @@ h1 {
     <hr>
     <p>
     <div class = "label">
+    Payment Source:
+    </div>
+    <div class = "result_select">
+        <select class="search_payment_source" id="payment_selection"> </select>
+    </div>
+    </p>
+    <hr>
+    <p>
+    <div class = "label">
     Splits:
     </div>
     </p>
@@ -194,11 +221,18 @@ var fee_data = {{ fee_structures|tojson }}
 var billing_data = {{ billing_groups|tojson }}
 var account_data = {{ accounts|tojson }}
 var split_data = {{ splits|tojson }}
+var payment_data = {{ payment_sources|tojson }}
 
 var fee_id = account.fee_structure_id
 var billing_id = account.billing_group_id
 var fee_location_id= account.fee_location_id
 var split_ids=account.split_ids
+var payment_source_id=1
+
+if (account.payment_source == "Directly Billed") {
+    payment_source_id=2
+}
+
 
 var split_array = parse_split_ids(split_ids)
 
@@ -243,11 +277,15 @@ $(document).ready(function() {
         allowClear: true,
         data: split_data
     });
+    $(".search_payment_source").select2({
+        data: payment_data
+    });
 
     $(".search_fee").val(fee_id).change();
     $(".search_billing").val(billing_id).change();
     $(".search_account").val(fee_location_id).change();
     $(".search_split").val(split_array).change();
+    $(".search_payment_source").val(payment_source_id).change();
 
 });
 
@@ -257,13 +295,22 @@ $(document).on("click", "#save", function(event)
         var billing_group =$(".search_billing").val();
         var fee_location = $(".search_account").val();
         var splits = $(".search_split").val();
+        var payment_source = $(".search_payment_source").val();
         var detail_url="{{ url_for('account') }}" + "{{account.id}}"
+
+        if (payment_source == 1) {
+            payment_source = "Custodian Billed"
+        }
+        else {
+            payment_source= "Directly Billed"
+        }
 
         var data= {};
         data['fee_structure']=fee_structure
         data['billing_group']=billing_group
         data['fee_location']=fee_location
         data['splits']=splits
+        data['payment_source']=payment_source
 
         data=JSON.stringify(data)
 
@@ -275,7 +322,6 @@ $(document).on("click", "#save", function(event)
             success: function() 
             {
             //What to do on success?
-            //$('#table').DataTable().ajax.reload();
             }
         })
 

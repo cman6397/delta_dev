@@ -126,7 +126,7 @@
       <!-- Billing Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Unassigned Accounts</h4>
+          <h4 class="modal-title">Accounts</h4>
         </div>
         <div class="modal-body">
             <div class="center">
@@ -136,8 +136,8 @@
             </div>
         </div>
         <div class="modal-footer">
-          <button type="button" id="btnAccountAdd" class="btn btn-primary" disabled> Add Account </button>
-          <button type="button" id="btnAccountCancel" class="btn" data-dismiss="modal"> Cancel</button>
+          <button type="button" id="modalAdd" class="btn btn-primary" disabled> Add Account </button>
+          <button type="button" id="modalCancel" class="btn" data-dismiss="modal"> Cancel</button>
         </div>
 
       </div>
@@ -158,35 +158,60 @@
         modal.modal('hide');
         modal_selector.val(null).change();
     }
+    function get_ids(){
+      var table=document.getElementById("account_table");
+      var billing_accounts = [];
+
+      for (var i=1; i < table.rows.length; i++)
+      {
+        current_account= table.rows[i].cells[0].innerHTML.trim();
+        billing_accounts.push(current_account);
+      }
+      return billing_accounts
+    }
 
     $('#account_selection').change(function(event) {
-        var button = $('#btnAccountAdd')
+        var button = $('#modalAdd')
         var modal_selector=$('#account_selection');
         disable_enable(button,modal_selector);
     });
 
-    $(document).on("click", "#btnAccountAdd", function(event){
+    $(document).on("click", "#modalAdd", function(event){
       var table=document.getElementById("account_table");
       var table_length = table.rows.length;
       var modal_selector=$('#account_selection')
       var account=modal_selector.select2('data')[0]
       var keys=cols
-      
-      keys[1] = "text"
-
+      var modal = $('#account_modal');
+      var table_ids=get_ids()
       var row = "<tr>"
 
-      for (var i=0; i < keys.length; i++)
+      //If added account is not already in table add account
+      if(table_ids.indexOf(account["id"]) == -1 )
       {
-        current_cell = account[keys[i]]
-        if (current_cell == null){
-          current_cell = ''
+        for (var i=0; i < keys.length; i++)
+        {
+          current_cell = account[keys[i]]
+          if (current_cell == null){
+            current_cell = ''
+          }
+          row = row + "<td>" + current_cell + "</td>" 
         }
-        row = row + "<td>" + current_cell + "</td>"
+        row = row + "<td> <button type='button' id='edit' class='btn btn-outline-warning btn-sm'> Edit </button> <button type='button' id='remove' class='btn btn-outline-danger btn-sm'> Remove </button></td> </tr>"
+        $(account_table).find('tbody').append(row);
+        reset(modal,modal_selector)
       }
-      row = row + "<td> <button type='button' id='edit' class='btn btn-outline-warning btn-sm'> Edit </button> <button type='button' id='remove' class='btn btn-outline-danger btn-sm'> Remove </button></td> </tr>"
+      else {
+        alert("Account already added.")
+      }
+    });
 
-      $(account_table).find('tbody').append(row);
+    $(document).on("click", "#modalCancel", function(event)
+    {
+      var modal = $('#account_modal');
+      var modal_selector=$('#account_selection')
+
+      reset(modal,modal_selector)
     });
 
     $(document).on("click", "#remove", function(event)
@@ -204,19 +229,9 @@
     {
       var data= {};
       var table=document.getElementById("account_table");
-      var billing_accounts = [];
       var detail_url="{{ url_for('billing_group') }}" + "{{billing_group.id}}"
 
-      console.log(detail_url)
-
-      for (var i=1; i < table.rows.length; i++)
-      {
-        current_account= table.rows[i].cells[0].innerHTML.trim();
-        billing_accounts.push(current_account);
-      }
-      console.log(billing_accounts)
-
-      data['billing_accounts'] = billing_accounts
+      data['billing_accounts'] = get_ids()
       data=JSON.stringify(data)
 
       $.ajax({
