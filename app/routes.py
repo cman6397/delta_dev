@@ -147,7 +147,7 @@ def account_data():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Fee Relocation'), func.group_concat(Split.name, "; ").label('Splits')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Relocated Fee'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Split).outerjoin(Split).group_by(Account.id) \
 	.outerjoin(Account_Fee_Location, Account.fee_location) 
@@ -167,7 +167,7 @@ def account():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Fee Relocation'), func.group_concat(Split.name, "; ").label('Splits')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Relocated Fee'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Split).outerjoin(Split).group_by(Account.id) \
 	.outerjoin(Account_Fee_Location, Account.fee_location) 
@@ -367,7 +367,7 @@ def edit_billing_group(id):
 	Account_Fee_Location = aliased(Account)
 
 	account_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
-	Account_Fee_Location.name.label('Fee Relocation'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location).filter(Billing_Group.id == id)
 
 	accounts=account_query.all()
