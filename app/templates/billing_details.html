@@ -6,12 +6,12 @@
     white-space:nowrap;
   }
   caption { 
-		font-weight: bold;
+		font-weight: 500;
 		text-align:center;
 		caption-side: top;
 		font-size:18px;
 		color: black;
-    margin-top:-45px;
+    margin-top:-20px;
 	}
   .content_container {
     position:relative;
@@ -24,9 +24,9 @@
 
   }
   .add_button {
-    position:absolute;
-    right:30px;
-    margin-top:10px;
+    float:right;
+    margin-top:30px;
+    right:10px;
   }
   .left {
       position:absolute;
@@ -44,16 +44,27 @@
     width: 300px;
     text-align:left;
   }
-  .form-control{
-    float:left;
+  .form-control {
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 1px solid black;
+    border-radius:0px;
+    padding:0px;
     width:250px;
     height:35px;
-    margin-top:40px;
-    margin-bottom:25px;
+    text-align:left;
+    position:absolute;
+    margin-top:31px;
   }
+.form-control:focus{
+    border-color: black;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
    h1 {
     font-size:18px;
-    position:absolute;
+    float:left;
     margin-top:10px;
    }
   td:nth-child(1){
@@ -64,19 +75,20 @@
   }
   </style>
 
-  <div class = "content_container shadow">
-    <form action="" method="post" novalidate>
-      {{ form.hidden_tag() }}
-        <h1> Billing Group Name</h1>
-        {{ form.name(size=32, class='form-control', placeholder='Enter Name') }}
-    </form>
-    <div class = "add_button">
-      <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
-      <button type="button" id="save" class="btn btn-secondary"> Save </button>
-      <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
-    </div>
+  	<div class = "content_container shadow">
+      <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <h1> Billing Group</h1>
+            {{ form.name(size=32, class='form-control', placeholder='Enter Name') }}
+      </form>
+      <div class = "add_button">
+          <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
+          <button type="button" id="save" class="btn btn-secondary"> Save </button>
+          <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
+      </div>
+
         <table class="table" id="account_table">
-        <caption> Billing Group Accounts </caption>
+        <caption> Accounts </caption>
         <thead>
           <tr>
           {% for column in account_columns %}
@@ -99,8 +111,8 @@
               </td>
             {% endfor %}
             <td>
-              <button type="button" id="edit" class="btn btn-light btn-sm"> Edit </button>
-              <button type="button" id="remove" class="btn btn-light btn-sm"> Remove </button>
+              <button type="button" id="edit" class="btn btn-outline-warning btn-sm"> Edit </button>
+              <button type="button" id="remove" class="btn btn-outline-danger btn-sm"> Remove </button>
             </td>
             </tr>
             {% endfor %}
