@@ -249,8 +249,6 @@ def account_details(id):
 	account_json=json.dumps([dict(zip([key for key in account_keys],account))],default=alchemyencoder)
 	payment_sources_json=[{'id':1, 'text': 'Custodian Billed'},{'id':2, 'text': 'Directly Billed'}]
 
-	print(json.loads(account_json)[0]["balance"])
-
 	if request.method == "POST" and request.json:
 		data=request.json
 
@@ -372,11 +370,11 @@ def edit_billing_group(id):
 	Account_Fee_Location = aliased(Account)
 
 	account_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
-	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	Account_Fee_Location.name.label('Fee Location'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location)
 
 	accounts_list_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),(Account.name + "; " + coalesce(Billing_Group.name,'Open')).label('text'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
-	Account_Fee_Location.name.label('Relocated Fee'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	Account_Fee_Location.name.label('Fee Location'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location).order_by(Billing_Group.name)
 
 	accounts=account_query.all()
@@ -388,8 +386,6 @@ def edit_billing_group(id):
 	accounts_keys=accounts_list[0].keys()
 	accounts_list=num_serializer(accounts_list)
 	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
-
-	print(accounts_list)
 
 	if request.method == "POST" and request.json:
 		data=request.json
@@ -450,7 +446,6 @@ def split():
 
 	if request.method == "POST" and request.json:
 		delete_keys = request.json
-		print(delete_keys)
 		delete_query = db.session.query(Split).filter(Split.id.in_(delete_keys))
 		delete_query.delete(synchronize_session=False)
 		db.session.commit()
