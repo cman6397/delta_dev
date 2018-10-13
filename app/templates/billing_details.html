@@ -77,10 +77,10 @@
 
   	<div class = "content_container shadow">
       <form action="" method="post" novalidate>
-            {{ form.hidden_tag() }}
+            {{ billing_form.hidden_tag() }}
             <h1> Billing Group</h1>
-            {{ form.name(size=32, class='form-control', placeholder='Enter Name') }}
-      </form>
+            {{ billing_form.name(size=32, class='form-control', placeholder='Enter Name') }}
+      </form> 
       <div class = "add_button">
           <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
           <button type="button" id="save" class="btn btn-secondary"> Save </button>
@@ -129,21 +129,48 @@
           <h4 class="modal-title">Accounts</h4>
         </div>
         <div class="modal-body">
-            <div class="center">
+          <div class="center">
             <select 
                 class="search_account" id="account_selection">
             </select>
-            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" id="modalAdd" class="btn btn-primary" disabled> Add Account </button>
           <button type="button" id="modalCancel" class="btn" data-dismiss="modal"> Cancel</button>
         </div>
-
       </div>
       
     </div>
-  </div>
+    </div>
+
+    <div class="modal fade" id="edit_account_modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Billing Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Account Details</h4>
+        </div>
+        <div class="modal-body">
+          <div class="center">
+            <form action="" method="post" novalidate>
+              {{ account_form.hidden_tag() }}
+            <p>
+            {{ account_form.fee_location.label }}<br>
+            {{ account_form.fee_location(size=32, class='custom-select mr-sm-1', placeholder='Select Fee Location') }}
+            </p>
+          </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {{ account_form.submit(class='btn btn-default') }}</button>
+          <button type="button" id="modalCancel" class="btn" data-dismiss="modal"> Cancel</button>
+        </div>
+      </div>
+      
+    </div>
+    </div>
 
   <Script>
     function disable_enable(button, modal_selector) {
@@ -214,6 +241,12 @@
       reset(modal,modal_selector)
     });
 
+    $(document).on("click", "#edit", function(event)
+    {
+      var modal = $('#edit_account_modal');
+      modal.modal('show');
+    });
+
     $(document).on("click", "#remove", function(event)
     {
       $(this).parents('tr').detach();
@@ -221,8 +254,8 @@
 
     $(document).on("click", "#add_account", function(event)
     {
-      var mymodal = $('#account_modal');
-      mymodal.modal('show'); 
+      var modal = $('#account_modal');
+      modal.modal('show'); 
     });
 
     $(document).on("click", "#save", function(event)

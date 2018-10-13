@@ -58,6 +58,10 @@ class SplitForm(FlaskForm):
 	split_percentage= PercentField('Split Percentage (%)', places=2,render_kw={"placeholder": "e.g., 20.0%","class": "form-control"}, validators=[Optional(),NumberRange(max=100, min=0)])
 	submit = SubmitField('Save')
 
+class Account_DetailsForm(FlaskForm):
+    fee_location = SelectField('Fee Location', coerce=int, validators=[InputRequired])
+    submit = SubmitField('Save')
+
 
 
 
