@@ -5,7 +5,7 @@ from sqlalchemy.sql.functions import coalesce
 from sqlalchemy import exc, update
 from app import app
 from app import db
-from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm, Account_DetailsForm
+from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm, Account_DetailsForm, Add_AccountForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure, Split, Account_Split
 from app.content import account_view, household_view, fee_view, dev_view
 from sqlalchemy.orm import aliased
@@ -148,7 +148,7 @@ def account_data():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Relocated Fee'), func.group_concat(Split.name, "; ").label('Splits')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Fee Relocation'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Split).outerjoin(Split).group_by(Account.id) \
 	.outerjoin(Account_Fee_Location, Account.fee_location) 
@@ -168,7 +168,7 @@ def account():
 
 	accounts_query = db.session.query(Account.id.label('id'),Account.name.label('Account Name'),Account.account_number.label('Account #'), \
 	Account.opening_date.label('Opening Date'), Account.balance.label('Balance'), Account.custodian.label('Custodian'),Household.name.label('Household'),Billing_Group.name.label('Billing Group'), \
-	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Relocated Fee'), func.group_concat(Split.name, "; ").label('Splits')) \
+	Fee_Structure.name.label('Fee Structure'), Account.payment_source.label('Payment Source'), Account_Fee_Location.name.label('Fee Relocation'), func.group_concat(Split.name, "; ").label('Splits')) \
 	.outerjoin(Household, Account.household_id == Household.id).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id) \
 	.outerjoin(Fee_Structure, Account.fee_id == Fee_Structure.id).outerjoin(Account_Split).outerjoin(Split).group_by(Account.id) \
 	.outerjoin(Account_Fee_Location, Account.fee_location) 
@@ -363,34 +363,39 @@ def billing_group():
 @app.route('/billing_group/<int:id>',methods=['GET', 'POST'])
 @login_required
 def edit_billing_group(id):
+
 	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
 	billing_group=billing_group_query.first()
 	billing_form = Billing_GroupForm(obj=billing_group)
 
 	Account_Fee_Location = aliased(Account)
 
-	account_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
-	Account_Fee_Location.name.label('Fee Location'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	account_query=db.session.query(Account.id.label('id'),Account_Fee_Location.id.label('fee_location_id'),Account.name.label('Account'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
+	Account_Fee_Location.name.label('Fee Relocation'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location)
 
-	accounts_list_query=db.session.query(Account.id.label('id'),Account.name.label('Account'),(Account.name + "; " + coalesce(Billing_Group.name,'Open')).label('text'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
-	Account_Fee_Location.name.label('Fee Location'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
+	accounts_list_query=db.session.query(Account.id.label('id'),Account_Fee_Location.id.label('fee_location_id'),Account.name.label('Account'),(Account.name + "; " + coalesce(Billing_Group.name,'Open')).label('text'),Account.account_number.label('Account Number'),Account.custodian.label('Custodian'),Account.balance.label('Balance'), \
+	Account_Fee_Location.name.label('Fee Relocation'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location).order_by(Billing_Group.name)
 
-	accounts=account_query.all()
-	billing_accounts=account_query.filter(Billing_Group.id == id).all()
-	account_columns=billing_accounts[0].keys()
-	billing_accounts=num_serializer(billing_accounts)
-
-	accounts_list=accounts_list_query.all()
-	accounts_keys=accounts_list[0].keys()
-	accounts_list=num_serializer(accounts_list)
-	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
-
-	groups_list=[(account.id, account.Account) for account in account_query.filter(Billing_Group.id == id).all()]
+	fee_location_list=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
+	fee_location_list=[(account.id, account.Account) for account in fee_location_list]
+	fee_location_list = [(0,'Billed To Self')] + fee_location_list
 
 	account_form = Account_DetailsForm()
-	account_form.fee_location.choices = groups_list
+	account_form.fee_location.choices = fee_location_list
+
+	if account_form.validate_on_submit():
+
+		account_id = account_form.account_id.data
+		account_fee_location = account_form.fee_location.data
+		account_payment_source = account_form.payment_source.data
+
+		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
+		edit_fee_location = db.session.query(Account).filter(Account.id == account_fee_location).first()
+
+		edit_account.fee_location=edit_fee_location
+		edit_account.payment_source=account_payment_source
 
 	if request.method == "POST" and request.json:
 		data=request.json
@@ -401,9 +406,18 @@ def edit_billing_group(id):
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
-			return redirect(url_for('edit_billing_group'))
 
 		return redirect(url_for('billing_group'))
+
+	accounts=account_query.all()
+	billing_accounts=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
+	account_columns=billing_accounts[0].keys()
+	billing_accounts=num_serializer(billing_accounts)
+
+	accounts_list=accounts_list_query.all()
+	accounts_keys=accounts_list[0].keys()
+	accounts_list=num_serializer(accounts_list)
+	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
 
 	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=billing_accounts, account_columns=account_columns, page_link=url_for('billing_group'),billing_form=billing_form, account_form=account_form)
 

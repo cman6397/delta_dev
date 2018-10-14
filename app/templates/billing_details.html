@@ -62,15 +62,21 @@
     -webkit-box-shadow: none;
     box-shadow: none;
 }
+.modal-body{
+  text-align: left;
+}
+.hidden {
+  display:none;
+}
    h1 {
     font-size:18px;
     float:left;
     margin-top:10px;
    }
-  td:nth-child(1){
+  td:nth-child(1),td:nth-child(2){
     display: none
   }
-  th:nth-child(1){
+  th:nth-child(1),th:nth-child(2){
     display: none
   }
   </style>
@@ -152,21 +158,26 @@
         <div class="modal-header">
           <h4 class="modal-title">Account Details</h4>
         </div>
+        <form action="" method="post" novalidate>
         <div class="modal-body">
-          <div class="center">
-            <form action="" method="post" novalidate>
-              {{ account_form.hidden_tag() }}
+            {{ account_form.hidden_tag() }}
             <p>
             {{ account_form.fee_location.label }}<br>
-            {{ account_form.fee_location(size=32, class='custom-select mr-sm-1', placeholder='Select Fee Location') }}
+            {{ account_form.fee_location(class='custom-select mr-sm-1', id='fee_location') }}
             </p>
-          </form>
-          </div>
+            <p>
+            {{ account_form.payment_source.label }}<br>
+            {{ account_form.payment_source(class='custom-select mr-sm-1', id='payment_source') }}
+            </p>
+            <p>
+            {{ account_form.account_id(class='hidden', id='account_id') }}
+            </p>
         </div>
         <div class="modal-footer">
-          {{ account_form.submit(class='btn btn-default') }}</button>
-          <button type="button" id="modalCancel" class="btn" data-dismiss="modal"> Cancel</button>
+          {{ account_form.submit(class='btn btn-primary', id = 'edit_account_submit') }}</button>
+          <button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal"> Cancel</button>
         </div>
+        </form>
       </div>
       
     </div>
@@ -244,6 +255,19 @@
     $(document).on("click", "#edit", function(event)
     {
       var modal = $('#edit_account_modal');
+      var payment_source_form = document.getElementById("payment_source")
+      var fee_location_form = document.getElementById("fee_location")
+      var account_id_form = document.getElementById("account_id")
+
+      var row = $(this).parents('tr')
+      var fee_location_id = row.find("td")[1].innerHTML.trim() || 0
+      var payment_source = row.find("td")[7].innerHTML.trim()
+      var account_id = row.find("td")[0].innerHTML.trim()
+
+      payment_source_form.value = payment_source
+      fee_location_form.value = fee_location_id
+      account_id_form.value = account_id
+
       modal.modal('show');
     });
 

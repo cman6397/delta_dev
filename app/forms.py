@@ -59,7 +59,13 @@ class SplitForm(FlaskForm):
 	submit = SubmitField('Save')
 
 class Account_DetailsForm(FlaskForm):
-    fee_location = SelectField('Fee Location', coerce=int, validators=[InputRequired])
+    fee_location = SelectField('Fee Location', coerce=int, validators=[InputRequired()])
+    payment_source=SelectField('Payment Source', choices = [('Directly Billed', 'Directly Billed'), ('Custodian Billed', 'Custodian Billed')], validators=[InputRequired()])
+    account_id=StringField('Account Id', validators=[InputRequired()])
+    submit = SubmitField('Save')
+
+class Add_AccountForm(FlaskForm):
+    account_id = SelectField('Fee Location', coerce=int, validators=[InputRequired()])
     submit = SubmitField('Save')
 
 
