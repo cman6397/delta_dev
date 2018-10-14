@@ -65,8 +65,12 @@ class Account_DetailsForm(FlaskForm):
     submit = SubmitField('Save')
 
 class Add_AccountForm(FlaskForm):
-    account_id = SelectField('Fee Location', coerce=int, validators=[InputRequired()])
-    submit = SubmitField('Save')
+    account_id = StringField('Account Id', validators=[InputRequired()])
+    submit = SubmitField('Add Account')
+
+class Remove_AccountForm(FlaskForm):
+    account_id = StringField('Account Id', validators=[InputRequired()])
+    submit = SubmitField('Remove')
 
 
 

@@ -5,7 +5,7 @@ from sqlalchemy.sql.functions import coalesce
 from sqlalchemy import exc, update
 from app import app
 from app import db
-from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm, Account_DetailsForm, Add_AccountForm
+from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm, Account_DetailsForm, Add_AccountForm, Remove_AccountForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure, Split, Account_Split
 from app.content import account_view, household_view, fee_view, dev_view
 from sqlalchemy.orm import aliased
@@ -363,10 +363,7 @@ def billing_group():
 @app.route('/billing_group/<int:id>',methods=['GET', 'POST'])
 @login_required
 def edit_billing_group(id):
-
 	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
-	billing_group=billing_group_query.first()
-	billing_form = Billing_GroupForm(obj=billing_group)
 
 	Account_Fee_Location = aliased(Account)
 
@@ -385,6 +382,14 @@ def edit_billing_group(id):
 	account_form = Account_DetailsForm()
 	account_form.fee_location.choices = fee_location_list
 
+	add_form = Add_AccountForm()
+	remove_form=Remove_AccountForm()
+
+	billing_group=billing_group_query.first()
+	billing_form = Billing_GroupForm(obj=billing_group)
+
+	remove_form=Remove_AccountForm()
+
 	if account_form.validate_on_submit():
 
 		account_id = account_form.account_id.data
@@ -397,17 +402,33 @@ def edit_billing_group(id):
 		edit_account.fee_location=edit_fee_location
 		edit_account.payment_source=account_payment_source
 
-	if request.method == "POST" and request.json:
-		data=request.json
-		accounts=db.session.query(Account).filter(Account.id.in_(data["billing_accounts"])).all()
-		billing_group.accounts=accounts
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+
+	if add_form.validate_on_submit():
+
+		account_id = add_form.account_id.data	
+		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
+		edit_account.billing_group=billing_group
 
 		try:
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
 
-		return redirect(url_for('billing_group'))
+	if remove_form.validate_on_submit():
+
+		account_id = remove_form.account_id.data	
+		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
+		edit_account.billing_group=None
+		edit_account.fee_location=None
+
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
 
 	accounts=account_query.all()
 	billing_accounts=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
@@ -419,7 +440,7 @@ def edit_billing_group(id):
 	accounts_list=num_serializer(accounts_list)
 	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
 
-	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=billing_accounts, account_columns=account_columns, page_link=url_for('billing_group'),billing_form=billing_form, account_form=account_form)
+	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=billing_accounts, account_columns=account_columns, page_link=url_for('billing_group'),billing_form=billing_form, account_form=account_form, add_form=add_form, remove_form=remove_form)
 
 #********************** Billing Split **************************
 @app.route('/split_data/')
