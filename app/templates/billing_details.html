@@ -131,7 +131,8 @@
               <button type="button" id="edit" class="btn btn-outline-warning btn-sm"> Edit </button>
               {{ remove_form.hidden_tag() }}
               {{ remove_form.account_id(id='remove_account_id', class='hidden',value=row[0]) }} 
-              {{ remove_form.submit(class='btn btn-outline-danger btn-sm', id = 'remove_account_submit') }}
+              {{ remove_form.remove_submit_check(class='hidden', id = 'remove_submit_check') }}
+              {{ remove_form.remove_submit(class='btn btn-outline-danger btn-sm', id = 'remove_account_submit') }}
               </form>
             </td>
             </tr>
@@ -151,9 +152,10 @@
         <form action="" method="post" novalidate>
         <div class="modal-body" style="height:100px">
           <div class="center">
-              {{ add_form.hidden_tag() }}
+            {{ add_form.hidden_tag() }}
               <p>
               {{ add_form.account_id(class='hidden', id='add_account_id') }}
+              {{ add_form.add_submit_check(class='hidden', id = 'add_submit_check') }}
               </p>
             <select 
                 class="search_account" id="account_selection">
@@ -161,10 +163,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          {{ add_form.submit(class='btn btn-primary', id = 'add_account_submit') }}
+          {{ add_form.add_submit(class='btn btn-primary', id = 'add_account_submit') }}
           <button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal"> Cancel</button>
+          </form>
         </div>
-        </form>
       </div>
       
     </div>
@@ -179,7 +181,7 @@
           <h4 class="modal-title">Account Details</h4>
         </div>
         <form action="" method="post" novalidate>
-        <div class="modal-body" style="text-align:left">
+          <div class="modal-body" style="text-align:left">
             {{ account_form.hidden_tag() }}
             <p>
             {{ account_form.fee_location.label }}<br>
@@ -191,12 +193,13 @@
             </p>
             <p>
             {{ account_form.account_id(class='hidden', id='account_id') }}
+            {{ account_form.edit_submit_check(class='hidden', id = 'edit_submit_check') }}
             </p>
-        </div>
-        <div class="modal-footer">
-          {{ account_form.submit(class='btn btn-primary', id = 'edit_account_submit') }}
-          <button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal"> Cancel</button>
-        </div>
+          </div>
+          <div class="modal-footer">
+            {{ account_form.edit_submit(class='btn btn-primary', id = 'edit_account_submit') }}
+            <button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal"> Cancel</button>
+          </div>
         </form>
       </div>
       
@@ -204,6 +207,15 @@
     </div>
 
   <Script>
+
+  var add_submit_check = document.getElementById("add_submit_check")
+  var edit_submit_check = document.getElementById("edit_submit_check")
+  var remove_submit_check = document.getElementById("remove_submit_check")
+
+  add_submit_check.value=''
+  edit_submit_check.value=''
+  remove_submit_check.value=''
+
     function disable_enable(button, modal_selector) {
         if (modal_selector.val() == null) {
             button.prop('disabled', true);;
@@ -215,17 +227,6 @@
     function reset(modal, modal_selector) {
         modal.modal('hide');
         modal_selector.val(null).change();
-    }
-    function get_ids(){
-      var table=document.getElementById("account_table");
-      var billing_accounts = [];
-
-      for (var i=1; i < table.rows.length; i++)
-      {
-        current_account= table.rows[i].cells[0].innerHTML.trim();
-        billing_accounts.push(current_account);
-      }
-      return billing_accounts
     }
 
     $('#account_selection').change(function(event) {
@@ -241,34 +242,22 @@
         disable_enable(button,modal_selector);
     });
 
-    $(document).on("click", "#modalAdd", function(event){
-      var table=document.getElementById("account_table");
-      var table_length = table.rows.length;
-      var modal_selector=$('#account_selection')
-      var account=modal_selector.select2('data')[0]
-      var keys=cols
-      var modal = $('#account_modal');
-      var table_ids=get_ids()
-      var row = "<tr>"
+    $(document).on("click", "#edit_account_submit", function(event)
+    {
+      var edit_submit_check = document.getElementById("edit_submit_check")
+      edit_submit_check.value='submit'
 
-      //If added account is not already in table add account
-      if(table_ids.indexOf(account["id"]) == -1 )
-      {
-        for (var i=0; i < keys.length; i++)
-        {
-          current_cell = account[keys[i]]
-          if (current_cell == null){
-            current_cell = ''
-          }
-          row = row + "<td>" + current_cell + "</td>" 
-        }
-        row = row + "<td> <button type='button' id='edit' class='btn btn-outline-warning btn-sm'> Edit </button> <button type='button' id='remove' class='btn btn-outline-danger btn-sm'> Remove </button></td> </tr>"
-        $(account_table).find('tbody').append(row);
-        reset(modal,modal_selector)
-      }
-      else {
-        alert("Account already added.")
-      }
+    });
+    $(document).on("click", "#add_account_submit", function(event)
+    {
+      var add_submit_check = document.getElementById("add_submit_check")
+      add_submit_check.value='submit'
+    });
+
+    $(document).on("click", "#remove_account_submit", function(event)
+    {
+      var remove_submit_check = document.getElementById("remove_submit_check")
+      remove_submit_check.value='submit'
     });
 
     $(document).on("click", "#modalCancel", function(event)
@@ -298,33 +287,10 @@
       modal.modal('show');
     });
 
-    $(document).on("click", "#remove", function(event)
-    {
-      $(this).parents('tr').detach();
-    });
-
     $(document).on("click", "#add_account", function(event)
     {
       var modal = $('#account_modal');
       modal.modal('show'); 
-    });
-
-    $(document).on("click", "#save", function(event)
-    {
-      var data= {};
-      var table=document.getElementById("account_table");
-      var detail_url="{{ url_for('billing_group') }}" + "{{billing_group.id}}"
-
-      data['billing_accounts'] = get_ids()
-      data=JSON.stringify(data)
-
-      $.ajax({
-        data : data,
-        type : 'POST',
-        url : detail_url,
-        contentType: 'application/json;charset=UTF-8'
-      })
-      window.location.href = "{{ page_link }}";
     });
 
     var account_data = {{ accounts_json|tojson }}

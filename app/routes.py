@@ -233,8 +233,8 @@ def account_details(id):
 	fee_structures=fee_structure_query.all()
 	billing_groups=billing_group_query.all()
 	splits=split_query.all()
-	accounts=accounts_query.all()
 	account=account_query.first()
+	accounts=accounts_query.filter(Account.billing_group_id == account.billing_group_id).all()
 
 	fee_structure_keys=fee_structures[0].keys()
 	billing_group_keys=billing_groups[0].keys()
@@ -380,8 +380,6 @@ def edit_billing_group(id):
 	fee_location_list = [(0,'Billed To Self')] + fee_location_list
 
 	account_form = Account_DetailsForm()
-	account_form.fee_location.choices = fee_location_list
-
 	add_form = Add_AccountForm()
 	remove_form=Remove_AccountForm()
 
@@ -389,23 +387,6 @@ def edit_billing_group(id):
 	billing_form = Billing_GroupForm(obj=billing_group)
 
 	remove_form=Remove_AccountForm()
-
-	if account_form.validate_on_submit():
-
-		account_id = account_form.account_id.data
-		account_fee_location = account_form.fee_location.data
-		account_payment_source = account_form.payment_source.data
-
-		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
-		edit_fee_location = db.session.query(Account).filter(Account.id == account_fee_location).first()
-
-		edit_account.fee_location=edit_fee_location
-		edit_account.payment_source=account_payment_source
-
-		try:
-			db.session.commit()
-		except exc.IntegrityError:
-			db.session.rollback()
 
 	if add_form.validate_on_submit():
 
@@ -418,12 +399,35 @@ def edit_billing_group(id):
 		except exc.IntegrityError:
 			db.session.rollback()
 
-	if remove_form.validate_on_submit():
+	elif remove_form.validate_on_submit():
 
 		account_id = remove_form.account_id.data	
 		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
 		edit_account.billing_group=None
 		edit_account.fee_location=None
+
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+
+	fee_location_list=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
+	fee_location_list=[(account.id, account.Account) for account in fee_location_list]
+	fee_location_list = [(0,'Billed To Self')] + fee_location_list
+
+	account_form.fee_location.choices = fee_location_list
+
+	if account_form.validate_on_submit():
+
+		account_id = account_form.account_id.data
+		account_fee_location = account_form.fee_location.data
+		account_payment_source = account_form.payment_source.data
+
+		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
+		edit_fee_location = db.session.query(Account).filter(Account.id == account_fee_location).first()
+
+		edit_account.fee_location=edit_fee_location
+		edit_account.payment_source=account_payment_source
 
 		try:
 			db.session.commit()

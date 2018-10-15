@@ -62,15 +62,18 @@ class Account_DetailsForm(FlaskForm):
     fee_location = SelectField('Fee Location', coerce=int, validators=[InputRequired()])
     payment_source=SelectField('Payment Source', choices = [('Directly Billed', 'Directly Billed'), ('Custodian Billed', 'Custodian Billed')], validators=[InputRequired()])
     account_id=StringField('Account Id', validators=[InputRequired()])
-    submit = SubmitField('Save')
+    edit_submit = SubmitField('Save')
+    edit_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 class Add_AccountForm(FlaskForm):
     account_id = StringField('Account Id', validators=[InputRequired()])
-    submit = SubmitField('Add Account')
+    add_submit = SubmitField('Add Account')
+    add_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 class Remove_AccountForm(FlaskForm):
     account_id = StringField('Account Id', validators=[InputRequired()])
-    submit = SubmitField('Remove')
+    remove_submit = SubmitField('Remove')
+    remove_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 
 
