@@ -234,7 +234,7 @@ def account_details(id):
 	billing_groups=billing_group_query.all()
 	splits=split_query.all()
 	account=account_query.first()
-	accounts=accounts_query.filter(Account.billing_group_id == account.billing_group_id).all()
+	accounts=accounts_query.filter(Account.billing_group_id == account.billing_group_id).filter(Account.id != account.id).all()
 
 	fee_structure_keys=fee_structures[0].keys()
 	billing_group_keys=billing_groups[0].keys()
@@ -399,7 +399,7 @@ def edit_billing_group(id):
 		except exc.IntegrityError:
 			db.session.rollback()
 
-	elif remove_form.validate_on_submit():
+	if remove_form.validate_on_submit():
 
 		account_id = remove_form.account_id.data	
 		edit_account = db.session.query(Account).filter(Account.id == account_id).first()
