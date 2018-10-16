@@ -73,9 +73,7 @@ class Add_AccountForm(FlaskForm):
 class Remove_AccountForm(FlaskForm):
 	account_id = StringField('Account Id', validators=[InputRequired()])
 	remove_submit = SubmitField('Remove')
-	submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
-
-
+	remove_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 
 		
