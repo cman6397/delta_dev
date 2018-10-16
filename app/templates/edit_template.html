@@ -34,12 +34,12 @@
 
             {% for field in form %}
             <p>
-                {% if field.type not in ['SubmitField','CSRFTokenField'] and field.data != 0 and field.data != '' and field.data %}
+                {% if field.type not in ['SubmitField','CSRFTokenField'] and field.data != 0 and field.data != null and field.data %}
                     {{field.label}}
                     {{field}}
-                {% else %}
+                {% elif field.type not in ['CSRFTokenField'] %}
                     {{field.label(class='hidden')}}
-                    {{field(class='hidden')}}
+                    {{field(class='hidden form-control')}}
                 {% endif %}   
 
                 {% if field.errors %}
@@ -68,14 +68,12 @@ $(document).ready(function(){
 
         if (val == "Quarterly") {
             $("#quarterly_cycle").removeClass("hidden");
-            $("#quarterly_cycle").addClass("form-control");
             $(label).removeClass("hidden");
         }
         else {
-            $("#quarterly_cycle").removeClass("form-control");
             $("#quarterly_cycle").addClass("hidden");
             $(label).addClass("hidden");
-            $("#quarterly_cycle").val('')
+            $("#quarterly_cycle").val(null).change()
         }
     });
     $("#structure").change(function() {
@@ -84,40 +82,36 @@ $(document).ready(function(){
         var fee_label = $("label[for='" + $("#flat_fee").attr('id') + "']");
 
         if (val == "Flat Rate") {
-            $("#flat_fee").removeClass("form-control");
             $("#flat_fee").addClass("hidden");
             $(fee_label).addClass("hidden");
 
             $("#flat_rate").removeClass("hidden");
-            $("#flat_rate").addClass("form-control");
             $(rate_label).removeClass("hidden");
 
-            $("#flat_fee").val('')
+            $("#flat_fee").val(null).change()
         }
         else if (val == "Flat Fee"){
-            $("#flat_rate").removeClass("form-control");
             $("#flat_rate").addClass("hidden");
             $(rate_label).addClass("hidden");
 
             $("#flat_fee").removeClass("hidden");
-            $("#flat_fee").addClass("form-control");
             $(fee_label).removeClass("hidden");
 
-            $("#flat_rate").val('')
+            $("#flat_rate").val(null).change()
         }
         else {
-            $("#flat_rate").removeClass("form-control");
-            $("#flat_fee").removeClass("form-control")
-
             $("#flat_fee").addClass("hidden");
             $("#flat_rate").addClass("hidden");
 
             $(rate_label).addClass("hidden");
             $(fee_label).addClass("hidden");
 
-            $("#flat_rate").val('')
-            $("#flat_fee").val('')
+            $("#flat_rate").val(null).change()
+            $("#flat_fee").val(null).change()
         }
+
+        console.log($("#flat_rate").val())
+        console.log($("#flat_fee").val())
     });
 });
 </script>

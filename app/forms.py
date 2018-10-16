@@ -4,17 +4,17 @@ from wtforms.validators import DataRequired, Optional, Length, InputRequired, Nu
 from app.models import User,Household
 
 class DollarField(DecimalField):
-    def process_formdata(self, valuelist):
-        if len(valuelist) == 1:
-            self.data = float((valuelist[0].strip('$').replace(',', '')))
-        else:
-            self.data = None
+	def process_formdata(self, valuelist):
+		if len(valuelist) == 1:
+			self.data = float((valuelist[0].strip('$').replace(',', '')))
+		else:
+			self.data = None
 class PercentField(DecimalField):
-    def process_formdata(self, valuelist):
-        if len(valuelist) == 1:
-            self.data = float((valuelist[0].strip('%')))/100
-        else:
-            self.data = None
+	def process_formdata(self, valuelist):
+		if len(valuelist) == 1:
+			self.data = float((valuelist[0].strip('%')))/100
+		else:
+			self.data = None
 
 
 class LoginForm(FlaskForm):
@@ -41,8 +41,8 @@ class Fee_StructureForm(FlaskForm):
 	name= StringField('Name',render_kw={"placeholder": "Enter Structure Name","class": "form-control"}, default='', validators=[InputRequired(),Length(max=100)])
 	collection=SelectField('Collection', choices=[('', '---'),('Advance with Proration','Advance with Proration'), ('Arrears','Arrears'),('Advance','Advance')], default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
 	structure=SelectField('Fee Structure', choices=[('', '---'),('Flat Rate','Flat Rate'),('Flat Fee','Flat Fee'),('Favor','Favor')],default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
-	flat_rate = PercentField('Fee Rate (%)', places=2,render_kw={"placeholder": "e.g., 0.5","class": "form-control"}, validators=[Optional(),NumberRange(max=100, min=0)])
-	flat_fee= DollarField('Annual Amount ($)', places=2,render_kw={"placeholder": "e.g., $1,500","class": "form-control"}, validators=[Optional(),NumberRange(min=1)])
+	flat_rate = PercentField('Fee Rate (%)', places=2,render_kw={"placeholder": "e.g., 0.5","class": "form-control"}, validators=[Optional(),NumberRange(min=0,max=100)])
+	flat_fee= DollarField('Annual Amount ($)', places=2,render_kw={"placeholder": "e.g., $1,500","class": "form-control"}, validators=[Optional(),NumberRange(min=1.01)])
 	valuation_method=SelectField('Valuation Method', choices=[('', '---'),('Ending Period Balance','Ending Period Balance'),('Average Daily Balance','Average Daily Balance')], default='',render_kw={"class": "custom-select mr-sm-1"}, validators=[InputRequired()])
 	frequency=SelectField('Frequency', choices = [('', '---'),('Monthly', 'Monthly'), ('Quarterly', 'Quarterly')],default='',render_kw={"class": "custom-select mr-sm-1", "id":"frequency"}, validators=[InputRequired()])
 	quarterly_cycle=SelectField('Quarterly Cycle', choices=[('', '---'),('Mar-Jun-Sep-Dec','Mar-Jun-Sep-Dec'),('Feb-May-Aug-Nov','Feb-May-Aug-Nov'),('Jan-Apr-Jul-Oct','Jan-Apr-Jul-Oct')],default='',render_kw={"class": "custom-select mr-sm-1", "id":"quarterly_cycle"}, validators=[Optional()])
@@ -59,21 +59,21 @@ class SplitForm(FlaskForm):
 	submit = SubmitField('Save')
 
 class Account_DetailsForm(FlaskForm):
-    fee_location = SelectField('Fee Location', coerce=int, validators=[InputRequired()])
-    payment_source=SelectField('Payment Source', choices = [('Directly Billed', 'Directly Billed'), ('Custodian Billed', 'Custodian Billed')], validators=[InputRequired()])
-    account_id=StringField('Account Id', validators=[InputRequired()])
-    edit_submit = SubmitField('Save')
-    edit_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
+	fee_location = SelectField('Fee Location', coerce=int, validators=[InputRequired()])
+	payment_source=SelectField('Payment Source', choices = [('Directly Billed', 'Directly Billed'), ('Custodian Billed', 'Custodian Billed')], validators=[InputRequired()])
+	account_id=StringField('Account Id', validators=[InputRequired()])
+	edit_submit = SubmitField('Save')
+	edit_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 class Add_AccountForm(FlaskForm):
-    account_id = StringField('Account Id', validators=[InputRequired()])
-    add_submit = SubmitField('Add Account')
-    add_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
+	account_id = StringField('Account Id', validators=[InputRequired()])
+	add_submit = SubmitField('Add Account')
+	add_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 class Remove_AccountForm(FlaskForm):
-    account_id = StringField('Account Id', validators=[InputRequired()])
-    remove_submit = SubmitField('Remove')
-    remove_submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
+	account_id = StringField('Account Id', validators=[InputRequired()])
+	remove_submit = SubmitField('Remove')
+	submit_check=StringField('Input Checker', validators=[InputRequired(),Length(min=5)])
 
 
 

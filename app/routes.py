@@ -375,10 +375,6 @@ def edit_billing_group(id):
 	Account_Fee_Location.name.label('Fee Relocation'), Account.payment_source.label("Payment Source")).outerjoin(Billing_Group, Account.billing_group_id == Billing_Group.id). \
 	outerjoin(Account_Fee_Location, Account.fee_location).order_by(Billing_Group.name)
 
-	fee_location_list=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
-	fee_location_list=[(account.id, account.Account) for account in fee_location_list]
-	fee_location_list = [(0,'Billed To Self')] + fee_location_list
-
 	account_form = Account_DetailsForm()
 	add_form = Add_AccountForm()
 	remove_form=Remove_AccountForm()
@@ -509,14 +505,13 @@ def edit_fee_structure(id):
 	message = "Fee Structure Name Taken"
 	fee_structure_query=db.session.query(Fee_Structure).filter(Fee_Structure.id == id)
 	fee_structure=fee_structure_query.first()
-	form = Fee_StructureForm(obj=fee_structure)
 
 	if fee_structure:
 
 		if fee_structure.flat_rate:
 			fee_structure.flat_rate=fee_structure.flat_rate*100
 
-		form = Fee_StructureForm(obj=fee_structure)
+		form = Fee_StructureForm()
 
 		if form.validate_on_submit():
 			form.populate_obj(fee_structure)
@@ -525,9 +520,9 @@ def edit_fee_structure(id):
 			except exc.IntegrityError:
 				db.session.rollback()
 				flash(message)
-				return redirect(url_for('create_fee'))
-
+				return render_template('edit_template.html',form=form,page_link=url_for('fee_structure'))
 			return redirect(url_for('fee_structure'))
+		form = Fee_StructureForm(obj=fee_structure)
 		return render_template('edit_template.html',form=form,page_link=url_for('fee_structure'))
 	return redirect(url_for('fee_structure'))
 
@@ -579,13 +574,9 @@ def edit_split(id):
 	split_query=db.session.query(Split).filter(Split.id == id)
 	split=split_query.first()
 	form = SplitForm(obj=split)
-
 	if split:
-
 		if split.split_percentage:
 			split.split_percentag=split.split_percentage*100
-
-		form = SplitForm(obj=split)
 
 		if form.validate_on_submit():
 			form.populate_obj(split)
@@ -597,6 +588,7 @@ def edit_split(id):
 				return redirect(url_for('create_fee'))
 
 			return redirect(url_for('split'))
+		form = SplitForm(obj=split)
 		return render_template('edit_template.html',form=form,page_link=url_for('split'))
 	return redirect(url_for('split'))
 
