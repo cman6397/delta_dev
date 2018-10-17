@@ -402,6 +402,9 @@ def edit_billing_group(id):
 		edit_account.billing_group=None
 		edit_account.fee_location=None
 
+		#clear fee relocations associated with account
+		db.session.query(Account).filter(Account.fee_location_id == account_id).update({Account.fee_location_id : None},synchronize_session=False)
+
 		try:
 			db.session.commit()
 		except exc.IntegrityError:

@@ -51,7 +51,7 @@
                 {% endif %}
             </p>
             {% endfor %}
-            <p>{{ form.submit(class='btn btn-primary', value = "Save") }}
+            <p>{{ form.submit(class='btn btn-primary', value = 'Save', id = 'edit_form') }}
             <a class="btn btn-secondary" href="{{ page_link }}"> Cancel</a> </p>
         	</div>
         	</div>
@@ -61,6 +61,7 @@
 </div>
 
 <script>
+
 $(document).ready(function(){
     $("#frequency").change(function() {
         var val = $(this).val();
