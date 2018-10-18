@@ -382,6 +382,10 @@ def billing_group():
 @login_required
 def edit_billing_group(id):
 	billing_group_query=db.session.query(Billing_Group).filter(Billing_Group.id == id)
+	billing_group=billing_group_query.first()
+
+	if billing_group is None:
+		return redirect(url_for('billing_group'))
 
 	Account_Fee_Location = aliased(Account)
 
@@ -397,9 +401,7 @@ def edit_billing_group(id):
 	add_form = Add_AccountForm()
 	remove_form=Remove_AccountForm()
 
-	billing_group=billing_group_query.first()
 	billing_form = Billing_GroupForm(obj=billing_group)
-
 	remove_form=Remove_AccountForm()
 
 	if add_form.validate_on_submit():
