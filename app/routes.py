@@ -354,10 +354,28 @@ def billing_group():
 		delete_keys = request.json
 		delete_query = db.session.query(Billing_Group).filter(Billing_Group.id.in_(delete_keys))
 		delete_query.delete(synchronize_session=False)
-		db.session.commit()
+		try:
+			db.session.commit()
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash("Delete Failed")
 		return redirect(url_for('billing_group'))
 
-	return render_template('table_edit.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('create_billing_group'), columns=columns, title='Billing Groups')
+	billing_form = Billing_GroupForm()
+
+	if billing_form.validate_on_submit():
+		new_billing_group = Billing_Group()
+		billing_form.populate_obj(new_billing_group)
+		try:
+			db.session.add(new_billing_group)
+			db.session.commit()
+			return redirect(url_for('edit_billing_group', id=new_billing_group.id))
+		except exc.IntegrityError:
+			db.session.rollback()
+			flash("Error: Billing Group Name Unavailable")
+			return redirect(url_for('billing_group'))
+
+	return render_template('billing_display.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('billing_group'), columns=columns, title='Billing Groups', billing_form=billing_form)
 
 
 @app.route('/billing_group/<int:id>',methods=['GET', 'POST'])
@@ -404,15 +422,18 @@ def edit_billing_group(id):
 
 		#clear fee relocations associated with account
 		db.session.query(Account).filter(Account.fee_location_id == account_id).update({Account.fee_location_id : None},synchronize_session=False)
-
 		try:
 			db.session.commit()
 		except exc.IntegrityError:
 			db.session.rollback()
 
-	fee_location_list=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
-	fee_location_list=[(account.id, account.Account) for account in fee_location_list]
-	fee_location_list = [(0,'Billed To Self')] + fee_location_list
+	#fee location dropdown and form select defined
+	fee_location_query=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
+	fee_location_array=[(account.id, account.Account) for account in fee_location_query]
+	fee_location_list = [(0,'Billed To Self')] + fee_location_array
+
+	location_keys=['id','text']
+	fee_location_json=[dict(zip([key for key in location_keys],row)) for row in fee_location_list]
 
 	account_form.fee_location.choices = fee_location_list
 
@@ -435,15 +456,15 @@ def edit_billing_group(id):
 
 	accounts=account_query.all()
 	billing_accounts=account_query.filter(Billing_Group.id == id).order_by(Account.name).all()
-	account_columns=billing_accounts[0].keys()
+	account_columns=account_query.first().keys()
 	billing_accounts=num_serializer(billing_accounts)
 
 	accounts_list=accounts_list_query.all()
-	accounts_keys=accounts_list[0].keys()
+	accounts_keys=accounts_list_query.first().keys()
 	accounts_list=num_serializer(accounts_list)
 	accounts_json=[dict(zip([key for key in accounts_keys],row)) for row in accounts_list]
 
-	return render_template('billing_details.html',billing_group=billing_group,accounts_json=accounts_json,account_rows=billing_accounts, account_columns=account_columns, page_link=url_for('billing_group'),billing_form=billing_form, account_form=account_form, add_form=add_form, remove_form=remove_form)
+	return render_template('billing_details.html',billing_group=billing_group,fee_location_json=fee_location_json,accounts_json=accounts_json,account_rows=billing_accounts, account_columns=account_columns, page_link=url_for('billing_group'),billing_form=billing_form, account_form=account_form, add_form=add_form, remove_form=remove_form)
 
 #********************** Billing Split **************************
 @app.route('/split_data/')
@@ -646,8 +667,8 @@ def dev():
 	fee_structures=fee_structure_query.all()
 	accounts=accounts_query.all()
 
-	account_keys=accounts[0].keys()
-	fee_structure_keys=fee_structures[0].keys()
+	account_keys=accounts_query.first().keys()
+	fee_structure_keys=fee_structure_query.first().keys()
 
 	data_test=[]
 

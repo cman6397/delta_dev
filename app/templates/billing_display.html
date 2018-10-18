@@ -1,0 +1,332 @@
+{% extends "header.html" %}
+
+{% block body %}
+<style>
+
+table.dataTable td {
+    white-space: nowrap; 
+    font-size:14px;
+    padding-left:10px !important;
+    padding-right:10px !important;
+}
+thead th 
+{ 
+    white-space: nowrap; 
+}
+h1
+{
+  font-size:30px;
+}
+thead input {
+    font-size:13px;
+    font-weight:150;
+    width: 103%;
+    text-indent: 3px;
+}
+.dataTables_length {
+    margin-right:15px;
+    margin-top:6px;
+}
+
+div.dt-buttons {
+    position: relative;
+    float: left;
+    margin-bottom:8px;
+}
+
+.btn-outline-warning {
+    margin-top:4px;
+    margin-bottom:4px;
+    width:100px;
+}
+.btn-outline-danger {
+    margin-bottom:4px;
+    width:100px;
+}
+.btn-light {
+    width:120px;
+    margin-bottom:4px;
+}
+
+
+</style>
+
+<div class="table_container shadow">
+
+    <table id="table" class="display compact cell-border" style="width:100%">
+
+    </table>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="warn_modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Delete Confirmation</h4>
+        </div>
+        <div class="modal-body">
+          <p></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btnDelete" class="btn btn-danger"> Delete</button>
+          <button type="button" id="btnClose" class="btn" data-dismiss="modal"> Cancel</button>
+        </div>
+
+      </div>
+      
+    </div>
+  </div>
+
+<!-- Modal -->
+<div class="modal fade" id="billing_modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Create Billing Group</h4>
+        </div>
+       <form action="" method="post" novalidate>
+          <div class="modal-body" style="text-align:left">
+            {{ billing_form.hidden_tag() }}
+            <p>
+            {{ billing_form.name.label }}<br>
+            {{ billing_form.name }}
+            </p>
+          </div>
+          <div class="modal-footer">
+            {{ billing_form.submit(class='btn btn-primary', id = 'billing_submit') }}
+            <button type="button" id="modalCancel" class="btn btn-secondary" data-dismiss="modal"> Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<script>
+var keys;
+$( document ).ready( function( $ ) 
+{
+    var tableHeaders="";
+    $.each({{ columns|tojson}}, function(i, val){
+    tableHeaders += "<th>" + val.name + "</th>";
+    });     
+  
+    $("#table").empty();
+    $("#table").append('<thead><tr>' + tableHeaders + '</tr> <tr>' + tableHeaders +'</tr><thead>');
+
+    $('#table thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        if (i >= 1){
+        $(this).html( '<input type="text" placeholder="&#xF002;" style="font-family:FontAwesome"/> ');
+        //$(this).html( '<input type="text" placeholder="Search" />' );
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        });
+        }
+        else {
+            $(this).html( '' );
+        }
+    });
+
+        var table=$('#table').DataTable({
+            "ajax": {
+                "url": {{ data_link|tojson }},  
+                "dataType": "json",
+                "dataSrc": "data",
+                "contentType":"application/json"
+            },
+            "orderCellsTop": true,
+            "columns":{{ columns|tojson }},
+            "scrollY": "65vh",
+            "scrollX": true, 
+            "scrollCollapse": true,
+            "oLanguage": {"sSearch": "Search All"},
+            "pageLength" : 100,
+            "lengthMenu": [[25, 50, 100, 500,-1], [25, 50, 100, 500, "All"]],
+            "dom":'<lB<f<t>ip>>',
+            "columnDefs": [{
+                "targets":   0,
+                "orderable": false,
+                "checkboxes": {
+                    "selectRow": true
+                }
+            },
+            {
+                "targets":   1,
+                "render": function ( data, type, row, meta ) {
+                    return '<a href="'+row.id+'">'+ data + '</a>';
+                }
+            }],
+            "select": {
+                "style": 'multi',
+                "blurable": true
+            },
+            buttons: 
+            {
+                dom: {
+                button: {
+                    tag: 'button',
+                    className: ''
+                    }
+                },
+                "buttons": 
+                [   
+                    {
+                        "autoClose": true,
+                        "extend": "collection",
+                        "text": 'Actions',
+                        "className": 'btn btn-primary dropdown-toggle',
+                        "attr":  {
+                            "id": 'btnAssign'
+                        },
+                        "buttons":
+                        [  
+                            {
+                                "text": 'Create',
+                                "className": 'btn btn-light',
+                                action: function ( e, dt, button, config ) 
+                                {
+                                    var modal = $('#billing_modal');
+                                    modal.modal('show');
+                                },    
+                            },
+
+                            {
+                                "attr":  {
+                                    "id": 'btnEdit'
+                                },
+                                "text": 'Edit',
+                                "className": 'btn btn-light' ,
+                                action: function () 
+                                {
+                                    var selected_rows=table.rows('.selected').data();
+                                    var length = table.rows('.selected').count();
+                                    edit_key = ''
+
+                                    if (length == 1) {
+                                        edit_key=selected_rows[0].id;
+                                        window.location.href = {{ page_link|tojson }} && edit_key
+                                    }
+                                    else {
+                                        alert ('Select one row to edit.')
+                                    }
+                                } 
+                            },
+                            {
+                                "attr":  {
+                                    "id": 'tblDelete'
+                                },
+                                "text": 'Delete',
+                                "type": 'submit',
+                                "class": 'close',
+                                "className": 'btn btn-light',
+
+                                action: function () 
+                                {
+                                    var selected_rows=table.rows('.selected').data();
+                                    var length = table.rows('.selected').count();
+                                    keys = []
+
+                                    if (length > 0)
+                                    {
+                                        for (var i = 0; i < length; i++ )
+                                        {
+                                            keys.push(selected_rows[i].id);
+                                        }
+                                        var mymodal = $('#warn_modal');
+                                        mymodal.find('.modal-body').text('You have selected ' + length + " {{ title }}" + '(s) to delete.');
+                                        mymodal.modal('show'); 
+                                    }
+                                    else {
+                                        alert("No Rows Selected")
+                                    }
+                                }
+                            },
+                        ],
+                        "background":false,
+
+                    },
+                    {
+                        extend: "csv",
+                        className: "btn btn-secondary",
+                    },
+                    {
+                        extend: "excel",
+                        className: "btn btn-secondary",
+                    }
+
+                ]
+            }
+        });
+
+    var buttons = table.buttons( ['#btnEdit', '#tblDelete'] );
+    buttons.disable();
+
+
+    // Handle form submission event 
+    table.on("click", "th.select-checkbox", function() {
+    if ($("th.select-checkbox").hasClass("selected")) {
+        table.rows().deselect();
+        $("th.select-checkbox").removeClass("selected");
+    } else {
+        table.rows().select();
+        $("th.select-checkbox").addClass("selected");
+    }
+    }).on("select deselect", function() {
+    ("Some selection or deselection going on")
+    if (table.rows({
+            table: true
+        }).count() !== table.rows().count()) {
+        $("th.select-checkbox").removeClass("selected");
+    } else {
+        $("th.select-checkbox").addClass("selected");
+        //Controlling Button Activation
+        var buttons=table.buttons(['#btnEdit', '#tblDelete'])
+
+        if (table.rows('.selected').count() == 0 ) {
+            buttons.disable()
+            //$("#btnEdit").removeClass("active");
+        }
+        else if (table.rows('.selected').count() == 1 ) {
+            buttons.enable();
+        }
+        else {
+            table.buttons(['#tblDelete']).enable()
+            table.buttons(['#btnEdit']).disable()
+        }
+    }
+    })
+});
+$(document).on("click", "#btnDelete", function(event)
+{
+    var mymodal = $('#warn_modal');
+    mymodal.modal('hide');
+
+    $.ajax({
+    data : JSON.stringify(keys, null, '\t'),
+    type : 'POST',
+    url : {{ page_link|tojson }},
+    contentType: 'application/json;charset=UTF-8',
+    success: function() 
+    {
+        $('#table').DataTable().ajax.reload();
+    }
+    })
+    keys=[] 
+});
+
+</script>
+
+{% endblock %}
+

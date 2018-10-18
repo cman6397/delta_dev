@@ -49,19 +49,7 @@
     width: 300px;
     text-align:left;
   }
-  .form-control {
-    border: 0;
-    outline: 0;
-    background: transparent;
-    border-bottom: 1px solid black;
-    border-radius:0px;
-    padding:0px;
-    width:250px;
-    height:35px;
-    text-align:left;
-    position:absolute;
-    margin-top:31px;
-  }
+
 .name_container{
   margin-top:10px;
   float:left;
@@ -75,13 +63,17 @@
   display:none;
 }
 .select2-selection__rendered {
-    line-height: 31px !important;
+    line-height: 36px !important;
 }
 .select2-container .select2-selection--single {
-    height: 33px !important;
+    height: 38px !important;
 }
 .select2-selection__arrow {
-    height: 34px !important;
+    height: 40px !important;
+}
+.search_fee_location{
+  width:465px;
+  top:10px;
 }
    h1 {
     font-size:18px;
@@ -105,6 +97,7 @@
         </div>
       </div>
       <div class = "add_button">
+          <a href="{{page_link}}", class='btn btn-secondary'> Billing Groups </a>
           <button type="button" id="add_account" class="btn btn-primary"> Add Account </button>
       </div>
 
@@ -192,7 +185,10 @@
             {{ account_form.hidden_tag() }}
             <p>
             {{ account_form.fee_location.label }}<br>
-            {{ account_form.fee_location(class='custom-select mr-sm-1', id='fee_location') }}
+            {{ account_form.fee_location(class='hidden', id='fee_location') }}
+            <select 
+              class="search_fee_location form-control" id="fee_location_selection">
+            </select>
             </p>
             <p>
             {{ account_form.payment_source.label }}<br>
@@ -249,6 +245,13 @@
         disable_enable(button,modal_selector);
     });
 
+    $('#fee_location_selection').change(function(event) {
+        var selector_val=$('#fee_location_selection').val();
+        var fee_location_form = document.getElementById("fee_location")
+
+        fee_location_form.value=selector_val
+    });
+
     $(document).on("click", "#edit_account_submit", function(event)
     {
       var edit_submit_check = document.getElementById("edit_submit_check")
@@ -275,10 +278,27 @@
       var payment_source_form = document.getElementById("payment_source")
       var fee_location_form = document.getElementById("fee_location")
       var account_id_form = document.getElementById("account_id")
+      var fee_location_selection = $(".search_fee_location");
+      var fee_location_data = {{ fee_location_json|tojson }}
+      let new_data=[]
+
+      for(var i = 0; i < fee_location_data.length; i++) {
+        let fee_location = fee_location_data[i];
+        if (fee_location.id != account_id){
+          new_data.push(fee_location)
+        }
+      }
+
+      $(".search_fee_location").empty();
+
+      $(".search_fee_location").select2({
+          data: new_data
+      });
 
       payment_source_form.value = payment_source
       fee_location_form.value = fee_location_id
       account_id_form.value = account_id
+      fee_location_selection.val(fee_location_id).change()
 
       modal.modal('show');
     };
@@ -300,16 +320,23 @@
     });
 
     var account_data = {{ accounts_json|tojson }}
+    var location_data= {{ fee_location_json|tojson }}
     var cols= {{account_columns|tojson}}
+
     
     $(document).ready(function() {
-    $(".search_account").select2({
-        placeholder: "Select Account",
-        allowClear: true,
-        data: account_data
-    });
 
-    $(".search_account").val(null).change();
+      $(".search_account").select2({
+          placeholder: "Select Account",
+          allowClear: true,
+          data: account_data
+      });
+
+      $(".search_fee_location").select2({
+          data: location_data
+      });
+
+      $(".search_account").val(null).change();
 
     });
 
