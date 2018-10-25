@@ -83,6 +83,16 @@ class Account(db.Model):
 	fee_location_id = db.Column(db.Integer, db.ForeignKey(id, ondelete='SET NULL'), nullable=True)
 	fee_location = db.relationship("Account", backref='accounts', remote_side=[id])
 	splits = db.relationship("Split", secondary=Account_Split, backref=db.backref('accounts'))
+	history = db.relationship('Account_History', back_populates='account')
 
-	
+	def __repr__(self):
+		return '<id = %r, name = %r, account_number= %r, custodian= %r, opening_date= %r, balance= %r>' % (self.id, self.name, self.account_number,self.custodian,self.opening_date,self.balance)
+
+class Account_History(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	account_id= db.Column(db.Integer, db.ForeignKey(Account.id), nullable=False)
+	account = db.relationship("Account", back_populates="history")
+	date = db.Column(db.Date(), unique=False, nullable=True)
+	balance=db.Column(db.Numeric(precision=2), unique=False, nullable=True)
+
 db.create_all()

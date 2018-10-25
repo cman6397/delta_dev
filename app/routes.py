@@ -6,7 +6,7 @@ from sqlalchemy import exc, update
 from app import app
 from app import db
 from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm, Account_DetailsForm, Add_AccountForm, Remove_AccountForm
-from app.models import User, Account, Household, Billing_Group, Fee_Structure, Split, Account_Split
+from app.models import User, Account, Household, Billing_Group, Fee_Structure, Split, Account_Split, Account_History
 from app.content import account_view, household_view, fee_view, dev_view
 from sqlalchemy.orm import aliased
 import datetime,decimal
@@ -89,24 +89,14 @@ def dashboard():
 	top_households=num_serializer(top_households)
 	top_accounts=num_serializer(top_accounts)
 
-	x_vals=[0]
-	y_vals=[1000000]
+	aum_history = db.session.query(Account_History.date,func.sum(Account_History.balance)).group_by(Account_History.date).all()
+	aum_serialized = num_serializer(aum_history)
+	aum_serialized=aum_serialized[0:1]
+	aum_serialized[0][0]=1
+	aum_serialized[0][1]=2
+	print(aum_serialized)
 
-	json_data=[]
-
-	num_days=300
-	rows=[[0,1000000]]
-	for x in range(1,num_days):
-		x_val = x
-		y_val = y_vals[x-1]*(1+random.normal(0.002,0.015))
-
-		x_vals.append(x_val)
-		y_vals.append(y_val)
-
-		json_data.append({'x': x_val,'y': y_val})
-		rows.append([x_val,round(y_val,2)])
-
-	return render_template('dashboard.html',Hchart_data=rows,x_vals=x_vals,y_vals=y_vals,json_data=json_data, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
+	return render_template('dashboard.html',Hchart_data=aum_serialized, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
 
 #********************** HOUSEHOLD **************************
 @app.route('/household_data/')

@@ -1,10 +1,11 @@
 from app import app
 from app import db
-from app.models import Account, Household, Fee_Structure, Billing_Group, Split, Account_Split
+from app.models import Account, Household, Fee_Structure, Billing_Group, Split, Account_Split, Account_History
 from app.content import account_view,household_view
 import random
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+from numpy import random as random_np
 
 names=['Liam','Noah','William','James','Logan','Benjamin','Mason','Elijah','Oliver','Jacob','Lucas','Michael','Alexander','Ethan','Daniel','Matthew','Aiden','Henry',
 'Joseph','Jackson','Samuel','Sebastian','David','Carter','Wyatt','Jayden','John','Owen','Dylan','Luke','Gabriel','Anthony','Isaac','Grayson','Jack','Julian','Levi',
@@ -100,11 +101,11 @@ def generate_billing_groups():
 			db.session.add(billing_group)
 
 
-def random_values():
+def account_values():
 	account = random.randint(1000000,100000000)
 	balance = round(random.uniform(1,10000000),2)
 
-	year = random.randint(2016, 2018)
+	year = random.randint(2016, 2017)
 	month = random.randint(1, 12)
 	day = random.randint(1, 28)
 	date = datetime(year, month, day)
@@ -118,9 +119,9 @@ def generate_accounts():
 	count=0
 	for x in range(0,10):
 		for name in names:
-			account_number,balance,date=random_values()
+			account_number,balance,date=account_values()
 			while account_number in account_numbers:
-				account_number,balance,date=random_values()
+				account_number,balance,date=account_values()
 
 			account_numbers.append(account_number)
 			custodian=random.choice(custodians)
@@ -130,6 +131,22 @@ def generate_accounts():
 
 			account = Account(name=name,account_number=account_number,custodian=custodian,opening_date=date,balance=balance, payment_source=payment_source,household=household,billing_group=billing_group,fee_structure=fee_structure)
 			db.session.add(account)
+
+def generate_history():
+	Account_History.query.delete()
+	accounts = db.session.query(Account).all()
+	for account in accounts:
+		history_helper(account)
+
+def history_helper(account,days=365):
+	balance = float(account.balance)
+	date = datetime(2019, 1, 1)
+
+	for x in range (0,days):
+		account_history=Account_History(account=account,balance=balance,date=date)
+		date = date - timedelta(days=1)
+		balance = balance*(1+random_np.normal(-0.002,0.015))
+		db.session.add(account_history)
 
 def add_fee_locations():
 	accounts=db.session.query(Account).all()[1:5]
@@ -158,6 +175,7 @@ if __name__ == '__main__':
 	generate_splits()
 	add_fee_locations()
 	add_splits()
+	generate_history()
 
 	db.session.commit()
 

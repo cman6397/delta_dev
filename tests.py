@@ -3,7 +3,7 @@ from flask_login import current_user, login_user
 from app import app
 from app import db
 from app.forms import LoginForm
-from app.models import User, Account, Household, Fee_Structure, Billing_Group, Split, Account_Split
+from app.models import User, Account, Household, Fee_Structure, Billing_Group, Split, Account_Split, Account_History
 from passlib.hash import sha256_crypt
 from app.content import account_view
 from flask_sqlalchemy import SQLAlchemy
@@ -134,8 +134,10 @@ def test_splits():
 		account.fee_structure.name, account.splits)
 
 	accounts=accounts_query.all()
-	print(accounts[1])
 
+def test_history():
+	aum_history = db.session.query(Account_History.date,func.sum(Account_History.balance)).group_by(Account_History.date).all()
+	print (aum_history)
 
 
 if __name__ == '__main__':
@@ -164,6 +166,8 @@ if __name__ == '__main__':
 		json_testing()
 
 		test_splits()
+
+		test_history()
 
 	#show_table()
 
