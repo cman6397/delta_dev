@@ -6,6 +6,7 @@ The application is basically a UI on top of a relational database that allows Us
 and maintain relationships between their various accounts.  
 
 Account Groups:
+    
     Accounts: 
     At the lowest level, accounts represent the individual brokerage accounts that are under management by the Investment advisor.
     Each account has an owner, a balance, and a history of trades and positions.  
@@ -21,13 +22,13 @@ Account Groups:
 
 Billing Structures:
     Fee Structures:
-    Fee structures are created through the web application and mapped to Accounts to define billing rates, frequencies, cycles, collection types, 
-    valuation methods and more.  Fee structures can be quickly created, edited, or removed and can be assigned to one or multiple accounts at a time. 
+    
+    Fee structures are created through the web application and mapped to Accounts to define billing rates, frequencies, cycles, collection types, valuation methods and more.  Fee structures can be quickly created, edited, or removed and can be assigned to one or multiple accounts at a time. 
     
     Splits:
     Splits are used to split the fees between different advisors post billing.  Splits are created and assigned in a similar fashion to fee structures.
     
 Billing:
-    When Billing is run, the structures and information in the program are used to generate reports and fees at Account, Household, and Billing Group
-    levels for use of the Investment Advisor.  
+
+    When Billing is run, the structures and information in the program are used to generate reports and fees at Account, Household, and Billing Group levels for use of the Investment Advisor.  
 
