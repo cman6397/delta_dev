@@ -89,14 +89,17 @@ def dashboard():
 	top_households=num_serializer(top_households)
 	top_accounts=num_serializer(top_accounts)
 
-	aum_history = db.session.query(Account_History.date,func.sum(Account_History.balance)).group_by(Account_History.date).all()
-	aum_serialized = num_serializer(aum_history)
-	aum_serialized=aum_serialized[0:1]
-	aum_serialized[0][0]=1
-	aum_serialized[0][1]=2
-	print(aum_serialized)
+	aum_history = db.session.query(Account_History.date,func.sum(Account_History.balance).label('balance')).group_by(Account_History.date).all()
+	
+	days = []
+	aum = []
+	for day_balance in aum_history:
+		date = day_balance.date.strftime("%Y-%m-%d")
+		balance = round(float(day_balance.balance),2)
+		days.append(date)
+		aum.append(balance)
 
-	return render_template('dashboard.html',Hchart_data=aum_serialized, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
+	return render_template('dashboard.html',aum_data=aum, days = days, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
 
 #********************** HOUSEHOLD **************************
 @app.route('/household_data/')

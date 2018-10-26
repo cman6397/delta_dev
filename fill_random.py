@@ -103,7 +103,7 @@ def generate_billing_groups():
 
 def account_values():
 	account = random.randint(1000000,100000000)
-	balance = round(random.uniform(1,10000000),2)
+	balance = round(random.uniform(1000,500000),2)
 
 	year = random.randint(2016, 2017)
 	month = random.randint(1, 12)
@@ -145,7 +145,7 @@ def history_helper(account,days=365):
 	for x in range (0,days):
 		account_history=Account_History(account=account,balance=balance,date=date)
 		date = date - timedelta(days=1)
-		balance = balance*(1+random_np.normal(-0.002,0.015))
+		balance = balance*(1+random_np.normal(-0.001,0.050))
 		db.session.add(account_history)
 
 def add_fee_locations():

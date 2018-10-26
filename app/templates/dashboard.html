@@ -21,9 +21,10 @@
     margin-bottom:40px;
     padding-top:2px;
   }
+
   </style>
   
-   	<div class = "content_container shadow" style="width:95%; margin-top:25px; margin-bottom:25px">
+   	<div class = "content_container shadow" style="width:95%; margin-top:25px; margin-bottom:25px;">
   	  <div id="container" style="width: 97%;"></div>
   	</div>
 
@@ -87,7 +88,8 @@
 
   <Script>
 
-  	var Hchart_data=JSON.parse("{{ Hchart_data|tojson}}")
+		var aum_data=JSON.parse("{{ aum_data|tojson}}")
+		var days={{ days|tojson}}
 
   	create_chart()
 
@@ -110,8 +112,9 @@
           }
 	      },
 	      xAxis: {
-	        //type: 'datetime'
-	      },
+				categories: days,
+				tickInterval: 15
+    		},
 	      yAxis: {
 	        title: {
 	          text: 'AUM (Millions)'
@@ -119,7 +122,8 @@
 	        labels: {formatter: function() {
 	          	return this.value / 1000000 + 'M';
 	        	}
-	        }
+					}
+					
 	      },
 	      legend: {
 	        enabled: false
@@ -158,7 +162,7 @@
 	        name: 'AUM',
 	        lineColor: Highcharts.getOptions().colors[1],
 	        color: Highcharts.getOptions().colors[1],
-	        data: Hchart_data,
+	        data: aum_data,
 	      }]
 	    });
    }
