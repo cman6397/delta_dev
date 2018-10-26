@@ -7,7 +7,6 @@ from app import app
 from app import db
 from app.forms import LoginForm, Fee_StructureForm, Billing_GroupForm, SplitForm, Account_DetailsForm, Add_AccountForm, Remove_AccountForm
 from app.models import User, Account, Household, Billing_Group, Fee_Structure, Split, Account_Split, Account_History
-from app.content import account_view, household_view, fee_view, dev_view
 from sqlalchemy.orm import aliased
 import datetime,decimal
 
