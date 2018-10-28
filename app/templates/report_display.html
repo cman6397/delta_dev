@@ -1,0 +1,142 @@
+{% extends "header.html" %}
+
+{% block body %}
+<style>
+
+table.dataTable td {
+    white-space: nowrap; 
+    font-size:14px;
+    padding-left:10px !important;
+    padding-right:10px !important;
+}
+.table_container {
+    /*margin-top:30px;*/
+}
+h1
+{
+  font-size:30px;
+  margin-bottom:0px;
+}
+thead th 
+{ 
+    white-space: nowrap; 
+}
+.dataTables_filter {
+position: relative;
+float: right;
+}
+
+.dataTables_length {
+margin-right:15px;
+margin-top:6px;
+}
+
+thead input {
+    font-size:13px;
+    font-weight:150;
+    width: 105%;
+    text-indent: 3px;
+}
+.Nav_Buttons{
+    text-align:left;
+    margin:5px;
+    margin-left:60px;
+}
+
+</style>
+
+<div class = "Nav_Buttons">
+    <!-- <button type="button" id="run_billing" class="btn btn-primary btn-sm" > Recalculate Fees </button> -->
+</div>
+
+<div class="table_container shadow">
+
+    <table id="table" class="display compact cell-border" style="width:100%">
+
+    </table>
+
+</div>
+
+<script>
+$( document ).ready( function( $ ) 
+{
+    var tableHeaders="";
+    $.each({{ columns|tojson}}, function(i, val){
+    tableHeaders += "<th>" + val.name + "</th>";
+    });     
+  
+    $("#table").empty();
+    $("#table").append('<thead><tr>' + tableHeaders + '</tr> <tr>' + tableHeaders +'</tr><thead>');
+
+    $('#table thead tr:eq(1) th').each( function (i) {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="&#xF002;" style="font-family:FontAwesome"/> ');
+        //$(this).html( '<input type="text" placeholder="Search" />' );
+ 
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search( this.value )
+                    .draw();
+            }
+        });
+    });
+
+        var table=$('#table').DataTable({
+            "ajax": {
+                "url": {{ data_link|tojson }},  
+                "dataType": "json",
+                "dataSrc": "data",
+                "contentType":"application/json"
+            },
+            "orderCellsTop": true,
+            "columns":{{ columns|tojson }},
+            "oLanguage": {"sSearch": "Search All"},
+            "scrollY": "65vh",
+            "scrollX": true, 
+            "scrollCollapse": true,
+            "pageLength" : 100,
+            "lengthMenu": [[25, 50, 100, 500,-1], [25, 50, 100, 500, "All"]],
+            "dom":'<lB<f<t>ip>>',
+            "columnDefs": [
+                {
+                "targets":   0,
+                "orderable": false,
+                "visible": false,
+                },
+                {
+                "targets":   1,
+                "render": function ( data, type, row, meta ) {
+                    return '<a href="'+row.id+'">'+ data + '</a>';
+                    }
+                }
+                ],
+            buttons: 
+            {
+                dom: {
+                button: {
+                    tag:'button',
+                    className:''
+                    }
+                },
+                "buttons":
+                [
+                    {
+                       extend:"csv",
+                       className:"btn btn-secondary"
+                    },
+                    {
+                        extend:"excel",
+                        className:"btn btn-secondary"
+                    }
+                ]
+            }
+        });
+    });
+
+
+</script>
+
+
+{% endblock %}
