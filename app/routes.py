@@ -10,6 +10,13 @@ from app.models import User, Account, Household, Billing_Group, Fee_Structure, S
 from sqlalchemy.orm import aliased
 import datetime,decimal
 
+# This project was a little too ambitious for my first try at writing an application.  I should have written it slowly and focused more on the 
+#structure than the front end result.  If I were to do it again I would have spent more time looking at other people's flask applications and seeing how
+#they structured their applications. By the end of the project I was really unhappy with the structure and just wanted to scrap it and work on something
+#else.  I learned that thinking about the application's architecture and datastructures is the most important part of the project. I think I am doing a much
+#better job on the chess program I am wrtiting mostly because of this experience.   
+
+#These encoders shouldn't be here.  I should create a seperate file to handle all of the sql queries and encoding.  
 def alchemyencoder(obj):
 	if isinstance(obj, datetime.date):
 		return obj.isoformat()
@@ -65,7 +72,9 @@ def main():
 	return redirect (url_for('login'))
 
 #********************** DASHBOARD **************************
-
+#Again I should move the SQL out of the routes and into its own file where all of the queries are together.
+#I also don't like the way I pass information to the template. Maybe putting all the information into a dictionary and 
+#putting all the dictionaries in a content management file would have made it cleaner.
 @app.route('/dashboard/')
 @login_required
 def dashboard():
@@ -101,6 +110,8 @@ def dashboard():
 	return render_template('dashboard.html',aum_data=aum, days = days, top_households=top_households, household_columns=household_columns, top_accounts=top_accounts, account_columns=account_columns)
 
 #********************** HOUSEHOLD **************************
+#This was my general structure for endpoints where I displayed data from tables.  I should have a query class or something with each of the queries
+#I make at the endpoints and then call them from this file.  
 @app.route('/household_data/')
 @login_required
 def household_data():
@@ -204,7 +215,7 @@ def account():
 				db.session.rollback()
 
 	return render_template('account_display.html',fee_structures=fee_structures_json, billing_groups=billing_groups_json, data_link=url_for('account_data'), page_link = url_for('account'), columns=columns, title='Accounts')
-
+#The account endpoints are very large.
 @app.route('/account/<int:id>', methods=['GET', 'POST'])
 @login_required
 def account_details(id):
@@ -368,7 +379,6 @@ def billing_group():
 			return redirect(url_for('billing_group'))
 
 	return render_template('billing_display.html', data_link=url_for('billing_group_data'), page_link = url_for('billing_group'), create_link = url_for('billing_group'), columns=columns, title='Billing Groups', billing_form=billing_form)
-
 
 @app.route('/billing_group/<int:id>',methods=['GET', 'POST'])
 @login_required
