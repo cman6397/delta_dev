@@ -3,7 +3,7 @@
 ## Summary:
 Delta_Dev is a web application designed for managing account billing for Investment Advisors.
 The application is basically a UI on top of a relational database that allows Users to modify 
-and maintain relationships between their various accounts.  
+and maintain relationships between accounts and fees.  
 
 ## Account Groups:
 
