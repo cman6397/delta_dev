@@ -2,10 +2,10 @@
 
 ## Installation:
 clone from github. Set up a virtual environment with python 3.x.  Install requirements in requirements.txt.  
-Set Flask variable: (export FLASK_APP=delta_billing.py). 
-Run fill_random.py.  
-Run tests.py. 
-Start the application: flask run 
+Set Flask variable: (export FLASK_APP=delta_billing.py). Run fill_random.py.  Run tests.py. 
+Start the application: flask run.
+
+Login using username:admin, password:1234
 
 ##
 The application was never finished.  This was a learning project intended to address a problem of someone close to me who is an investment advisor.  It was my first attempt at an application.
