@@ -7,6 +7,8 @@ Run fill_random.py.
 Run tests.py. 
 Start the application: flask run 
 
+##
+The application was never finished.  This was a learning project intended to address a problem of someone close to me who is an investment advisor.  It was my first attempt at an application.
 
 ## Summary:
 Delta_Dev is a web application designed for managing account billing for Investment Advisors.
