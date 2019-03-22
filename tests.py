@@ -5,7 +5,6 @@ from app import db
 from app.forms import LoginForm
 from app.models import User, Account, Household, Fee_Structure, Billing_Group, Split, Account_Split, Account_History
 from passlib.hash import sha256_crypt
-from app.content import account_view
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func, label
 import warnings
@@ -33,8 +32,6 @@ def remove_user(username):
 
 def show_table():
 	table = Account.query.all()
-	for key in account_view:
-		print(account_view[key])
 
 def login_user(username,password):
 	logged_in = False

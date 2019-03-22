@@ -1,7 +1,6 @@
 from app import app
 from app import db
 from app.models import Account, Household, Fee_Structure, Billing_Group, Split, Account_Split, Account_History
-from app.content import account_view,household_view
 import random
 import time
 from datetime import datetime, timedelta

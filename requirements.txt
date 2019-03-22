@@ -3,7 +3,6 @@ Flask==1.0.2
 Flask-Login==0.4.1
 Flask-SQLAlchemy==2.3.2
 Flask-WTF==0.14.2
-ItsDangerous==1.0.0
 Jinja2==2.10
 MarkupSafe==1.0
 numpy==1.15.3
